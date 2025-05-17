@@ -6,7 +6,7 @@
     </button>
 
     <a class="navbar-nav d-none d-md-flex ms-auto" href="{{url('/')}}">
-            <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo lulus bersama" width="60px">
+            <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo jenius CPNS" width="60px">
     </a>
 
     <div class="navbar-nav ml-auto d-none d-md-flex nav-dashboard">
@@ -15,8 +15,6 @@
         <a href="{{ url('pengguna') }}" class="nav-item nav-link {{ Request::is('pengguna') ? 'active' : '' }}">Pengguna</a>
         <div class="topbar-divider d-none d-sm-block mx-0"></div>
         <a href="{{ url('setsoal') }}" class="nav-item nav-link {{ Request::is('setsoal') || Request::is('soal/*') ? 'active' : '' }}">Tryout SKD</a>
-        <div class="topbar-divider d-none d-sm-block mx-0"></div>
-        <a href="{{ url('skb/setsoal') }}" class="nav-item nav-link {{ Request::is('skb/setsoal') || Request::is('skb/soal/*') ? 'active' : '' }}">Tryout SKB</a>
         <div class="topbar-divider d-none d-sm-block mx-0"></div>
         <a href="{{ url('transaksi') }}" class="nav-item nav-link {{ Request::is('transaksi') ? 'active' : '' }}">Transaksi</a>
     </div>

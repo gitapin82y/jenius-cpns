@@ -4,17 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\SoalController;
-use App\Http\Controllers\SkbSoalController;
 use App\Http\Controllers\SetSoalController;
-use App\Http\Controllers\SkbSetSoalController;
 use App\Http\Controllers\PaketController;
-use App\Http\Controllers\SkbPaketController;
 use App\Http\Controllers\HasilTryoutController;
-use App\Http\Controllers\SkbHasilTryoutController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TryoutController;
-use App\Http\Controllers\SkbTryoutController;
 use App\Http\Controllers\DependantDropdownController;
 use App\Http\Controllers\MailController;
 
@@ -69,25 +64,4 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/transaksi/{id}', [PembelianController::class, 'update']);
 Route::post('/beli-paket/{paketId}', [PembelianController::class, 'beliPaket'])->name('beliPaket');
 Route::get('/payment-success/{id}', [PembelianController::class, 'paymentSuccess'])->name('paymentSuccess');
-});
-
-Route::middleware(['auth'])->prefix('skb')->group(function () {
-    Route::resource('/setsoal', SkbSetSoalController::class,['as' => 'skb']);
-    Route::post('/setsoal/{id}', [SkbSetSoalController::class, 'update']);
-    Route::post('setsoal/change-status/{id}', [SkbSetSoalController::class, 'changeStatus']);
-
-    Route::resource('paket', SkbPaketController::class);
-    Route::post('paket/change-status/{id}', [SkbPaketController::class, 'changeStatus']);
-
-    Route::get('soal/{id}', [SkbSoalController::class, 'index'])->name('skb.soal.index');
-    Route::resource('soal', SkbSoalController::class,['as' => 'skb'])->except(['show','index']);
-    Route::post('/soal/{id}', [SkbSoalController::class, 'update'])->name('skb.soal.update');
-    Route::get('/soal', function () {
-        return redirect()->back();
-    });
-    
-    Route::get('/tryout', [SkbSetSoalController::class, 'public']);
-    Route::get('/tryout/{set_soal}', [SkbTryoutController::class, 'index'])->name('skb.tryout.index');
-    Route::post('/tryout/submit', [SkbTryoutController::class, 'submit'])->name('skb.tryout.submit');
-    Route::get('/tryout/result/{set_soal}', [SkbTryoutController::class, 'result'])->name('skb.tryout.result');
 });

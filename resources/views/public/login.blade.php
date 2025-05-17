@@ -15,9 +15,9 @@
         <div class="p-5">
             <div class="text-center">
                 <a href="{{url('/')}}">
-                    <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo lulus bersama" width="80px">
+                    <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo jenius CPNS" width="80px">
                 </a>
-                <h4 class="h4 text-gray-900 my-3">Welcome Back, Login</h4>
+                <h4 class="h4 text-gray-900 my-3">Selamat Datang, Login</h4>
             </div>
             <form action="{{ url('login') }}" method="POST" class="user">
                 @csrf

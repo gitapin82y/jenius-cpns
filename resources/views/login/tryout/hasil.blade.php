@@ -224,7 +224,7 @@
                 <input type="hidden" class="form-control" id="email" name="email" value="{{Auth::user()->email}}">
         <div class="col-12">
             <div class="form-floating">
-                <textarea class="form-control" required placeholder="Kirim penilaian berupa kritik atau saran dan pengalaman anda menggunakan lulus bersama" id="message" name="message" style="height: 160px"></textarea>
+                <textarea class="form-control" required placeholder="Kirim penilaian berupa kritik atau saran dan pengalaman anda menggunakan jenius CPNS" id="message" name="message" style="height: 160px"></textarea>
                 <label for="message">Penilaian (Kritik/Saran)</label>
             </div>
         </div>

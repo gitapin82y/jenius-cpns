@@ -5,8 +5,8 @@
         {{-- <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-laugh-wink"></i>
         </div>
-        <div class="sidebar-brand-text mx-3">Lulus Bersama</div> --}}
-        <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo lulus bersama" width="60px">
+        <div class="sidebar-brand-text mx-3">Jenius CPNS</div> --}}
+        <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo jenius CPNS" width="60px">
     </a>
 
     <!-- Divider -->
@@ -34,15 +34,6 @@
             <span>Tryout SKD</span></a>
         </li>
 
-        <hr class="sidebar-divider my-0">
-        <!-- Nav Item - Charts -->
-        <li class="nav-item {{Request::is('skb/setsoal') || Request::is('skb/soal/*') ? 'active' : ''}}">
-         <a class="nav-link" href="{{url('setsoal')}}">
-            <i class="fas fa-file-alt"></i>
-             <span>Tryout SKB</span></a>
-         </li>
-
-    <hr class="sidebar-divider my-0">
     <!-- Nav Item - Pages Collapse Menu -->
     <hr class="sidebar-divider my-0">
     <!-- Nav Item - Charts -->

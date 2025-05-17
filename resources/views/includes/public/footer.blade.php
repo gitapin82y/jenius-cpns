@@ -6,7 +6,7 @@
                   <div class="col-md-4 col-xl-5">
                       <div class="footer-item d-flex flex-column">
                           <div class="footer-item">
-                              <h2 class="text-white mb-4">Lulus Bersama</h2>
+                              <h2 class="text-white mb-4">Jenius CPNS</h2>
                               <p class="mb-3 text-white">Platform yang menyediakan tryout TES SKD CASN baik gratis maupun berbayar, dirancang untuk membantu kamu mempersiapkan diri secara optimal.</p>
                           </div>
                       </div>
@@ -25,9 +25,9 @@
                   <div class="col-md-4 col-xl-3">
                       <div class="footer-item d-flex flex-column text-white">
                           <h4 class="text-white mb-4">Contact Info</h4>
-                          <a href="#"><i class="fas fa-envelope me-2"></i> admin@lulusbersama.com</a>
-                          <a href="#"><i class="fas fa-phone me-2"></i>  085141210513</a>
-                          <a href="https://www.instagram.com/lulusbersama?igsh=MXcwdGpxazBrdHh6Yg==" target="_blank"><i class="fab fa-instagram me-2"></i>  @lulusbersama</a>
+                          <a href="#"><i class="fas fa-envelope me-2"></i> admin@jeniuscpns.com</a>
+                          <a href="#"><i class="fas fa-phone me-2"></i>  081231548925</a>
+                          <a href="https://www.instagram.com/jeniuscpns?igsh=MXcwdGpxazBrdHh6Yg==" target="_blank"><i class="fab fa-instagram me-2"></i>  @jeniuscpns</a>
                     
                       </div>
                   </div>
@@ -42,7 +42,7 @@
           <div class="container">
               <div class="row g-4 align-items-center">
                   <div class="col-md-6 text-center text-md-start mb-md-0">
-                      <span class="text-body"><a href="#" class="border-bottom text-primary" style="><i class="fas fa-copyright text-light me-2"></i>Lulus Bersama</a>, All right reserved.</span>
+                      <span class="text-body"><a href="#" class="border-bottom text-primary" style="><i class="fas fa-copyright text-light me-2"></i>Jenius CPNS</a>, All right reserved.</span>
                   </div>
                   <div class="col-md-6 text-center text-md-end text-body">
                       Designed By <a class="border-bottom text-primary" href="https://htmlcodex.com">HTML Codex</a> Distributed By <a class="border-bottom text-primary" href="https://themewagon.com">ThemeWagon</a>

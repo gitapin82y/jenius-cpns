@@ -1,6 +1,6 @@
 @extends('layouts.public')
  
-@section('title', 'Tryout CPNS TES SKD CASN Gratis - Lulus Bersama')
+@section('title', 'Tryout CPNS TES SKD CASN Gratis - Jenius CPNS')
 
 @push('after-style')
 
@@ -11,12 +11,12 @@
     <div class="header-carousel owl-carousel">
         <div class="header-carousel-item">
             <div class="header-carousel-item-img-1">
-                <img src="{{asset('assets/img/carousel-4.jpg')}}" class="img-fluid w-100" alt="Tryout CPNS TES SKD CASN Gratis - Lulus Bersama">
+                <img src="{{asset('assets/img/carousel-4.jpg')}}" class="img-fluid w-100" alt="Tryout CPNS TES SKD CASN Gratis - Jenius CPNS">
             </div>
             <div class="carousel-caption">
                 <div class="carousel-caption-inner text-center p-3">
-                    <h1 class="display-4 text-capitalize text-white mb-4 fadeInUp animate__animated" data-animation="fadeInUp" data-delay="1.3s" style="animation-delay: 1.3s;">Tryout CPNS TES SKD CASN Gratis - Lulus Bersama</h1>
-                    <p class="mb-5 fs-5 fadeInUp animate__animated" data-animation="fadeInUp" data-delay="1.5s" style="animation-delay: 1.5s;">Ikuti lulus bersama tryout CPNS secara gratis atau berbayar untuk mempersiapkan dirimu menghadapi TES SKD CASN dengan percaya diri.
+                    <h1 class="display-4 text-capitalize text-white mb-4 fadeInUp animate__animated" data-animation="fadeInUp" data-delay="1.3s" style="animation-delay: 1.3s;">Tryout CPNS TES SKD CASN Gratis - Jenius CPNS</h1>
+                    <p class="mb-5 fs-5 fadeInUp animate__animated" data-animation="fadeInUp" data-delay="1.5s" style="animation-delay: 1.5s;">Ikuti jenius CPNS tryout CPNS secara gratis atau berbayar untuk mempersiapkan dirimu menghadapi TES SKD CASN dengan percaya diri.
                     </p>
                     @auth
                     <a href="{{ url('/tryout') }}" class="btn btn-primary rounded-pill py-3 px-5 mb-4 me-4 fadeInUp animate__animated" data-animation="fadeInUp" data-delay="1.5s" style="animation-delay: 1.7s;">Akses Tryout</a>
@@ -78,8 +78,8 @@
                 </div>
                 <div class="col-lg-6 col-xl-7 wow fadeInRight" data-wow-delay="0.3s">
                     <strong class="text-primary">About</strong>
-                    <h2 class="display-5 mb-4">Tentang Lulus Bersama</h2>
-                    <p class="text ps-4 mb-4">Lulus Bersama adalah platform yang menyediakan tryout TES SKD CASN baik gratis maupun berbayar, dirancang untuk membantu kamu mempersiapkan diri secara optimal.
+                    <h2 class="display-5 mb-4">Tentang Jenius CPNS</h2>
+                    <p class="text ps-4 mb-4">Jenius CPNS adalah platform yang menyediakan tryout TES SKD CASN baik gratis maupun berbayar, dirancang untuk membantu kamu mempersiapkan diri secara optimal.
                     </p>
                     <div class="row g-4 justify-content-between mb-5">
                         <div class="col-lg-6 col-xl-5">
@@ -147,194 +147,6 @@
     </div>
     <!-- About End -->
 
-
-    <!-- paket nonskb -->
-    <div class="container-fluid service py-5" id="paket-tryout">
-        <div class="container py-5">
-            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
-                <h2 class="display-4">Paket Tryout SKD</h2>
-                <p class="text mb-4">Tersedia pilihan paket tryout gratis dan berbayar dengan akses member selama 6 bulan, akses ribuan soal kapanpun dan dimanapun, setiap 1 set soal menampilkan 110 jumlah soal yang dapat melatih, mengembangkan dan mengukur kemampuan, Sesuaikan kebutuhanmu dengan beberapa paket pilihan lulus bersama, Daftar Sekarang!! </p>
-            </div>
-            @php
-            $userCanAccessFree = false;
-                if (auth()->check()) {
-                    $isAkses = auth()->user()->is_akses;
-                    $userCanAccessFree = $isAkses == 1; // Paket Ceban ID is 2
-                }
-            @endphp
-            <div class="row g-4 justify-content-center text-left">
-                <div class="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="service-item bg-light rounded">
-                        <div class="service-img">
-                            <img src="{{asset('assets/img/service-1.jpg')}}" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="service-content text-left p-4">
-                            <div class="service-content-inner">
-                                <a href="#" class="h4 d-inline-flex text-left">Paket Free</a>
-                                <p class="h5 text-dark mb-3 mt-2 harga_paket">Rp0,00</p>
-                                <p class="text-dark mb-3"><i class="fas fa-times-circle text-danger"></i> Akses Pembahasan Soal</p>
-                                <p class="type_paket d-none">nonskb</p>
-                                <p class="paket_id d-none">1</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> <strong>1</strong> Set Soal SKD CASN</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-warning"></i> Riwayat Hasil Nilai <small class="text-success">(Sekali Lihat)</small></p>
-                                <p class="text-dark mb-3"><i class="fas fa-times-circle text-danger"></i> Grafik Statistik Skor <small class="text-success">(TWK, TIU, TKP)</small></p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-warning"></i> Akses Hanya 1x <small class="text-success">(Paket Free)</small></p>
-
-                                @if ($userCanAccessFree)
-                                <a class="btn btn-light rounded-pill py-2 px-4 mt-2" href="{{ url('/tryout') }}">Akses Tryout</a>
-                                @else
-                                <a class="btn btn-light rounded-pill py-2 px-4 mt-2 daftar-sekarang" href="#" data-bs-toggle="modal" data-bs-target="#daftarModal">Daftar Sekarang</a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @php
-                    $userCanAccessCeban = false;
-                    if (auth()->check()) {
-                        $userPaketId = auth()->user()->paket_id;
-                        $userCanAccessCeban = $userPaketId >= 2; // Paket Ceban ID is 2
-                    }
-                @endphp
-                <div class="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.3s">
-                    <div class="service-item bg-light rounded">
-                        <div class="service-img">
-                            <img src="{{asset('assets/img/service-2.jpg')}}" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="service-content text-left p-4">
-                            <div class="service-content-inner">
-                                <a href="#" class="h4 d-inline-flex text-left">Paket <span class="nama_paket ms-2">Ceban</span></a>
-                                <p class="h5 text-dark mb-3 mt-2 harga_paket">Rp10.000,00</p>
-                                <p class="type_paket d-none">nonskb</p>
-                                <p class="paket_id d-none">2</p>
-                                 <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Akses Pembahasan Soal</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> <strong>5</strong> Set Soal SKD CASN</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Riwayat Hasil Nilai <small class="text-success">(Lihat Kapanpun)</small></p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Grafik Statistik Skor <small class="text-success">(TWK, TIU, TKP)</small></p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Full Akses 6 Bulan <small class="text-success">(Paket Free, Ceban)</small></p>
-                                @if ($userCanAccessCeban)
-                                    <a class="btn btn-light rounded-pill py-2 px-4 mt-2 pesan-sekarang" href="{{ url('/tryout') }}">Akses Tryout</a>
-                                @else
-                                <a class="btn btn-light rounded-pill py-2 px-4 mt-2 pesan-sekarang" href="#" data-bs-toggle="modal" data-bs-target="#pesanModal">Pesan Sekarang</a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @php
-                $userCanAccessSaban = false;
-                if (auth()->check()) {
-                    $userPaketId = auth()->user()->paket_id;
-                    $userCanAccessSaban = $userPaketId >= 3; // Paket Saban ID is 3
-                }
-            @endphp
-                <div class="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.5s">
-                    <div class="service-item bg-light rounded">
-                        <div class="service-img">
-                            <img src="{{asset('assets/img/service-4.jpg')}}" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="service-content text-left p-4">
-                            <div class="service-content-inner">
-                                <a href="#" class="h4 d-inline-flex text-left">Paket <span class="nama_paket ms-2">Saban</span></a>
-                                <p class="h5 text-dark mb-3 mt-2 harga_paket">Rp30.000,00</p>
-                                <p class="type_paket d-none">nonskb</p>
-                                <p class="paket_id d-none">3</p>
-                                 <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Akses Pembahasan Soal</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> <strong>20</strong> Set Soal SKD CASN</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Riwayat Hasil Nilai <small class="text-success">(Lihat Kapanpun)</small></p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Grafik Statistik Skor <small class="text-success">(TWK, TIU, TKP)</small></p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Full Akses 6 Bulan <small class="text-success">(Paket Free, Ceban, Saban)</small></p>
-
-                                @if ($userCanAccessSaban)
-                                <a class="btn btn-light rounded-pill py-2 px-4 mt-2 pesan-sekarang" href="{{ url('/tryout') }}">Akses Tryout</a>
-                            @else
-                            <a class="btn btn-light rounded-pill py-2 px-4 mt-2 pesan-sekarang" href="#" data-bs-toggle="modal" data-bs-target="#pesanModal">Pesan Sekarang</a>
-                            @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @php
-                $userCanAccessGocap = false;
-                if (auth()->check()) {
-                    $userPaketId = auth()->user()->paket_id;
-                    $userCanAccessGocap = $userPaketId >= 4;
-                }
-                @endphp
-                <div class="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.7s">
-                    <div class="service-item bg-light rounded">
-                        <div class="service-img">
-                            <img src="{{asset('assets/img/service-3.jpg')}}" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="service-content text-left p-4">
-                            <div class="service-content-inner">
-                                <a href="#" class="h4 d-inline-flex text-left">Paket <span class="nama_paket ms-2">Gocap</span></a>
-                                <p class="h5 text-dark mb-3 mt-2 harga_paket">Rp50.000,00</p>
-                                <p class="type_paket d-none">nonskb</p>
-                                <p class="paket_id d-none">4</p>
-                                 <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Akses Pembahasan Soal</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> <strong>50</strong> Set Soal SKD CASN</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Riwayat Hasil Nilai <small class="text-success">(Lihat Kapanpun)</small></p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Grafik Statistik Skor <small class="text-success">(TWK, TIU, TKP)</small></p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Full Akses 6 Bulan <small class="text-success">(Semua Paket)</small></p>
-
-                                @if ($userCanAccessGocap)
-                                <a class="btn btn-light rounded-pill py-2 px-4 mt-2 pesan-sekarang" href="{{ url('/tryout') }}">Akses Tryout</a>
-                            @else
-                            <a class="btn btn-light rounded-pill py-2 px-4 mt-2 pesan-sekarang" href="#" data-bs-toggle="modal" data-bs-target="#pesanModal">Pesan Sekarang</a>
-                            @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- end paket nonskb -->
-
-
-     <!-- paket skb -->
-     <div class="container-fluid service py-5" id="paket-tryout-skb">
-        <div class="container py-5">
-            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
-                <h2 class="display-4">Paket Tryout SKB</h2>
-                <p class="text mb-4">Persiapkan diri untuk lulus seleksi CPNS dengan Paket Tryout SKB! Setiap paket formasi dirancang khusus untuk membantu Anda memahami materi sesuai dengan jabatan yang Anda lamar. Dengan masa aktif selama 6 bulan!!.</p>
-            </div>
-            @php
-                use App\Models\SkbPaket;
-                $pakets = SkbPaket::where('status','publish')->get();
-            @endphp
-            <div class="row g-4 justify-content-center text-left">
-                @foreach($pakets as $paket)
-                <div class="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="service-item bg-light rounded">
-                        <div class="service-content text-left p-4">
-                            <div class="service-content-inner">
-                                <a href="javascript:void(0)" class="p d-inline-flex text-left"><span class="nama_paket">{{ $paket->nama_paket ?? 'Nama Paket' }}</span></a>
-                                <p class="type_paket d-none">skb</p>
-                                <p class="paket_id d-none">{{$paket->id}}</p>
-                                <p class="h5 text-dark mb-3 mt-2 harga_paket">Rp{{ number_format($paket->harga ?? 0, 2, ',', '.') }}</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Akses Pembahasan Soal</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> <strong>{{ $paket->jumlah_set}}</strong> Set Soal SKB</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Riwayat Hasil Nilai</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Grafik Statistik Skor</p>
-                                <p class="text-dark mb-3"><i class="fas fa-check-circle text-success"></i> Akses 6 Bulan</p>
-
-                                @if (Auth::user() && $paketAktif->contains('id', $paket->id))
-                                    <a class="btn btn-light rounded-pill py-2 px-4 mt-2 pesan-sekarang" href="{{ url('/skb/tryout') }}">Akses Tryout</a>
-                                @else
-                                <a class="btn btn-light rounded-pill py-2 px-4 mt-2 pesan-sekarang" href="#" data-bs-toggle="modal" data-bs-target="#pesanModal">Pesan Sekarang</a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-    <!-- end paket skb -->
-
     <!-- Testimonial Start -->
     <div class="container-fluid testimonial bg-light py-5">
         <div class="container py-5">
@@ -343,7 +155,7 @@
                     <div class="h-100 rounded">
                         <strong class="text-primary">Testimoni</strong>
                         <h2 class="display-4 mb-4">Apa Kata Mereka?</h2>
-                        <p class="mb-4">Lihat apa yang dikatakan pengguna kami tentang pengalaman mereka dengan Lulus Bersama.</p>
+                        <p class="mb-4">Lihat apa yang dikatakan pengguna kami tentang pengalaman mereka dengan Jenius CPNS.</p>
                         {{-- <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="#">Read All Reviews <i class="fas fa-arrow-right ms-2"></i></a> --}}
                     </div>
                 </div>
@@ -384,7 +196,7 @@
                         <div class="testimonial-item bg-white rounded p-4 wow fadeInUp" data-wow-delay="0.7s">
                             <div class="d-flex">
                                 <div><i class="fas fa-quote-left fa-3x text-dark me-3"></i></div>
-                                <p class="mt-4">Lulus Bersama membuat persiapan SKD jadi lebih mudah dan terstruktur.
+                                <p class="mt-4">Jenius CPNS membuat persiapan SKD jadi lebih mudah dan terstruktur.
                                 </p>
                             </div>
                             <div class="d-flex justify-content-end">

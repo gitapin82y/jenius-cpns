@@ -12,13 +12,13 @@
                   <div class="col-lg-8 text-center text-lg-start mb-lg-0">
                       <div class="d-flex flex-wrap">
                           {{-- <a href="#" class="text-white me-4"><i class="fas fa-map-marker-alt text-primary me-2"></i>Find A Location</a> --}}
-                          <a href="#" class="text-white me-4"><i class="fas fa-phone-alt text-primary me-2"></i>085141210513</a>
-                          <a href="#" class="text-white me-0"><i class="fas fa-envelope text-primary me-2"></i>admin@lulusbersama.com</a>
+                          <a href="#" class="text-white me-4"><i class="fas fa-phone-alt text-primary me-2"></i>081231548925</a>
+                          <a href="#" class="text-white me-0"><i class="fas fa-envelope text-primary me-2"></i>admin@jeniuscpns.com</a>
                       </div>
                   </div>
                   <div class="col-lg-4 text-center text-lg-end">
                       <div class="d-flex align-items-center justify-content-end">
-                          <a href="https://www.instagram.com/lulusbersama?igsh=MXcwdGpxazBrdHh6Yg==" target="_blank" class="btn btn-primary btn-square rounded-circle nav-fill me-3"><i class="fab fa-instagram text-white"></i></a>
+                          <a href="https://www.instagram.com/jeniuscpns?igsh=MXcwdGpxazBrdHh6Yg==" target="_blank" class="btn btn-primary btn-square rounded-circle nav-fill me-3"><i class="fab fa-instagram text-white"></i></a>
                           {{-- <a href="#" class="btn btn-primary btn-square rounded-circle nav-fill me-3"><i class="fab fa-facebook-f text-white"></i></a> --}}
                           {{-- <a href="#" class="btn btn-primary btn-square rounded-circle nav-fill me-3"><i class="fab fa-twitter text-white"></i></a> --}}
                           {{-- <a href="#" class="btn btn-primary btn-square rounded-circle nav-fill me-0"><i class="fab fa-linkedin-in text-white"></i></a> --}}
@@ -37,9 +37,9 @@
           <div class="container px-0">
               <nav class="navbar navbar-expand-lg navbar-dark bg-white py-3 px-4">
                   <a href="{{url('/')}}" class="navbar-brand p-0">
-                      {{-- <h3 class="text-primary m-0"><i class="fas fa-donate me-3"></i>Lulus Bersama</h4> --}}
+                      {{-- <h3 class="text-primary m-0"><i class="fas fa-donate me-3"></i>Jenius CPNS</h4> --}}
                       <!-- <img src="img/logo.png" alt="Logo"> -->
-                      <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo lulus bersama" width="60px">
+                      <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo jenius CPNS" width="60px">
                   </a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                       <span class="fa fa-bars"></span>
@@ -48,11 +48,9 @@
                       <div class="navbar-nav ms-auto py-0">
                           <a href="{{ url('/') }}" class="nav-item nav-link {{Request::is('/') ? 'active' : ''}}">Beranda</a>
                           <a href="{{ url('/#tentang') }}" class="nav-item nav-link">Tentang Kami</a>
-                          <a href="{{ url('/#paket-tryout') }}" class="nav-item nav-link">Paket Tryout</a>
                           <a href="{{ url('/kontak') }}" class="nav-item nav-link {{Request::is('kontak') ? 'active' : ''}}">Kontak</a>
                           @auth
                           <a href="{{ url('/tryout') }}" class="nav-item nav-link {{Request::is('tryout') ? 'active' : ''}}">Tryout SKD</a>
-                          <a href="{{ url('/skb/tryout') }}" class="nav-item nav-link {{Request::is('skb/tryout') ? 'active' : ''}}">Tryout SKB</a>
                           @endauth
                       </div>
                       <div class="d-flex align-items-center flex-nowrap pt-xl-0">

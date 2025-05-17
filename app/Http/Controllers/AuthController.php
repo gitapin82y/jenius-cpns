@@ -66,35 +66,6 @@ class AuthController extends Controller
             return redirect('/tryout');
         }
     }
-
-    public function formulir(Request $request)
-    {
-        $request->validate([
-            'nama_paket' => 'required|string|max:255',
-        ]);
-
-        $paket = Paket::where('nama_paket', 'Free')->first();
-        
-        if (!$paket) {
-            return redirect()->back()->with('error', 'Paket tidak ditemukan.');
-        }
-
-        $user = Pembelian::create([
-            'user_id' => Auth::user()->id,
-            'paket_id' => $paket->id,
-            'snap_token' => rand(),
-            'nama_paket' => $paket->nama_paket,
-            'type_paket' => 'nonskb',
-            'harga' => 0,
-            'tanggal_daftar' => Carbon::now(),
-            'tanggal_selesai' => Carbon::now()->addMonths(6),
-        ]);
-
-        $nomorAdmin = '6285141210513';
-        $pesanTemplate = "Halo, saya ingin konfirmasi pendaftaran akun paket FREE. Nama: {$request->name} Email: {$request->email}";
-
-        return redirect()->away("https://wa.me/{$nomorAdmin}?text=" . urlencode($pesanTemplate));
-    }
         
     // Login
     public function view_login(Request $request)
@@ -137,11 +108,6 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|string|min:8|confirmed',
         ]);
-
-        Mail::raw('This is a test email', function ($message) {
-            $message->to('recipient@example.com')
-                    ->subject('Test Email');
-        });
 
         return response()->json(['message' => 'konfirmasi email reset password'], 200);
     }
