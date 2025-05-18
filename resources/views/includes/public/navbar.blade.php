@@ -1,5 +1,4 @@
-
-    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
       <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
           <span class="sr-only">Loading...</span>
       </div>
@@ -46,7 +45,10 @@
                           <a href="{{ url('/') }}" class="nav-item nav-link {{Request::is('/') ? 'active' : ''}}">Beranda</a>
                           <a href="{{ url('/#tentang') }}" class="nav-item nav-link">Tentang Kami</a>
                           <a href="{{ url('/kontak') }}" class="nav-item nav-link {{Request::is('kontak') ? 'active' : ''}}">Kontak</a>
-                          <a href="{{ url('/tryout') }}" class="nav-item nav-link {{Request::is('tryout') ? 'active' : ''}}">Tryout SKD</a>
+                          @auth
+                          <a href="{{ url('/materi-belajar') }}" class="nav-item nav-link {{Request::is('materi-belajar*') ? 'active' : ''}}">Materi</a>
+                          <a href="{{ url('/tryout') }}" class="nav-item nav-link {{Request::is('tryout*') ? 'active' : ''}}">Tryout SKD</a>
+                          @endauth
                       </div>
                       <div class="d-flex align-items-center flex-nowrap pt-xl-0">
                         @auth
@@ -55,7 +57,7 @@
                             <div class="dropdown-menu m-0">
                                 @if(auth()->user()->is_admin)
                                 <a href="{{ url('/dashboard') }}" class="dropdown-item">Dashboard</a>
-                            @endif
+                                @endif
                                 <a href="{{url('/logout')}}" class="dropdown-item">Logout</a>
                             </div>
                         </div>
@@ -67,4 +69,3 @@
               </nav>
           </div>
       </div>
-      <!-- Navbar & Hero End -->

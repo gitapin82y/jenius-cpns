@@ -11,6 +11,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TryoutController;
 use App\Http\Controllers\DependantDropdownController;
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\SystemErrorController;
 
 Route::get('/', [UserController::class, 'public']);
 Route::get('/kontak', [UserController::class, 'kontak']);
@@ -56,8 +58,20 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->back();
     });
 
+        // Route untuk admin
+    Route::resource('/materi', MaterialController::class);
+    Route::post('materi/change-status/{id}', [MaterialController::class, 'changeStatus']);
+    
+
     Route::get('/tryout/{set_soal}', [TryoutController::class, 'index'])->name('tryout.index');
     Route::post('/tryout/submit', [TryoutController::class, 'submit'])->name('tryout.submit');
     Route::get('/tryout/result/{set_soal}', [TryoutController::class, 'result'])->name('tryout.result');
 
+    Route::get('/materi-belajar', [MaterialController::class, 'public'])->name('public.materi.index');
+    Route::get('/materi-belajar/{id}', [MaterialController::class, 'show'])->name('materi.show');
+    Route::post('/materi-belajar/mark-completed/{id}', [MaterialController::class, 'markCompleted'])->name('materi.mark-completed');
+    
+
+    // Route untuk admin - laporan sistem
+    Route::get('/system-error', [SystemErrorController::class, 'index'])->name('system-error.index');
 });

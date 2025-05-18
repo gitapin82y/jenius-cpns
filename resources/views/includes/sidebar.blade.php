@@ -2,10 +2,6 @@
 
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{url('/')}}">
-        {{-- <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-laugh-wink"></i>
-        </div>
-        <div class="sidebar-brand-text mx-3">Jenius CPNS</div> --}}
         <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo jenius CPNS" width="60px">
     </a>
 
@@ -23,24 +19,33 @@
     <!-- Nav Item - Charts -->
     <li class="nav-item {{Request::is('pengguna') ? 'active' : ''}}">
         <a class="nav-link" href="{{url('pengguna')}}">
-            <i class="fas fa-fw fa-chart-area"></i>
+            <i class="fas fa-fw fa-users"></i>
             <span>Pengguna</span></a>
     </li>
     <hr class="sidebar-divider my-0">
-       <!-- Nav Item - Charts -->
-       <li class="nav-item {{Request::is('setsoal') || Request::is('soal/*') ? 'active' : ''}}">
-        <a class="nav-link" href="{{url('setsoal')}}">
-            <i class="fas fa-pencil-alt"></i> 
-            <span>Tryout SKD</span></a>
-        </li>
-
-    <!-- Nav Item - Pages Collapse Menu -->
+    
+    <!-- Nav Item - Materi -->
+    <li class="nav-item {{Request::is('materi') || Request::is('materi/*') ? 'active' : ''}}">
+        <a class="nav-link" href="{{url('materi')}}">
+            <i class="fas fa-fw fa-book"></i>
+            <span>Materi</span></a>
+    </li>
     <hr class="sidebar-divider my-0">
-    <!-- Nav Item - Charts -->
-    <li class="nav-item {{Request::is('transaksi') ? 'active' : ''}}">
-        <a class="nav-link" href="{{url('transaksi')}}">
-            <i class="fas fa-credit-card"></i>
-            <span>Transaksi</span></a>
+    
+    <!-- Nav Item - Tryout -->
+    <li class="nav-item {{Request::is('setsoal') || Request::is('soal/*') ? 'active' : ''}}">
+        <a class="nav-link" href="{{url('setsoal')}}">
+            <i class="fas fa-fw fa-pencil-alt"></i> 
+            <span>Tryout SKD</span></a>
+    </li>
+
+    <hr class="sidebar-divider my-0">
+    
+    <!-- Nav Item - System Error -->
+    <li class="nav-item {{Request::is('system-error') ? 'active' : ''}}">
+        <a class="nav-link" href="{{url('system-error')}}">
+            <i class="fas fa-fw fa-exclamation-triangle"></i>
+            <span>Laporan Sistem</span></a>
     </li>
     <hr class="sidebar-divider my-0">
 
@@ -51,7 +56,4 @@
     <div class="text-center d-none d-md-inline">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
     </div>
-
-  
-
 </ul>

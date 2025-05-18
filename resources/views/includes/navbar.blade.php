@@ -14,7 +14,11 @@
         <div class="topbar-divider d-none d-sm-block mx-0"></div>
         <a href="{{ url('pengguna') }}" class="nav-item nav-link {{ Request::is('pengguna') ? 'active' : '' }}">Pengguna</a>
         <div class="topbar-divider d-none d-sm-block mx-0"></div>
+        <a href="{{ url('materi') }}" class="nav-item nav-link {{ Request::is('materi') || Request::is('materi/*') ? 'active' : '' }}">Materi</a>
+        <div class="topbar-divider d-none d-sm-block mx-0"></div>
         <a href="{{ url('setsoal') }}" class="nav-item nav-link {{ Request::is('setsoal') || Request::is('soal/*') ? 'active' : '' }}">Tryout SKD</a>
+        <div class="topbar-divider d-none d-sm-block mx-0"></div>
+        <a href="{{ url('system-error') }}" class="nav-item nav-link {{ Request::is('system-error') ? 'active' : '' }}">Laporan Sistem</a>
         <div class="topbar-divider d-none d-sm-block mx-0"></div>
     </div>
 
@@ -32,7 +36,6 @@
             <!-- Dropdown - User Information -->
             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                 aria-labelledby="userDropdown">
-                {{-- <div class="dropdown-divider"></div> --}}
                 <a class="dropdown-item" href="{{url('/logout')}}">
                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                     Logout
