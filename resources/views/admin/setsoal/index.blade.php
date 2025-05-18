@@ -31,6 +31,7 @@
                         <tr>
                             <th>Title</th>
                             <th>Jumlah Soal</th>
+                            <th>Kategori</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -53,6 +54,7 @@
         columns: [
             { data: 'title', name: 'title' },
             { data: 'jumlah_soal', name: 'jumlah_soal' },
+            { data: 'kategori', name: 'jumlah_soal' },
             { data: 'status', name: 'status',render: function(data) {
                 let status = '';
                 switch(data) {

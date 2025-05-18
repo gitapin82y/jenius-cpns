@@ -56,9 +56,9 @@ class SetSoalController extends Controller
 
     public function public()
     {
-        $setSoals = SetSoal::
-            where('status','Publish')
-            ->get();
+        $setSoals = SetSoal::where('status', 'Publish')
+                              ->where('kategori', 'Tryout')
+                              ->get();
 
         $akses = false;
         if(Auth::user()){
@@ -75,6 +75,7 @@ class SetSoalController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
+            'kategori' => 'required|in:Tryout,Latihan',
         ]);
 
         SetSoal::create($validatedData);
@@ -86,6 +87,7 @@ class SetSoalController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
+            'kategori' => 'required|in:Tryout,Latihan',
         ]);
 
         $setSoal = SetSoal::findOrFail($id);

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('set_soals', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->enum('kategori', ['Tryout', 'Latihan']);
+            $table->enum('kategori', ['Tryout', 'Latihan'])->default('Tryout');
             $table->enum('status', ['Draf', 'Publish'])->default('Draf');
             $table->integer('jumlah_soal')->default(0);
             $table->timestamps();

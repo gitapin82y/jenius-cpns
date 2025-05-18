@@ -14,6 +14,13 @@
                         <label for="title">Title</label>
                         <input type="text" required class="form-control" id="title" name="title" value="{{ old('title') }}">
                     </div>
+                    <div class="form-group mt-3">
+                        <label for="kategori">Kategori</label>
+                        <select name="kategori" id="kategori" class="form-control" required>
+                            <option value="Tryout">Tryout</option>
+                            <option value="Latihan">Latihan</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
