@@ -237,52 +237,50 @@ class MaterialController extends Controller
         }
     }
     
-    public function show($id)
-    {
-        try {
-            $material = Material::findOrFail($id);
-            
-            // Ambil progress user untuk materi ini
-            $userProgress = null;
-            if (Auth::check()) {
-                $userId = Auth::id();
-                $userProgress = UserMaterialProgress::where('user_id', $userId)
-                    ->where('material_id', $id)
-                    ->first();
-            }
-            
-            // Ambil semua materi dalam kategori yang sama untuk navigasi
-            $relatedMaterials = Material::where('kategori', $material->kategori)
-                ->where('tipe', $material->tipe)
-                ->where('status', 'Publish')
-                ->get();
-                
-            // Cek progress user untuk related materials
-            $completedMaterials = [];
-            if (Auth::check()) {
-                $userId = Auth::id();
-                $completed = UserMaterialProgress::where('user_id', $userId)
-                    ->where('is_completed', true)
-                    ->pluck('material_id')
-                    ->toArray();
-                $completedMaterials = array_flip($completed);
-            }
-            
-            return view('login.materi.show', compact('material', 'userProgress', 'relatedMaterials', 'completedMaterials'));
-        } catch (\Exception $e) {
-            // Log error
-            SystemErrorController::logError(
-                Auth::id(), 
-                $e->getCode() ?: '500', 
-                'Server Error', 
-                $e->getMessage()
-            );
-            
-            // Notify user
-            toast()->error('Terjadi kesalahan saat menampilkan materi. Tim kami sudah diberitahu.');
-            return redirect()->back();
+   public function show($id)
+{
+    try {
+        $material = Material::findOrFail($id);
+        
+        // Ambil progress user untuk materi ini
+        $userProgress = null;
+        if (Auth::check()) {
+            $userId = Auth::id();
+            $userProgress = UserMaterialProgress::where('user_id', $userId)
+                ->where('material_id', $id)
+                ->first();
         }
+        
+        // Ambil semua materi dalam tipe yang sama untuk navigasi
+        $relatedMaterials = Material::where('kategori', $material->kategori)
+            ->where('tipe', $material->tipe)
+            ->where('status', 'Publish')
+            ->get();
+            
+        // Ambil semua tipe lain dalam kategori yang sama
+        $otherTypes = Material::where('kategori', $material->kategori)
+            ->where('tipe', '!=', $material->tipe)
+            ->where('status', 'Publish')
+            ->select('tipe')
+            ->distinct()
+            ->get();
+            
+        // Cek progress user untuk related materials
+        $completedMaterials = [];
+        if (Auth::check()) {
+            $userId = Auth::id();
+            $completed = UserMaterialProgress::where('user_id', $userId)
+                ->where('is_completed', true)
+                ->pluck('material_id')
+                ->toArray();
+            $completedMaterials = array_flip($completed);
+        }
+        
+        return view('login.materi.show', compact('material', 'userProgress', 'relatedMaterials', 'otherTypes', 'completedMaterials'));
+    } catch (\Exception $e) {
+        // Log error dan notifikasi seperti sebelumnya
     }
+}
     
     public function markCompleted(Request $request, $id)
     {

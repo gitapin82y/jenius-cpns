@@ -225,23 +225,30 @@ class TryoutController extends Controller
             
             // Periksa kategori soal latihan
             $setSoal = SetSoal::findOrFail($set_soal_id);
-            if ($setSoal->kategori == 'Latihan') {
-                // Dapatkan kategori soal
-                $firstSoal = Soal::where('set_soal_id', $set_soal_id)->first();
-                $kategoriSoal = $firstSoal ? $firstSoal->kategori : null;
-                
-                // Periksa apakah perlu membuka kategori berikutnya
-                if ($kategoriSoal == 'TWK') {
-                    toast()->success('Latihan TWK selesai! Anda sekarang dapat mengakses materi TIU.');
-                } else if ($kategoriSoal == 'TIU') {
-                    toast()->success('Latihan TIU selesai! Anda sekarang dapat mengakses materi TKP.');
-                } else if ($kategoriSoal == 'TKP') {
-                    toast()->success('Latihan TKP selesai! Anda sekarang dapat mengakses Tryout CPNS.');
-                    
-                    // Periksa apakah semua latihan telah selesai
-                    $this->checkAllLatihanCompleted($user->id);
-                }
-            }
+if ($setSoal->kategori == 'Latihan') {
+    // Dapatkan kategori soal
+    $firstSoal = Soal::where('set_soal_id', $set_soal_id)->first();
+    $kategoriSoal = $firstSoal ? $firstSoal->kategori : null;
+    
+    // Tandai bahwa user telah menyelesaikan latihan untuk kategori ini
+    if ($kategoriSoal) {
+        // Opsional: Buat tabel atau kolom baru untuk melacak progress antar kategori
+        // Atau gunakan cache/session untuk menyimpan informasi ini
+        session()->flash('completed_latihan_' . strtolower($kategoriSoal), true);
+        
+        // Tambahkan pesan notifikasi sesuai kategori
+        if ($kategoriSoal == 'TWK') {
+            toast()->success('Latihan TWK selesai! Anda sekarang dapat mengakses materi TIU.');
+        } else if ($kategoriSoal == 'TIU') {
+            toast()->success('Latihan TIU selesai! Anda sekarang dapat mengakses materi TKP.');
+        } else if ($kategoriSoal == 'TKP') {
+            toast()->success('Latihan TKP selesai! Anda sekarang dapat mengakses Tryout CPNS.');
+        }
+    }
+    
+    // Periksa jika semua latihan sudah selesai
+    $this->checkAllLatihanCompleted($user->id);
+}
         
             return redirect()->route('tryout.result', $set_soal_id);
             

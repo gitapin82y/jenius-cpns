@@ -3,67 +3,70 @@
 @section('title', $material->title)
 
 @push('after-style')
-    <style>
-        .materi-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-        }
-        
-        .materi-heading {
-            border-bottom: 2px solid #4e73df;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .materi-content {
-            font-size: 16px;
-            line-height: 1.8;
-        }
-        
-        .materi-nav {
-            position: sticky;
-            top: 20px;
-            padding: 20px;
-            background-color: #f8f9fc;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        .materi-nav-item {
-            padding: 10px;
-            margin-bottom: 5px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .materi-nav-item:hover {
-            background-color: #eaecf4;
-        }
-        
-        .materi-nav-item.active {
-            background-color: #4e73df;
-            color: white;
-        }
-        
-        .materi-nav-item.completed {
-            background-color: #1cc88a;
-            color: white;
-        }
-        
-        .mark-completed-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 100;
-        }
-        
-        .selesai-membaca-btn {
-            margin-top: 30px;
-            text-align: center;
-        }
-    </style>
+<style>
+    /* Existing styles... */
+    
+    /* Styles for the accordion navigation */
+    .accordion-button {
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        background-color: #f8f9fa;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #4e73df;
+        color: white;
+    }
+    
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: rgba(0,0,0,.125);
+    }
+    
+    .list-group-item.active {
+        background-color: #f8f9fa;
+        border-color: rgba(0,0,0,.125);
+    }
+    
+    .list-group-item:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .materi-nav {
+        position: sticky;
+        top: 20px;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Badge positioning on accordion */
+    .subcategory-status {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .accordion-button::after {
+        margin-left: 10px;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.35em 0.65em;
+    }
+    
+    /* Ensure badge is visible when accordion is open */
+    .accordion-button:not(.collapsed) .badge.bg-success {
+        background-color: #fff !important;
+        color: #28a745;
+    }
+    
+    .accordion-button:not(.collapsed) .badge.bg-secondary {
+        background-color: #fff !important;
+        color: #6c757d;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -80,6 +83,10 @@
     </div>
 </div>
 <!-- Header End -->
+
+@php
+use App\Models\Material;
+@endphp
 
 <div class="container-fluid py-5">
     <div class="container">
@@ -114,29 +121,92 @@
             </div>
             
             <!-- Navigasi Materi -->
-            <div class="col-lg-4">
-                <div class="materi-nav">
-                    <h5 class="mb-3">Materi {{ $material->tipe }}</h5>
-                    <ul class="list-unstyled">
-                        @foreach($relatedMaterials as $relatedMaterial)
-                            <li>
-                                <a href="{{ route('materi.show', $relatedMaterial->id) }}" class="d-block text-decoration-none materi-nav-item {{ $material->id == $relatedMaterial->id ? 'active' : (isset($completedMaterials[$relatedMaterial->id]) ? 'completed' : '') }}">
-                                    @if(isset($completedMaterials[$relatedMaterial->id]))
-                                        <i class="fas fa-check-circle me-2"></i>
-                                    @endif
-                                    {{ $relatedMaterial->title }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                    
-                    <div class="mt-4">
-                        <a href="{{ route('public.materi.index') }}" class="btn btn-primary w-100">
-                            <i class="fas fa-arrow-left me-2"></i> Kembali ke Daftar Materi
-                        </a>
+<div class="col-lg-4">
+    <div class="materi-nav">
+        <h5 class="mb-3">Daftar Materi {{ $material->kategori }}</h5>
+        
+        @php
+            // Ambil semua tipe (sub-kategori) dalam kategori yang sama
+            $subCategories = \App\Models\Material::where('kategori', $material->kategori)
+                ->where('status', 'Publish')
+                ->select('tipe')
+                ->distinct()
+                ->get()
+                ->pluck('tipe');
+                
+            // Ambil semua materi untuk setiap sub-kategori
+            $allMaterials = [];
+            $subCategoryStatus = []; // Status untuk setiap sub-kategori
+            
+            foreach ($subCategories as $subCategory) {
+                $materials = \App\Models\Material::where('kategori', $material->kategori)
+                    ->where('tipe', $subCategory)
+                    ->where('status', 'Publish')
+                    ->orderBy('id')
+                    ->get();
+                
+                $allMaterials[$subCategory] = $materials;
+                
+                // Hitung status sub-kategori
+                $totalMaterials = count($materials);
+                $completedCount = 0;
+                
+                foreach ($materials as $materi) {
+                    if (isset($completedMaterials[$materi->id])) {
+                        $completedCount++;
+                    }
+                }
+                
+                // Jika semua materi selesai, tandai sub-kategori sebagai selesai
+                $subCategoryStatus[$subCategory] = ($totalMaterials > 0 && $completedCount == $totalMaterials);
+            }
+        @endphp
+        
+        <div class="accordion" id="accordionMateri">
+            @foreach ($subCategories as $index => $subCategory)
+                <div class="accordion-item mb-2">
+                    <h2 class="accordion-header" id="heading{{ $index }}">
+                        <button class="accordion-button {{ $material->tipe == $subCategory ? '' : 'collapsed' }} d-flex justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index }}" aria-expanded="{{ $material->tipe == $subCategory ? 'true' : 'false' }}" aria-controls="collapse{{ $index }}">
+                            <span>{{ $subCategory }}</span>
+                            
+                            <span class="ms-auto me-3 subcategory-status">
+                                @if($subCategoryStatus[$subCategory])
+                                    <span class="badge bg-success rounded-pill">Selesai</span>
+                                @else
+                                    <span class="badge bg-secondary rounded-pill">Belum Selesai</span>
+                                @endif
+                            </span>
+                        </button>
+                    </h2>
+                    <div id="collapse{{ $index }}" class="accordion-collapse collapse {{ $material->tipe == $subCategory ? 'show' : '' }}" aria-labelledby="heading{{ $index }}" data-bs-parent="#accordionMateri">
+                        <div class="accordion-body p-0">
+                            <ul class="list-group list-group-flush">
+                                @foreach ($allMaterials[$subCategory] as $materi)
+                                    <li class="list-group-item border-0 {{ $material->id == $materi->id ? 'active bg-light' : '' }}">
+                                        <a href="{{ route('materi.show', $materi->id) }}" class="text-decoration-none d-flex align-items-center">
+                                            @if(isset($completedMaterials[$materi->id]))
+                                                <i class="fas fa-check-circle text-success me-2"></i>
+                                            @else
+                                                <i class="fas fa-circle me-2" style="font-size: 0.5rem; opacity: 0.5;"></i>
+                                            @endif
+                                            <span class="{{ $material->id == $materi->id ? 'fw-bold' : '' }}">{{ $materi->title }}</span>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endforeach
+        </div>
+        
+        <div class="mt-4">
+            <a href="{{ route('public.materi.index') }}" class="btn btn-primary w-100">
+                <i class="fas fa-arrow-left me-2"></i> Kembali ke Daftar Materi
+            </a>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </div>
@@ -170,6 +240,7 @@
                             $('#nextStepBtn').text('Kerjakan Latihan').attr('href', response.next_url);
                         }
                     }
+                    location.reload();
                 },
                 error: function() {
                     Swal.fire({

@@ -14,30 +14,14 @@
             z-index: 99;
         }
         
-        .custom-tabs .nav-item .nav-link {
-            color: #555;
-            background-color: #f8f9fa;
-            border-radius: 5px 5px 0 0;
-            padding: 10px 20px;
-            font-weight: 500;
-        }
-        
-        .custom-tabs .nav-item .nav-link.active {
-            color: #fff;
-            background-color: #4e73df;
-        }
-        
-        .kategori-heading {
-            background-color: #e8f4ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border-left: 5px solid #4e73df;
-        }
-        
+        /* Styling untuk card materi sesuai dengan contoh */
         .materi-card {
             transition: all 0.3s ease;
             margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
         
         .materi-card:hover {
@@ -45,15 +29,26 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         
-        .completed-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #1cc88a;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
+        .materi-card h4 {
+            color: #4e73df;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .materi-card .progress {
+            height: 8px;
+            margin-bottom: 10px;
+            background-color: #e9ecef;
+        }
+        
+        .materi-card .progress-bar {
+            background-color: #4e73df;
+        }
+        
+        .materi-card .progress-text {
             font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 15px;
         }
         
         .locked-overlay {
@@ -67,19 +62,24 @@
             justify-content: center;
             align-items: center;
             border-radius: 5px;
+            z-index: 10;
         }
         
-        .progress-container {
-            height: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            margin-bottom: 10px;
+        .btn-rounded {
+            border-radius: 50px;
+            padding: 8px 24px;
         }
         
-        .progress-bar {
-            height: 100%;
-            border-radius: 5px;
-            background-color: #4e73df;
+        .btn-dark-rounded {
+            border-radius: 50px;
+            padding: 8px 24px;
+            background-color: #343a40;
+            color: white;
+        }
+        
+        .btn-dark-rounded:hover {
+            background-color: #23272b;
+            color: white;
         }
     </style>
 @endpush
@@ -98,485 +98,345 @@
 </div>
 <!-- Header End -->
 
-<div class="container-fluid py-5">
-    <div class="container">
-        <!-- Tabs untuk kategori -->
-        <ul class="nav nav-tabs custom-tabs mb-4" id="kategoriTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="twk-tab" data-bs-toggle="tab" data-bs-target="#twk" type="button" role="tab" aria-controls="twk" aria-selected="true">TWK</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tiu-tab" data-bs-toggle="tab" data-bs-target="#tiu" type="button" role="tab" aria-controls="tiu" aria-selected="false">TIU</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tkp-tab" data-bs-toggle="tab" data-bs-target="#tkp" type="button" role="tab" aria-controls="tkp" aria-selected="false">TKP</button>
-            </li>
-        </ul>
+<div class="container-fluid blog">
+    <div class="container py-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+            <h1 class="display-4">Materi Pembelajaran CPNS</h1>
+            <p>Selesaikan semua materi dan latihan untuk mengakses Tryout CPNS</p>
+        </div>
         
-        <!-- Konten tabs -->
-        <div class="tab-content" id="kategoriTabContent">
-            <!-- TWK Tab -->
-            <div class="tab-pane fade show active" id="twk" role="tabpanel" aria-labelledby="twk-tab">
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="kategori-heading">
-                            <h2>Tes Wawasan Kebangsaan (TWK)</h2>
-                            <p class="mb-0">Materi dan latihan untuk mempersiapkan tes TWK</p>
-                        </div>
-                    </div>
-                </div>
+        <div class="row g-4 justify-content-center">
+            @php
+                // Menghitung jumlah materi dan status untuk TWK
+                $totalTWKMaterials = 0;
+                $completedTWKMaterials = 0;
                 
-                <!-- Progress bar -->
-                @php
-                    $totalTWKMaterials = 0;
-                    $completedTWKMaterials = 0;
-                    
-                    foreach($twkMaterials as $tipe => $materis) {
-                        $totalTWKMaterials += count($materis);
-                        foreach($materis as $materi) {
-                            if(isset($userProgress[$materi->id])) {
-                                $completedTWKMaterials++;
-                            }
+                foreach($twkMaterials as $tipe => $materis) {
+                    $totalTWKMaterials += count($materis);
+                    foreach($materis as $materi) {
+                        if(isset($userProgress[$materi->id])) {
+                            $completedTWKMaterials++;
                         }
                     }
-                    
-                    $twkProgress = $totalTWKMaterials > 0 ? ($completedTWKMaterials / $totalTWKMaterials) * 100 : 0;
-                @endphp
+                }
                 
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">Progress TWK</h5>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: {{ $twkProgress }}%"></div>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <small>{{ $completedTWKMaterials }} dari {{ $totalTWKMaterials }} materi selesai</small>
-                                    <small>{{ number_format($twkProgress, 0) }}%</small>
-                                </div>
-                            </div>
+                // Perhitungan persentase TWK
+                $twkPercentage = $totalTWKMaterials > 0 ? ($completedTWKMaterials / $totalTWKMaterials) * 100 : 0;
+                
+                // Status TWK
+                $twkStatus = ($totalTWKMaterials > 0) && ($completedTWKMaterials >= $totalTWKMaterials) ? 'Selesai' : 'Belum Selesai';
+                
+                // Cek apakah latihan TWK sudah dikerjakan
+                $twkLatihanCompleted = false;
+                if (count($twkLatihan) > 0) {
+                    foreach ($twkLatihan as $latihan) {
+                        if (isset($userTryoutProgress[$latihan->id])) {
+                            $twkLatihanCompleted = true;
+                            break;
+                        }
+                    }
+                } else {
+                    $twkLatihanCompleted = true;
+                }
+                
+                // Menghitung jumlah materi dan status untuk TIU
+                $totalTIUMaterials = 0;
+                $completedTIUMaterials = 0;
+                
+                foreach($tiuMaterials as $tipe => $materis) {
+                    $totalTIUMaterials += count($materis);
+                    foreach($materis as $materi) {
+                        if(isset($userProgress[$materi->id])) {
+                            $completedTIUMaterials++;
+                        }
+                    }
+                }
+                
+                // Perhitungan persentase TIU
+                $tiuPercentage = $totalTIUMaterials > 0 ? ($completedTIUMaterials / $totalTIUMaterials) * 100 : 0;
+                
+                // Status TIU
+                $tiuStatus = ($totalTIUMaterials > 0) && ($completedTIUMaterials >= $totalTIUMaterials) ? 'Selesai' : 'Belum Selesai';
+                
+                // Cek apakah latihan TIU sudah dikerjakan
+                $tiuLatihanCompleted = false;
+                if (count($tiuLatihan) > 0) {
+                    foreach ($tiuLatihan as $latihan) {
+                        if (isset($userTryoutProgress[$latihan->id])) {
+                            $tiuLatihanCompleted = true;
+                            break;
+                        }
+                    }
+                } else {
+                    $tiuLatihanCompleted = true;
+                }
+                
+                // Menghitung jumlah materi dan status untuk TKP
+                $totalTKPMaterials = 0;
+                $completedTKPMaterials = 0;
+                
+                foreach($tkpMaterials as $tipe => $materis) {
+                    $totalTKPMaterials += count($materis);
+                    foreach($materis as $materi) {
+                        if(isset($userProgress[$materi->id])) {
+                            $completedTKPMaterials++;
+                        }
+                    }
+                }
+                
+                // Perhitungan persentase TKP
+                $tkpPercentage = $totalTKPMaterials > 0 ? ($completedTKPMaterials / $totalTKPMaterials) * 100 : 0;
+                
+                // Status TKP
+                $tkpStatus = ($totalTKPMaterials > 0) && ($completedTKPMaterials >= $totalTKPMaterials) ? 'Selesai' : 'Belum Selesai';
+                
+                // Cek apakah latihan TKP sudah dikerjakan
+                $tkpLatihanCompleted = false;
+                if (count($tkpLatihan) > 0) {
+                    foreach ($tkpLatihan as $latihan) {
+                        if (isset($userTryoutProgress[$latihan->id])) {
+                            $tkpLatihanCompleted = true;
+                            break;
+                        }
+                    }
+                } else {
+                    $tkpLatihanCompleted = true;
+                }
+                
+                // Pengecekan akses antar kategori
+                $allTWKCompleted = ($totalTWKMaterials > 0) && ($completedTWKMaterials >= $totalTWKMaterials);
+                $tiuUnlocked = $allTWKCompleted && $twkLatihanCompleted;
+                
+                $allTIUCompleted = ($totalTIUMaterials > 0) && ($completedTIUMaterials >= $totalTIUMaterials);
+                $tkpUnlocked = $tiuUnlocked && $allTIUCompleted && $tiuLatihanCompleted;
+                
+                $allTKPCompleted = ($totalTKPMaterials > 0) && ($completedTKPMaterials >= $totalTKPMaterials);
+                
+                // Semua kategori selesai?
+                $allMaterialsCompleted = $allTWKCompleted && $allTIUCompleted && $allTKPCompleted;
+                $allLatihanCompleted = $twkLatihanCompleted && $tiuLatihanCompleted && $tkpLatihanCompleted;
+            @endphp
+            
+            <!-- Materi TWK Card -->
+            <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="blog-item rounded p-4 position-relative">
+                    <div class="mb-4">
+                        <h4 class="mb-2">Materi TWK</h4>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: {{ $twkPercentage }}%" aria-valuenow="{{ $twkPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="progress-text d-flex justify-content-between">
+                            <span>Progress: {{ $completedTWKMaterials }}/{{ $totalTWKMaterials }}</span>
+                            <span>{{ number_format($twkPercentage, 0) }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ $totalTWKMaterials }} Materi</span></p>
+                            <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $twkStatus }}</span></p>
                         </div>
                     </div>
+                    <a href="{{ !empty($twkMaterials->first()) ? route('materi.show', $twkMaterials->first()->first()->id) : '#' }}" class="btn btn-primary btn-rounded">Lihat Materi</a>
                 </div>
-                
-                <!-- Loop through TWK materials -->
-                @foreach($twkMaterials as $tipe => $materis)
-                <div class="row mb-4">
-                    <div class="col-12 mb-3">
-                        <h4>{{ $tipe }}</h4>
-                    </div>
-                    
-                    @foreach($materis as $materi)
-                    <div class="col-md-4">
-                        <div class="card shadow-sm materi-card h-100">
-                            @if(isset($userProgress[$materi->id]))
-                                <div class="completed-badge">
-                                    <i class="fas fa-check-circle"></i> Selesai
-                                </div>
-                            @endif
-                            
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $materi->title }}</h5>
-                                <p class="card-text">{{ Str::limit(strip_tags($materi->content), 100) }}</p>
-                                <a href="{{ route('materi.show', $materi->id) }}" class="btn btn-primary">Baca Materi</a>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                @endforeach
-                
-                <!-- Latihan TWK -->
-                @if(count($twkLatihan) > 0)
-                <div class="row mb-4">
-                    <div class="col-12 mb-3">
-                        <h4>Latihan TWK</h4>
-                    </div>
-                    
-                    @php
-                        $allTWKMaterialsCompleted = ($totalTWKMaterials > 0) && ($completedTWKMaterials >= $totalTWKMaterials);
-                    @endphp
-                    
-                    @foreach($twkLatihan as $latihan)
-                    <div class="col-md-4">
-                        <div class="card shadow-sm materi-card h-100 position-relative">
-                            @if(!$allTWKMaterialsCompleted)
-                                <div class="locked-overlay">
-                                    <div class="text-center text-white">
-                                        <i class="fas fa-lock fa-3x mb-2"></i>
-                                        <p>Selesaikan semua materi TWK terlebih dahulu</p>
-                                    </div>
-                                </div>
-                            @endif
-                            
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $latihan->title }}</h5>
-                                <p class="card-text">Latihan soal untuk menguji pemahaman materi TWK</p>
-                                @if($allTWKMaterialsCompleted)
-                                    <a href="{{ route('tryout.index', $latihan->id) }}" class="btn btn-success">Kerjakan Latihan</a>
-                                @else
-                                    <button class="btn btn-secondary" disabled>Kerjakan Latihan</button>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
             </div>
             
-            <!-- TIU Tab -->
-            <div class="tab-pane fade" id="tiu" role="tabpanel" aria-labelledby="tiu-tab">
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="kategori-heading">
-                            <h2>Tes Intelegensi Umum (TIU)</h2>
-                            <p class="mb-0">Materi dan latihan untuk mempersiapkan tes TIU</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Progress bar -->
-                @php
-                    $totalTIUMaterials = 0;
-                    $completedTIUMaterials = 0;
-                    
-                    foreach($tiuMaterials as $tipe => $materis) {
-                        $totalTIUMaterials += count($materis);
-                        foreach($materis as $materi) {
-                            if(isset($userProgress[$materi->id])) {
-                                $completedTIUMaterials++;
-                            }
-                        }
-                    }
-                    
-                    $tiuProgress = $totalTIUMaterials > 0 ? ($completedTIUMaterials / $totalTIUMaterials) * 100 : 0;
-                    
-                    // Cek apakah semua materi TWK sudah selesai
-                    $allTWKCompleted = ($totalTWKMaterials > 0) && ($completedTWKMaterials >= $totalTWKMaterials);
-                    
-                    // Cek apakah latihan TWK sudah dikerjakan
-                    $twkLatihanCompleted = count($twkLatihan) > 0 && count(array_intersect_key(array_flip($userTryoutProgress ?? []), $twkLatihan->pluck('id')->flip()->toArray())) > 0;
-                    
-                    // TIU di-unlock jika TWK selesai dan latihan TWK sudah dikerjakan
-                    $tiuUnlocked = $allTWKCompleted && $twkLatihanCompleted;
-                @endphp
-                
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-
-                                <h5 class="card-title">Progress TIU</h5>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: {{ $tiuProgress }}%"></div>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <small>{{ $completedTIUMaterials }} dari {{ $totalTIUMaterials }} materi selesai</small>
-                                    <small>{{ number_format($tiuProgress, 0) }}%</small>
-                                </div>
+            <!-- Latihan TWK Card -->
+            <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="blog-item rounded p-4 position-relative">
+                    @if(!$allTWKCompleted)
+                        <div class="locked-overlay">
+                            <div class="text-center text-white">
+                                <i class="fas fa-lock fa-3x mb-2"></i>
+                                <p>Selesaikan semua materi TWK terlebih dahulu</p>
                             </div>
                         </div>
-                    </div>
-                </div>
-                
-                @if(!$tiuUnlocked)
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="alert alert-warning">
-                            <i class="fas fa-lock me-2"></i> Anda harus menyelesaikan semua materi TWK dan latihan TWK terlebih dahulu.
+                    @endif
+                    
+                    <div class="mb-4">
+                        <h4 class="mb-2">Latihan TWK</h4>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: {{ $twkLatihanCompleted ? '100' : '0' }}%" aria-valuenow="{{ $twkLatihanCompleted ? '100' : '0' }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="progress-text d-flex justify-content-between">
+                            <span>Progress: {{ $twkLatihanCompleted ? '1' : '0' }}/1</span>
+                            <span>{{ $twkLatihanCompleted ? '100' : '0' }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ count($twkLatihan) }} Soal</span></p>
+                            <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $twkLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
                         </div>
                     </div>
+                    @if($allTWKCompleted && count($twkLatihan) > 0)
+                        <a href="{{ route('tryout.index', $twkLatihan->first()->id) }}" class="btn btn-primary btn-rounded">Kerjakan</a>
+                    @else
+                        <button disabled class="btn btn-secondary btn-rounded">Kerjakan</button>
+                    @endif
                 </div>
-                @endif
-                
-                <!-- Loop through TIU materials -->
-                @foreach($tiuMaterials as $tipe => $materis)
-                <div class="row mb-4">
-                    <div class="col-12 mb-3">
-                        <h4>{{ $tipe }}</h4>
-                    </div>
-                    
-                    @foreach($materis as $materi)
-                    <div class="col-md-4">
-                        <div class="card shadow-sm materi-card h-100 position-relative">
-                            @if(!$tiuUnlocked)
-                                <div class="locked-overlay">
-                                    <div class="text-center text-white">
-                                        <i class="fas fa-lock fa-3x mb-2"></i>
-                                        <p>Selesaikan semua materi dan latihan TWK terlebih dahulu</p>
-                                    </div>
-                                </div>
-                            @elseif(isset($userProgress[$materi->id]))
-                                <div class="completed-badge">
-                                    <i class="fas fa-check-circle"></i> Selesai
-                                </div>
-                            @endif
-                            
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $materi->title }}</h5>
-                                <p class="card-text">{{ Str::limit(strip_tags($materi->content), 100) }}</p>
-                                @if($tiuUnlocked)
-                                    <a href="{{ route('materi.show', $materi->id) }}" class="btn btn-primary">Baca Materi</a>
-                                @else
-                                    <button class="btn btn-secondary" disabled>Baca Materi</button>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                @endforeach
-                
-                <!-- Latihan TIU -->
-                @if(count($tiuLatihan) > 0)
-                <div class="row mb-4">
-                    <div class="col-12 mb-3">
-                        <h4>Latihan TIU</h4>
-                    </div>
-                    
-                    @php
-                        $allTIUMaterialsCompleted = $tiuUnlocked && ($totalTIUMaterials > 0) && ($completedTIUMaterials >= $totalTIUMaterials);
-                    @endphp
-                    
-                    @foreach($tiuLatihan as $latihan)
-                    <div class="col-md-4">
-                        <div class="card shadow-sm materi-card h-100 position-relative">
-                            @if(!$allTIUMaterialsCompleted)
-                                <div class="locked-overlay">
-                                    <div class="text-center text-white">
-                                        <i class="fas fa-lock fa-3x mb-2"></i>
-                                        <p>Selesaikan semua materi TIU terlebih dahulu</p>
-                                    </div>
-                                </div>
-                            @endif
-                            
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $latihan->title }}</h5>
-                                <p class="card-text">Latihan soal untuk menguji pemahaman materi TIU</p>
-                                @if($allTIUMaterialsCompleted)
-                                    <a href="{{ route('tryout.index', $latihan->id) }}" class="btn btn-success">Kerjakan Latihan</a>
-                                @else
-                                    <button class="btn btn-secondary" disabled>Kerjakan Latihan</button>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
             </div>
             
-            <!-- TKP Tab -->
-            <div class="tab-pane fade" id="tkp" role="tabpanel" aria-labelledby="tkp-tab">
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="kategori-heading">
-                            <h2>Tes Karakteristik Pribadi (TKP)</h2>
-                            <p class="mb-0">Materi dan latihan untuk mempersiapkan tes TKP</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Progress bar -->
-                @php
-                    $totalTKPMaterials = 0;
-                    $completedTKPMaterials = 0;
-                    
-                    foreach($tkpMaterials as $tipe => $materis) {
-                        $totalTKPMaterials += count($materis);
-                        foreach($materis as $materi) {
-                            if(isset($userProgress[$materi->id])) {
-                                $completedTKPMaterials++;
-                            }
-                        }
-                    }
-                    
-                    $tkpProgress = $totalTKPMaterials > 0 ? ($completedTKPMaterials / $totalTKPMaterials) * 100 : 0;
-                    
-                    // Cek apakah semua materi TIU sudah selesai
-                    $allTIUCompleted = ($totalTIUMaterials > 0) && ($completedTIUMaterials >= $totalTIUMaterials);
-                    
-                    // Cek apakah latihan TIU sudah dikerjakan
-                    $tiuLatihanCompleted = count($tiuLatihan) > 0 && count(array_intersect_key(array_flip($userTryoutProgress ?? []), $tiuLatihan->pluck('id')->flip()->toArray())) > 0;
-                    
-                    // TKP di-unlock jika TIU selesai dan latihan TIU sudah dikerjakan
-                    $tkpUnlocked = $tiuUnlocked && $allTIUCompleted && $tiuLatihanCompleted;
-                @endphp
-                
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">Progress TKP</h5>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: {{ $tkpProgress }}%"></div>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <small>{{ $completedTKPMaterials }} dari {{ $totalTKPMaterials }} materi selesai</small>
-                                    <small>{{ number_format($tkpProgress, 0) }}%</small>
-                                </div>
+            <!-- Materi TIU Card -->
+            <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="blog-item rounded p-4 position-relative">
+                    @if(!$tiuUnlocked)
+                        <div class="locked-overlay">
+                            <div class="text-center text-white">
+                                <i class="fas fa-lock fa-3x mb-2"></i>
+                                <p>Selesaikan materi dan latihan TWK terlebih dahulu</p>
                             </div>
                         </div>
-                    </div>
-                </div>
-                
-                @if(!$tkpUnlocked)
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="alert alert-warning">
-                            <i class="fas fa-lock me-2"></i> Anda harus menyelesaikan semua materi TIU dan latihan TIU terlebih dahulu.
+                    @endif
+                    
+                    <div class="mb-4">
+                        <h4 class="mb-2">Materi TIU</h4>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: {{ $tiuPercentage }}%" aria-valuenow="{{ $tiuPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="progress-text d-flex justify-content-between">
+                            <span>Progress: {{ $completedTIUMaterials }}/{{ $totalTIUMaterials }}</span>
+                            <span>{{ number_format($tiuPercentage, 0) }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ $totalTIUMaterials }} Materi</span></p>
+                            <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tiuStatus }}</span></p>
                         </div>
                     </div>
+                    @if($tiuUnlocked && !empty($tiuMaterials->first()))
+                        <a href="{{ route('materi.show', $tiuMaterials->first()->first()->id) }}" class="btn btn-primary btn-rounded">Lihat Materi</a>
+                    @else
+                        <button disabled class="btn btn-secondary btn-rounded">Lihat Materi</button>
+                    @endif
                 </div>
-                @endif
-                
-                <!-- Loop through TKP materials -->
-                @foreach($tkpMaterials as $tipe => $materis)
-                <div class="row mb-4">
-                    <div class="col-12 mb-3">
-                        <h4>{{ $tipe }}</h4>
-                    </div>
-                    
-                    @foreach($materis as $materi)
-                    <div class="col-md-4">
-                        <div class="card shadow-sm materi-card h-100 position-relative">
-                            @if(!$tkpUnlocked)
-                                <div class="locked-overlay">
-                                    <div class="text-center text-white">
-                                        <i class="fas fa-lock fa-3x mb-2"></i>
-                                        <p>Selesaikan semua materi dan latihan TIU terlebih dahulu</p>
-                                    </div>
-                                </div>
-                            @elseif(isset($userProgress[$materi->id]))
-                                <div class="completed-badge">
-                                    <i class="fas fa-check-circle"></i> Selesai
-                                </div>
-                            @endif
-                            
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $materi->title }}</h5>
-                                <p class="card-text">{{ Str::limit(strip_tags($materi->content), 100) }}</p>
-                                @if($tkpUnlocked)
-                                    <a href="{{ route('materi.show', $materi->id) }}" class="btn btn-primary">Baca Materi</a>
-                                @else
-                                    <button class="btn btn-secondary" disabled>Baca Materi</button>
-                                @endif
+            </div>
+            
+            <!-- Latihan TIU Card -->
+            <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="blog-item rounded p-4 position-relative">
+                    @if(!$tiuUnlocked || !$allTIUCompleted)
+                        <div class="locked-overlay">
+                            <div class="text-center text-white">
+                                <i class="fas fa-lock fa-3x mb-2"></i>
+                                <p>Selesaikan semua materi TIU terlebih dahulu</p>
                             </div>
                         </div>
+                    @endif
+                    
+                    <div class="mb-4">
+                        <h4 class="mb-2">Latihan TIU</h4>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: {{ $tiuLatihanCompleted ? '100' : '0' }}%" aria-valuenow="{{ $tiuLatihanCompleted ? '100' : '0' }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="progress-text d-flex justify-content-between">
+                            <span>Progress: {{ $tiuLatihanCompleted ? '1' : '0' }}/1</span>
+                            <span>{{ $tiuLatihanCompleted ? '100' : '0' }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ count($tiuLatihan) }} Soal</span></p>
+                            <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tiuLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
+                        </div>
                     </div>
-                    @endforeach
+                    @if($tiuUnlocked && $allTIUCompleted && count($tiuLatihan) > 0)
+                        <a href="{{ route('tryout.index', $tiuLatihan->first()->id) }}" class="btn btn-primary btn-rounded">Kerjakan</a>
+                    @else
+                        <button disabled class="btn btn-secondary btn-rounded">Kerjakan</button>
+                    @endif
                 </div>
-                @endforeach
-                
-                <!-- Latihan TKP -->
-                @if(count($tkpLatihan) > 0)
-                <div class="row mb-4">
-                    <div class="col-12 mb-3">
-                        <h4>Latihan TKP</h4>
-                    </div>
-                    
-                    @php
-                        $allTKPMaterialsCompleted = $tkpUnlocked && ($totalTKPMaterials > 0) && ($completedTKPMaterials >= $totalTKPMaterials);
-                    @endphp
-                    
-                    @foreach($tkpLatihan as $latihan)
-                    <div class="col-md-4">
-                        <div class="card shadow-sm materi-card h-100 position-relative">
-                            @if(!$allTKPMaterialsCompleted)
-                                <div class="locked-overlay">
-                                    <div class="text-center text-white">
-                                        <i class="fas fa-lock fa-3x mb-2"></i>
-                                        <p>Selesaikan semua materi TKP terlebih dahulu</p>
-                                    </div>
-                                </div>
-                            @endif
-                            
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $latihan->title }}</h5>
-                                <p class="card-text">Latihan soal untuk menguji pemahaman materi TKP</p>
-                                @if($allTKPMaterialsCompleted)
-                                    <a href="{{ route('tryout.index', $latihan->id) }}" class="btn btn-success">Kerjakan Latihan</a>
-                                @else
-                                    <button class="btn btn-secondary" disabled>Kerjakan Latihan</button>
-                                @endif
+            </div>
+            
+            <!-- Materi TKP Card -->
+            <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="blog-item rounded p-4 position-relative">
+                    @if(!$tkpUnlocked)
+                        <div class="locked-overlay">
+                            <div class="text-center text-white">
+                                <i class="fas fa-lock fa-3x mb-2"></i>
+                                <p>Selesaikan materi dan latihan TIU terlebih dahulu</p>
                             </div>
                         </div>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
-                
-                <!-- Tryout -->
-                <div class="row mb-4">
-                    <div class="col-12 mb-3">
-                        <div class="alert alert-primary">
-                            <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> Tryout CPNS</h4>
-                            <p class="mb-0">
-                                @php
-                                    $allMaterialsCompleted = 
-                                        ($totalTWKMaterials > 0) && ($completedTWKMaterials >= $totalTWKMaterials) &&
-                                        ($totalTIUMaterials > 0) && ($completedTIUMaterials >= $totalTIUMaterials) &&
-                                        ($totalTKPMaterials > 0) && ($completedTKPMaterials >= $totalTKPMaterials);
-                                        
-                                    $allLatihanCompleted = 
-                                        count($twkLatihan) > 0 && count(array_intersect_key(array_flip($userTryoutProgress ?? []), $twkLatihan->pluck('id')->flip()->toArray())) > 0 &&
-                                        count($tiuLatihan) > 0 && count(array_intersect_key(array_flip($userTryoutProgress ?? []), $tiuLatihan->pluck('id')->flip()->toArray())) > 0 &&
-                                        count($tkpLatihan) > 0 && count(array_intersect_key(array_flip($userTryoutProgress ?? []), $tkpLatihan->pluck('id')->flip()->toArray())) > 0;
-                                @endphp
-                                
-                                @if($allMaterialsCompleted && $allLatihanCompleted)
-                                    Selamat! Anda telah menyelesaikan semua materi dan latihan. Anda sekarang bisa mengakses Tryout CPNS.
-                                    <div class="mt-3">
-                                        <a href="{{ url('/tryout') }}" class="btn btn-success">Akses Tryout CPNS</a>
-                                    </div>
-                                    
-                                    @php
-                                        // Update user access
-                                        if(Auth::check() && !Auth::user()->is_akses) {
-                                            Auth::user()->update(['is_akses' => true]);
-                                        }
-                                    @endphp
-                                @else
-                                    Untuk mengakses Tryout CPNS, Anda harus menyelesaikan semua materi dan latihan dari ketiga kategori (TWK, TIU, dan TKP).
-                                @endif
-                            </p>
+                    @endif
+                    
+                    <div class="mb-4">
+                        <h4 class="mb-2">Materi TKP</h4>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: {{ $tkpPercentage }}%" aria-valuenow="{{ $tkpPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="progress-text d-flex justify-content-between">
+                            <span>Progress: {{ $completedTKPMaterials }}/{{ $totalTKPMaterials }}</span>
+                            <span>{{ number_format($tkpPercentage, 0) }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ $totalTKPMaterials }} Materi</span></p>
+                            <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tkpStatus }}</span></p>
                         </div>
                     </div>
+                    @if($tkpUnlocked && !empty($tkpMaterials->first()))
+                        <a href="{{ route('materi.show', $tkpMaterials->first()->first()->id) }}" class="btn btn-primary btn-rounded">Lihat Materi</a>
+                    @else
+                        <button disabled class="btn btn-secondary btn-rounded">Lihat Materi</button>
+                    @endif
+                </div>
+            </div>
+            
+            <!-- Latihan TKP Card -->
+            <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="blog-item rounded p-4 position-relative">
+                    @if(!$tkpUnlocked || !$allTKPCompleted)
+                        <div class="locked-overlay">
+                            <div class="text-center text-white">
+                                <i class="fas fa-lock fa-3x mb-2"></i>
+                                <p>Selesaikan semua materi TKP terlebih dahulu</p>
+                            </div>
+                        </div>
+                    @endif
+                    
+                    <div class="mb-4">
+                        <h4 class="mb-2">Latihan TKP</h4>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: {{ $tkpLatihanCompleted ? '100' : '0' }}%" aria-valuenow="{{ $tkpLatihanCompleted ? '100' : '0' }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="progress-text d-flex justify-content-between">
+                            <span>Progress: {{ $tkpLatihanCompleted ? '1' : '0' }}/1</span>
+                            <span>{{ $tkpLatihanCompleted ? '100' : '0' }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ count($tkpLatihan) }} Soal</span></p>
+                            <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tkpLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
+                        </div>
+                    </div>
+                    @if($tkpUnlocked && $allTKPCompleted && count($tkpLatihan) > 0)
+                        <a href="{{ route('tryout.index', $tkpLatihan->first()->id) }}" class="btn btn-primary btn-rounded">Kerjakan</a>
+                    @else
+                        <button disabled class="btn btn-secondary btn-rounded">Kerjakan</button>
+                    @endif
                 </div>
             </div>
         </div>
+        
+        <!-- Tryout Access Banner -->
+        @if($allMaterialsCompleted && $allLatihanCompleted)
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="alert alert-success p-4 text-center">
+                        <h4 class="alert-heading mb-3"><i class="fas fa-check-circle me-2"></i> Selamat!</h4>
+                        <p class="mb-3">Anda telah menyelesaikan semua materi dan latihan. Anda sekarang bisa mengakses Tryout CPNS.</p>
+                        <a href="{{ url('/tryout') }}" class="btn btn-success px-4 py-2">Akses Tryout CPNS</a>
+                        
+                        @php
+                            // Update user access
+                            if(Auth::check() && !Auth::user()->is_akses) {
+                                Auth::user()->update(['is_akses' => true]);
+                            }
+                        @endphp
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="alert alert-info p-4 text-center">
+                        <h4 class="alert-heading mb-3"><i class="fas fa-info-circle me-2"></i> Petunjuk</h4>
+                        <p class="mb-0">Untuk mengakses Tryout CPNS, Anda harus menyelesaikan semua materi dan latihan dari ketiga kategori (TWK, TIU, dan TKP).</p>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 @endsection
-
-@push('after-script')
-<script>
-    // Start with the correct tab based on progress
-    $(document).ready(function() {
-        // Function to find next incomplete section
-        const findNextIncompleteSection = () => {
-            const twkCompleted = {{ $twkProgress }} >= 100 && {{ count($twkLatihan) > 0 ? (count(array_intersect_key(array_flip($userTryoutProgress ?? []), $twkLatihan->pluck('id')->flip()->toArray())) > 0 ? 'true' : 'false') : 'true' }};
-            
-            if (!twkCompleted) {
-                return 'twk';
-            }
-            
-            const tiuCompleted = {{ $tiuProgress }} >= 100 && {{ count($tiuLatihan) > 0 ? (count(array_intersect_key(array_flip($userTryoutProgress ?? []), $tiuLatihan->pluck('id')->flip()->toArray())) > 0 ? 'true' : 'false') : 'true' }};
-            
-            if (!tiuCompleted) {
-                return 'tiu';
-            }
-            
-            return 'tkp';
-        };
-        
-        // If user has started but not completed all sections
-        const activeSection = findNextIncompleteSection();
-        
-        // Activate the appropriate tab
-        $('#kategoriTab button[data-bs-target="#' + activeSection + '"]').tab('show');
-    });
-</script>
-@endpush
