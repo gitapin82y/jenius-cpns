@@ -3,9 +3,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Tambah Soal</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        <i class="fas fa-times"></i>
+    </button>
             </div>
             <div class="modal-body">
                 <form id="soalForm" method="POST" action="{{ route('soal.store') }}" enctype="multipart/form-data">

@@ -11,7 +11,6 @@
               <div class="row gx-0 align-items-center" style="height: 45px;">
                   <div class="col-lg-8 text-center text-lg-start mb-lg-0">
                       <div class="d-flex flex-wrap">
-                          {{-- <a href="#" class="text-white me-4"><i class="fas fa-map-marker-alt text-primary me-2"></i>Find A Location</a> --}}
                           <a href="#" class="text-white me-4"><i class="fas fa-phone-alt text-primary me-2"></i>081231548925</a>
                           <a href="#" class="text-white me-0"><i class="fas fa-envelope text-primary me-2"></i>admin@jeniuscpns.com</a>
                       </div>
@@ -20,8 +19,6 @@
                       <div class="d-flex align-items-center justify-content-end">
                           <a href="https://www.instagram.com/jeniuscpns?igsh=MXcwdGpxazBrdHh6Yg==" target="_blank" class="btn btn-primary btn-square rounded-circle nav-fill me-3"><i class="fab fa-instagram text-white"></i></a>
                           {{-- <a href="#" class="btn btn-primary btn-square rounded-circle nav-fill me-3"><i class="fab fa-facebook-f text-white"></i></a> --}}
-                          {{-- <a href="#" class="btn btn-primary btn-square rounded-circle nav-fill me-3"><i class="fab fa-twitter text-white"></i></a> --}}
-                          {{-- <a href="#" class="btn btn-primary btn-square rounded-circle nav-fill me-0"><i class="fab fa-linkedin-in text-white"></i></a> --}}
                       </div>
                   </div>
               </div>
@@ -49,9 +46,7 @@
                           <a href="{{ url('/') }}" class="nav-item nav-link {{Request::is('/') ? 'active' : ''}}">Beranda</a>
                           <a href="{{ url('/#tentang') }}" class="nav-item nav-link">Tentang Kami</a>
                           <a href="{{ url('/kontak') }}" class="nav-item nav-link {{Request::is('kontak') ? 'active' : ''}}">Kontak</a>
-                          @auth
                           <a href="{{ url('/tryout') }}" class="nav-item nav-link {{Request::is('tryout') ? 'active' : ''}}">Tryout SKD</a>
-                          @endauth
                       </div>
                       <div class="d-flex align-items-center flex-nowrap pt-xl-0">
                         @auth

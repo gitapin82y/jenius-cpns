@@ -7,20 +7,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\Paket;
-use App\Models\Pembelian;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
-use App\Models\Province;
-
 
 class AuthController extends Controller
 {
     // Registrasi
     public function view_register(Request $request)
     {
-        $provinces = Province::all();
-        return view('public.register',compact('provinces'));
+        return view('public.register');
     }
 
     public function register(Request $request)
@@ -28,32 +23,17 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'required|numeric',
-            'birth_date' => 'required|date',
-            'province_id' => 'required',
-            'city_id' => 'required',
-            'last_education' => 'required|string|max:255',
-            'major' => 'required|string|max:255',
+            'phone' => 'required',
             'password' => 'required|string|min:6|confirmed',
         ],[
             'name.required' => 'Nama lengkap wajib diisi.',
             'phone.required' => 'Nomor telepon wajib diisi.',
-            'birth_date.required' => 'Tanggal lahir wajib diisi.',
-            'province_id.required' => 'Provinsi wajib dipilih.',
-            'city_id.required' => 'Kota/Kabupaten wajib dipilih.',
-            'last_education.required' => 'Pendidikan terakhir wajib diisi.',
-            'major.required' => 'Jurusan wajib diisi.',
         ]);
     
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'birth_date' => $request->birth_date,
-            'province_id' => $request->province_id,
-            'city_id' => $request->city_id,
-            'last_education' => $request->last_education,
-            'major' => $request->major,
             'password' => Hash::make($request->password),
         ]);
 

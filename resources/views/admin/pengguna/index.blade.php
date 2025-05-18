@@ -18,9 +18,9 @@
             <div class="col-12 col-sm-6">
 
                     <!-- Button trigger modal -->
-<button type="button" class="btn btn-success float-left mt-3 mt-sm-0 float-sm-right shadow-sm" data-toggle="modal" data-target="#exampleModal">
+<button type="button" class="btn btn-success float-left mt-3 mt-sm-0 float-sm-right shadow-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
     <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Data
-  </button>
+</button>
             </div>
         </div>
         <div class="card-body">
@@ -31,14 +31,6 @@
                             <th>Nama Lengkap</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            <th>Birth Date</th>
-                            <th>Province</th>
-                            <th>City</th>
-                            <th>Last Education</th>
-                            <th>Major</th>
-                            <th>Paket</th>
-                            <th>Daftar Member</th>
-                            <th>Selesai Member</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -53,11 +45,6 @@
 
 @push('after-script')
 <script>
-    // Setup CSRF token for AJAX requests
-    $('#paket_id').select2({
-        placeholder: "Pilih Paket",
-        allowClear: true
-    });
 
     // Initialize DataTable
     $('#dataTable').DataTable({
@@ -68,14 +55,6 @@
         { data: 'name', name: 'name' },
         { data: 'email', name: 'email' },
         { data: 'phone', name: 'phone' }, // New
-        { data: 'birth_date', name: 'birth_date' }, // New
-        { data: 'province', name: 'province' }, // New (Assuming province name should be displayed)
-        { data: 'city', name: 'city' }, // New (Assuming city name should be displayed)
-        { data: 'last_education', name: 'last_education' }, // New
-        { data: 'major', name: 'major' }, // New
-        { data: 'paket_id', name: 'paket_id' },
-        { data: 'daftar_member', name: 'daftar_member' },
-        { data: 'selesai_member', name: 'selesai_member' },
         { data: 'action', name: 'action', orderable: false, searchable: false },
     ]
 });
@@ -87,29 +66,8 @@
         $('#userId').val(user.id);
         $('#name').val(user.name);
         $('#email').val(user.email);
-        $('#phone').val(user.phone); // Assuming phone input field
-        $('#birth_date').val(user.birth_date); // Assuming birth_date input field
-        $('#province_id').val(user.province_id).trigger('change'); // Assuming province select field
-        if (user.province_id) {
-                $.ajax({
-                    url: `/cities?id=${user.province_id}`,
-                    type: "GET",
-                    dataType: "json",
-                    success: function (data) {
-                        $('#city_id').empty();
-                        $('#city_id').append('<option value="">==Pilih Salah Satu==</option>');
-                        $.each(data, function (key, value) {
-                            $('#city_id').append(`<option value="${value.id}" ${value.id == user.city_id ? 'selected' : ''}>${value.name}</option>`);
-                        });
-                    }
-                });
-            }
-        $('#last_education').val(user.last_education); // Assuming last_education input field
-        $('#major').val(user.major); // Assuming major input field
-        $('#paket_id').val(user.paket_id).trigger('change');
-        $('#daftar_member').val(user.daftar_member);
+        $('#phone').val(user.phone);
         $('#password').val(user.password);
-        $('#selesai_member').val(user.selesai_member);
 
         const baseUrl = window.location.origin;
         const updateUrl = `${baseUrl}/pengguna/${user.id}`;
@@ -171,30 +129,6 @@
             }
         });
     });
-
-    function onChangeSelect(url, id) {
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: "json",
-                data: {
-                id: id
-                },
-                success: function (data) {
-                $('#city_id').empty();
-                $('#city_id').append('<option value="">==Pilih Salah Satu==</option>');
-                $.each(data, function (key, value) {
-                    $('#city_id').append('<option value="' + value.id + '">' + value.name + '</option>');
-                });
-                }
-            });
-            }$(function () {
-            $('#province_id').on('change', function () {
-                onChangeSelect('{{ route("cities") }}', $(this).val());
-            });
-        });
-
-
 
     function confirmDelete(id) {
         Swal.fire({
@@ -265,7 +199,6 @@
         });
 
         $('.modal-title').html('Tambah Pengguna');
-         $('#paket_id').val('').trigger('change');
 
         $('.text-danger').remove();
         $('.is-invalid').removeClass('is-invalid');

@@ -5,7 +5,7 @@
         <i class="fa fa-bars"></i>
     </button>
 
-    <a class="navbar-nav d-none d-md-flex ms-auto" href="{{url('/')}}">
+    <a class="navbar-nav d-none d-md-flex" href="{{url('/')}}">
             <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo jenius CPNS" width="60px">
     </a>
 
@@ -16,7 +16,6 @@
         <div class="topbar-divider d-none d-sm-block mx-0"></div>
         <a href="{{ url('setsoal') }}" class="nav-item nav-link {{ Request::is('setsoal') || Request::is('soal/*') ? 'active' : '' }}">Tryout SKD</a>
         <div class="topbar-divider d-none d-sm-block mx-0"></div>
-        <a href="{{ url('transaksi') }}" class="nav-item nav-link {{ Request::is('transaksi') ? 'active' : '' }}">Transaksi</a>
     </div>
 
 

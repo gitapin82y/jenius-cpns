@@ -30,9 +30,9 @@
                 <h5 class="m-0 mt-3 mt-sm-0 font-weight-bold text-left text-sm-center text-primary"><small class="text-secondary">Manajemen Soal</small> <br> {{ $setSoal->title }}</h5>
             </div>
             <div class="col-12 col-sm-2">
-                <button type="button" class="btn btn-success float-left mt-3 mt-sm-0 float-sm-right shadow-sm" data-toggle="modal" data-target="#exampleModal">
-                    <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Soal
-                </button>
+                      <button type="button" class="btn btn-success float-left mt-3 mt-sm-0 float-sm-right shadow-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Soal
+</button>
             </div>
         </div>
         <div class="card-body">

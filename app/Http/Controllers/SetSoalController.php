@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\SetSoal;
-use App\Models\Paket;
 use Illuminate\Http\Request;
 use DataTables;
 use Illuminate\Support\Facades\Storage;
@@ -20,10 +19,7 @@ class SetSoalController extends Controller
             return redirect('/');
         }
         if ($request->ajax()) {
-            return DataTables::of(SetSoal::with('paket')->get())
-                ->addColumn('paket_id', function (SetSoal $setSoal) {
-                    return $setSoal->paket->nama_paket;
-                })
+            return DataTables::of(SetSoal::get())
                 ->addColumn('status', function (SetSoal $setSoal) {
                     return $setSoal->status; // Using the new method
                 })
@@ -41,25 +37,8 @@ class SetSoalController extends Controller
                 })
                 ->make(true);
         }
-        $countFree = SetSoal::whereHas('paket', function ($query) {
-            $query->where('nama_paket', 'Free');
-        })->count();
-    
-        $countCeban = SetSoal::whereHas('paket', function ($query) {
-            $query->where('nama_paket', 'Ceban');
-        })->count();
-    
-        $countSaban = SetSoal::whereHas('paket', function ($query) {
-            $query->where('nama_paket', 'Saban');
-        })->count();
-    
-        $countGocap = SetSoal::whereHas('paket', function ($query) {
-            $query->where('nama_paket', 'Gocap');
-        })->count();
 
-        $pakets = Paket::all();
-
-        return view('admin.setsoal.index', compact('countFree', 'countCeban', 'countSaban', 'countGocap','pakets'));
+        return view('admin.setsoal.index');
     }
 
     public function changeStatus(Request $request, $id)
@@ -74,67 +53,27 @@ class SetSoalController extends Controller
     ]);
 }
 
-    public function getCounts()
-{
-    $countFree = SetSoal::whereHas('paket', function ($query) {
-        $query->where('nama_paket', 'Free');
-    })->count();
-
-    $countCeban = SetSoal::whereHas('paket', function ($query) {
-        $query->where('nama_paket', 'Ceban');
-    })->count();
-
-    $countSaban = SetSoal::whereHas('paket', function ($query) {
-        $query->where('nama_paket', 'Saban');
-    })->count();
-
-    $countGocap = SetSoal::whereHas('paket', function ($query) {
-        $query->where('nama_paket', 'Gocap');
-    })->count();
-
-    return response()->json([
-        'countFree' => $countFree,
-        'countCeban' => $countCeban,
-        'countSaban' => $countSaban,
-        'countGocap' => $countGocap,
-    ]);
-}
 
     public function public()
     {
-        $setSoals = SetSoal::with('paket') // Eager load relasi Paket
-            ->where('status','Publish')
-            ->orderBy('paket_id') // Urutkan berdasarkan paket_id
+        $setSoals = SetSoal::
+            where('status','Publish')
             ->get();
 
-            $user = Auth::user();
-            $now = Carbon::now();
-            $start = Carbon::parse($user->daftar_member);
-            $end = Carbon::parse($user->selesai_member);
-        
-            // Menghitung durasi dalam bulan
-            $remainingDays = $now->diffInDays($end, false);
-            
-            if (round($remainingDays) <= 0 && $user->paket_id > 1) {
-                $user->update(['paket_id' => 1,'is_akses' => 0]);
-                $statusMessage = 'Tidak memiliki akses tryout!';
-            } else {
-                $statusMessage = "Masa aktif tersisa: " . round($remainingDays) . " hari";
-            }
+        $akses = false;
+        if(Auth::user()){
+            $akses = true;   
+        }
 
         return view('login.set-soal.index', [
             'setSoals' => $setSoals,
-            'user' => $user,
-            'userPaketId' => $user->paket_id,
-            'userAkses' => $user->is_akses,
-            'statusMessage' => $statusMessage,
+            'userAkses' => $akses,
         ]);
     }
 
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'paket_id' => 'required|integer',
             'title' => 'required|string|max:255',
         ]);
 
@@ -146,7 +85,6 @@ class SetSoalController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'paket_id' => 'required|integer',
             'title' => 'required|string|max:255',
         ]);
 

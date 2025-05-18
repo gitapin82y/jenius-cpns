@@ -14,10 +14,6 @@ class SetSoal extends Model
         return $this->hasMany(Soal::class);
     }
 
-    public function paket()
-    {
-        return $this->belongsTo(Paket::class, 'paket_id');
-    }
 
     public function hasilTryouts()
     {

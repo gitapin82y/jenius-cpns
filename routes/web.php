@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\SoalController;
 use App\Http\Controllers\SetSoalController;
 use App\Http\Controllers\PaketController;
@@ -34,6 +33,8 @@ Route::get('/user/{id}', [UserController::class, 'show']);
 Route::get('provinces', [DependantDropdownController::class,'provinces'])->name('provinces');
 Route::get('cities', [DependantDropdownController::class,'cities'])->name('cities');
 
+Route::get('/tryout', [SetSoalController::class, 'public']);
+
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [UserController::class, 'dashboard']);
@@ -55,13 +56,8 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->back();
     });
 
-    Route::get('/tryout', [SetSoalController::class, 'public']);
     Route::get('/tryout/{set_soal}', [TryoutController::class, 'index'])->name('tryout.index');
     Route::post('/tryout/submit', [TryoutController::class, 'submit'])->name('tryout.submit');
     Route::get('/tryout/result/{set_soal}', [TryoutController::class, 'result'])->name('tryout.result');
 
-    Route::resource('/transaksi', PembelianController::class);
-    Route::post('/transaksi/{id}', [PembelianController::class, 'update']);
-Route::post('/beli-paket/{paketId}', [PembelianController::class, 'beliPaket'])->name('beliPaket');
-Route::get('/payment-success/{id}', [PembelianController::class, 'paymentSuccess'])->name('paymentSuccess');
 });

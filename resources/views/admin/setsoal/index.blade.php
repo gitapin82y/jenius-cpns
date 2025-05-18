@@ -9,80 +9,6 @@
 
 @section('content')
     
-    <div class="row">
-
-        <!-- Earnings (Monthly) Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Free ( Jumlah Set Soal )</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="countFree">{{ $countFree }} <small class="text-muted">Set Soal</small></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Earnings (Monthly) Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Ceban ( Jumlah Set Soal )</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="countCeban">{{ $countCeban }} <small class="text-muted">Set Soal</small></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Earnings (Monthly) Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Saban ( Jumlah Set Soal )</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="countSaban">{{ $countSaban }} <small class="text-muted">Set Soal</small></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pending Requests Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Gocap ( Jumlah Set Soal )</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="countGocap">{{ $countGocap }} <small class="text-muted">Set Soal</small></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <!-- Page Heading -->
@@ -93,9 +19,9 @@
             </div>
             <div class="col-12 col-sm-6">
                 <!-- Button trigger modal -->
-                <button type="button" class="btn btn-success float-left mt-3 mt-sm-0 float-sm-right shadow-sm" data-toggle="modal" data-target="#exampleModal">
-                    <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Data
-                </button>
+                <button type="button" class="btn btn-success float-left mt-3 mt-sm-0 float-sm-right shadow-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Data
+</button>
             </div>
         </div>
         <div class="card-body">
@@ -105,7 +31,6 @@
                         <tr>
                             <th>Title</th>
                             <th>Jumlah Soal</th>
-                            <th>Paket</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -120,10 +45,6 @@
 
 @push('after-script')
 <script>
-    $('#paket_id').select2({
-        placeholder: "Pilih Paket",
-        allowClear: true
-    });
     // Initialize DataTable
     $('#dataTable').DataTable({
         processing: true,
@@ -132,26 +53,6 @@
         columns: [
             { data: 'title', name: 'title' },
             { data: 'jumlah_soal', name: 'jumlah_soal' },
-            { data: 'paket_id', name: 'paket_id',render: function(data) {
-                let paketClass = '';
-                switch(data) {
-                    case 'Free':
-                        paketClass = 'badge-primary';
-                        break;
-                    case 'Ceban':
-                        paketClass = 'badge-success';
-                        break;
-                    case 'Saban':
-                        paketClass = 'badge-info';
-                        break;
-                    case 'Gocap':
-                        paketClass = 'badge-warning';
-                        break;
-                    default:
-                        paketClass = 'badge-secondary';
-                }
-                return `<span class="badge ${paketClass}">${data}</span>`;
-            } },
             { data: 'status', name: 'status',render: function(data) {
                 let status = '';
                 switch(data) {
@@ -190,8 +91,6 @@
         $('.modal-title').html('Edit Set Soal');
         $('#setSoalId').val(setSoal.id);
         $('#title').val(setSoal.title);
-        $('#paket_id').val(setSoal.paket_id);
-        $('#paket_id').trigger('change');
 
         const baseUrl = window.location.origin;
         const updateUrl = `${baseUrl}/setsoal/${setSoal.id}`;
@@ -261,7 +160,6 @@
         });
 
         $('.modal-title').html('Tambah Set Soal');
-        $('#paket_id').val('').trigger('change');
 
         $('.text-danger').remove();
         $('.is-invalid').removeClass('is-invalid');

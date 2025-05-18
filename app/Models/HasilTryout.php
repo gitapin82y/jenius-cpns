@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class HasilTryout extends Model
 {
-    use HasFactory;
-
     protected $guarded = [];
 
     // Relationships
