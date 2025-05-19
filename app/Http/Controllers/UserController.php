@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
+use App\Models\HasilTryout;
+use App\Models\Soal;
+use App\Models\Material;
 use DataTables;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -37,13 +40,27 @@ class UserController extends Controller
         return view('public.index');
     }
 
+  
     public function dashboard()
     {
         if(!Auth::user()->is_admin){
-            return redirect()->back();
-        }
-
-        return view('admin.dashboard');
+                return redirect()->back();
+            }
+        // Count total users
+        $totalUsers = User::where('is_admin', false)->count();
+        
+        // Count completed tryouts
+        $completedTryouts = HasilTryout::distinct('user_id', 'set_soal_id')->count();
+        
+        // Count materials
+        $totalMaterials = Material::count();
+        
+        // Count tryout questions
+        $totalQuestions = Soal::whereHas('setSoal', function($query) {
+            $query->where('kategori', 'Tryout');
+        })->count();
+        
+        return view('admin.dashboard', compact('totalUsers', 'completedTryouts', 'totalMaterials', 'totalQuestions'));
     }
 
     public function kontak(){

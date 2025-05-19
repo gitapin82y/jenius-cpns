@@ -9,6 +9,80 @@
 @include('admin.materi.detail')
 
 @section('content')
+<!-- Count Cards Row -->
+<div class="row mb-4">
+    <!-- TWK Count Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Materi TWK</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $countTWK }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TIU Count Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Materi TIU</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $countTIU }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-brain fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TKP Count Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Materi TKP</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $countTKP }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-tie fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Count Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Total Materi</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $countTotal }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-book fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Page Heading -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 align-items-center justify-content-between row m-0">
@@ -23,6 +97,29 @@
             </div>
         </div>
         <div class="card-body">
+            <div class="row">
+            <div class="col-md-5 mb-3">
+                <label for="filter-kategori">Kategori</label>
+                <select class="form-control" id="filter-kategori">
+                    <option value="">Semua Kategori</option>
+                    <option value="TWK">TWK</option>
+                    <option value="TIU">TIU</option>
+                    <option value="TKP">TKP</option>
+                </select>
+            </div>
+            <div class="col-md-5 mb-3">
+                <label for="filter-tipe">Tipe/Subkategori</label>
+                <select class="form-control" id="filter-tipe">
+                    <option value="">Semua Tipe</option>
+                    @foreach($tipes as $tipe)
+                        <option value="{{ $tipe }}">{{ $tipe }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-2 mb-3 d-flex align-items-end">
+                <button id="btn-reset-filter" class="btn btn-secondary btn-block">Reset</button>
+            </div>
+        </div>
             <div class="table-responsive">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
@@ -46,33 +143,51 @@
 @push('after-script')
 <script>
     // Initialize DataTable
-    $('#dataTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: '{{ route("materi.index") }}',
-        columns: [
-            { data: 'title', name: 'title' },
-            { data: 'kategori', name: 'kategori' },
-            { data: 'tipe', name: 'tipe' },
-            { data: 'excerpt', name: 'excerpt' },
-            { data: 'status', name: 'status', render: function(data) {
-                let status = '';
-                switch(data) {
-                    case 'Draf':
-                        status = 'badge-warning';
-                        break;
-                    case 'Publish':
-                        status = 'badge-success';
-                        break;
-                    default:
-                        status = 'badge-secondary';
-                }
-                return `<span class="badge ${status}">${data}</span>`;
-            }},
-            { data: 'action', name: 'action', orderable: false, searchable: false },
-        ]
-    });
+    // Initialize DataTable - PERBAIKAN: Simpan instance DataTable dalam variabel 'table'
+let table = $('#dataTable').DataTable({
+    processing: true,
+    serverSide: true,
+    ajax: {
+        url: "{{ route('materi.index') }}",
+        data: function(d) {
+            d.kategori = $('#filter-kategori').val();
+            d.tipe = $('#filter-tipe').val();
+        }
+    },
+    columns: [
+        { data: 'title', name: 'title' },
+        { data: 'kategori', name: 'kategori' },
+        { data: 'tipe', name: 'tipe' },
+        { data: 'excerpt', name: 'excerpt' },
+        { data: 'status', name: 'status', render: function(data) {
+            let status = '';
+            switch(data) {
+                case 'Draf':
+                    status = 'badge-warning';
+                    break;
+                case 'Publish':
+                    status = 'badge-success';
+                    break;
+                default:
+                    status = 'badge-secondary';
+            }
+            return `<span class="badge ${status}">${data}</span>`;
+        }},
+        { data: 'action', name: 'action', orderable: false, searchable: false },
+    ]
+});
 
+// Apply filters - SEKARANG AKAN BERFUNGSI
+$('#filter-kategori, #filter-tipe').change(function() {
+    table.draw();
+});
+
+// Reset filters - SEKARANG AKAN BERFUNGSI
+$('#btn-reset-filter').click(function() {
+    $('#filter-kategori').val('');
+    $('#filter-tipe').val('');
+    table.draw();
+});
     // Edit material function to fill the form in the modal
     function editMaterial(material) {
         $('.modal-title').html('Edit Materi');

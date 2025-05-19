@@ -61,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
         // Route untuk admin
     Route::resource('/materi', MaterialController::class);
     Route::post('materi/change-status/{id}', [MaterialController::class, 'changeStatus']);
+    Route::get('/materi/get-tipes', [MaterialController::class, 'getTipes'])->name('materi.get-tipes');
     
 
     Route::get('/tryout/{set_soal}', [TryoutController::class, 'index'])->name('tryout.index');
