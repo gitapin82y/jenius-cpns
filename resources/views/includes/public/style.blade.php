@@ -14,7 +14,6 @@
 <link href="{{asset('assets/lib/owlcarousel/assets/owl.carousel.min.css')}}" rel="stylesheet">
 <link href="{{asset('assets/lib/lightbox/css/lightbox.min.css')}}" rel="stylesheet">
 
-
 <!-- Customized Bootstrap Stylesheet -->
 <link href="{{asset('assets/css/bootstrap.min.css')}}" rel="stylesheet">
 

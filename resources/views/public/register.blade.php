@@ -1,22 +1,26 @@
-@extends('layouts.login-system')
-
-@section('title', 'Register')
+@extends('layouts.public')
+ 
+@section('title', 'Tryout CPNS TES SKD CASN Gratis - Jenius CPNS')
 
 @push('after-style')
+<link href="{{asset('css/sb-admin-2.min.css')}}" rel="stylesheet">
 
+<style>
+        .styleEyePassword{
+    position: absolute;
+    right:15px;
+    transform: translateY(-33px);
+    cursor: pointer;
+}
+</style>
 @endpush
 
 @section('content')
-<div class="row" style="min-height:90vh">
-    <div class="col-12 align-self-center">
-        <div class="p-5">
-            <div class="text-center">
-                <a href="{{ url('/') }}">
-                    <img src="{{ asset('assets/img/lulus-bersama-logo.png') }}"
-                        alt="logo jenius CPNS" width="80px">
-                </a>
-                <h1 class="h4 text-gray-900 my-3">Daftar Akun</h1>
-            </div>
+ <div class="container">
+    <div class="row">
+    <div class="col-12 col-md-6 align-self-center">
+                <h1 class="h4 text-gray-900">Daftar Platform Tryout & Belajar CPNS</h1>
+                <p>Gabung bersama kami untuk lulus bersama CPNS dengan sistem adaptif strategi belajar yang efektif</p>
             <form action="{{ url('register') }}" method="POST" class="user">
                 @csrf
 
@@ -85,10 +89,12 @@
             <div class="text-center mt-3 small">
                 Sudah Punya Akun? <a href="{{ url('/login') }}">Masuk</a>
             </div>
-
+    </div>
+   <div class="col-12 col-md-6 align-self-center">
+            <img src="{{asset('assets/img/customer-img-1.jpg')}}" alt="img belom di generate">
         </div>
     </div>
-</div>
+ </div>
 @endsection
 
 @push('after-script')

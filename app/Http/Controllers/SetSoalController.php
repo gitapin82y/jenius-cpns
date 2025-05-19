@@ -65,9 +65,12 @@ class SetSoalController extends Controller
             $akses = true;   
         }
 
+        $isLoggedIn = Auth::check();
+
         return view('login.set-soal.index', [
             'setSoals' => $setSoals,
             'userAkses' => $akses,
+            'isLoggedIn' => $isLoggedIn
         ]);
     }
 

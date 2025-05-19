@@ -42,10 +42,6 @@
   @yield('content')
   <!-- end body -->
 
-  <!-- start footer -->
-  @include('includes.public.footer')
-  <!-- end footer -->
-
   @include('includes.public.script')
   @stack('after-script')
 </body>

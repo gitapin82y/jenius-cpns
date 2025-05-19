@@ -44,7 +44,7 @@
         <div class="row g-4 justify-content-center">
             <div class="row ">
                 <div class="col-12">
-                      @if(!isset($isLoggedIn) || !$isLoggedIn)
+                      @if(!$isLoggedIn)
         <!-- Pesan untuk pengguna yang belum login -->
         <div class="alert alert-info text-center">
             <h5><i class="fas fa-info-circle me-2"></i> Anda belum login</h5>
