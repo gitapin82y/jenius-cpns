@@ -40,12 +40,21 @@ class MaterialController extends Controller
         }
         
         return DataTables::of($query)
-            ->addColumn('excerpt', function($material) {
-                return Str::limit(strip_tags($material->content), 40, '...');
-            })
-            ->addColumn('action', function ($material) {
-                // Action buttons code...
-            })
+             ->addColumn('excerpt', function($material) {
+                    return Str::limit(strip_tags($material->content), 40, '...');
+                })
+                ->addColumn('action', function ($material) {
+                    $statusButton = $material->status == 'Draf' ?
+                    '<button type="button" class="btn btn-success btn-sm" onclick="changeStatus(' . $material->id . ', \'Publish\')"><i class="fas fa-check-circle fa-sm text-white-50"></i> Publish</button>' :
+                    '<button type="button" class="btn btn-warning btn-sm" onclick="changeStatus(' . $material->id . ', \'Draf\')"><i class="fas fa-times-circle fa-sm text-white-50"></i> Draf</button>';
+
+                    return '
+                        <button type="button" class="btn btn-info btn-sm" onclick="showDetailMaterial(' . htmlspecialchars(json_encode($material), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-eye fa-sm text-white-50"></i> Detail</button> '
+                        .$statusButton.'
+                        <button type="button" class="btn btn-primary btn-sm" onclick="editMaterial(' . htmlspecialchars(json_encode($material), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Edit</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(' . $material->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
+                    ';
+                })
             ->rawColumns(['action'])
             ->make(true);
     }
