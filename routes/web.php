@@ -36,6 +36,9 @@ Route::get('provinces', [DependantDropdownController::class,'provinces'])->name(
 Route::get('cities', [DependantDropdownController::class,'cities'])->name('cities');
 
 Route::get('/tryout', [SetSoalController::class, 'public']);
+Route::get('/materi-belajar', [MaterialController::class, 'public'])->name('public.materi.index');
+Route::get('/materi-belajar/{id}', [MaterialController::class, 'show'])->name('materi-belajar.show');
+
 
 Route::middleware(['auth'])->group(function () {
 
@@ -68,8 +71,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tryout/submit', [TryoutController::class, 'submit'])->name('tryout.submit');
     Route::get('/tryout/result/{set_soal}', [TryoutController::class, 'result'])->name('tryout.result');
 
-    Route::get('/materi-belajar', [MaterialController::class, 'public'])->name('public.materi.index');
-    Route::get('/materi-belajar/{id}', [MaterialController::class, 'show'])->name('materi.show');
     Route::post('/materi-belajar/mark-completed/{id}', [MaterialController::class, 'markCompleted'])->name('materi.mark-completed');
     
 

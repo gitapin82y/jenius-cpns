@@ -40,10 +40,27 @@
 
 <div class="container-fluid blog">
     <div class="container py-5">
-        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
-            <h1 class="display-4">List Set Soal Tryout</h1>
-        </div>
+
         <div class="row g-4 justify-content-center">
+            <div class="row ">
+                <div class="col-12">
+                      @if(!isset($isLoggedIn) || !$isLoggedIn)
+        <!-- Pesan untuk pengguna yang belum login -->
+        <div class="alert alert-info text-center">
+            <h5><i class="fas fa-info-circle me-2"></i> Anda belum login</h5>
+            <p class="mb-3">Silakan login untuk mengakses tryout.</p>
+            <a href="{{ route('login') }}" class="btn btn-primary">Login Sekarang</a>
+            <span class="mx-2">atau</span>
+            <a href="{{ url('/register') }}" class="btn btn-outline-primary">Daftar Akun Baru</a>
+        </div>
+        @else
+                    <div class="alert alert-info p-4 text-center">
+                        <h4 class="alert-heading mb-3"><i class="fas fa-info-circle me-2"></i> Petunjuk</h4>
+                        <p class="mb-0">Sebelum mengakses tryout pastikan semua <a href="{{url('/materi-belajar')}}" class="text-primary fw-bold">Materi</a> telah selesai.</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
             @forelse($setSoals as $setSoal)
                 <div class="col-md-6 col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="blog-item bg-light rounded p-4">
@@ -109,7 +126,7 @@
             if (userAkses == false) {
                 Swal.fire({
                     title: 'Tidak dapat akses tryout!',
-                    text: 'Anda tidak dapat akses tryout, silahkan login terlebih dahulu',
+                    text: 'Silahkan login terlebih dahulu',
                     icon: 'warning',
                     confirmButtonText: 'Login',
                     cancelButtonText: 'Cancel',
@@ -145,7 +162,7 @@
             if (userAkses == false) {
                 Swal.fire({
                     title: 'Tidak dapat akses tryout!',
-                    text: 'Anda tidak dapat akses tryout, silahkan login terlebih dahulu',
+                    text: 'Silahkan login terlebih dahulu',
                     icon: 'warning',
                     confirmButtonText: 'Login',
                     cancelButtonText: 'Cancel',

@@ -142,7 +142,7 @@
 
 @push('after-script')
 <script>
-    // Initialize DataTable
+
     // Initialize DataTable - PERBAIKAN: Simpan instance DataTable dalam variabel 'table'
 let table = $('#dataTable').DataTable({
     processing: true,

@@ -100,10 +100,6 @@
 
 <div class="container-fluid blog">
     <div class="container py-5">
-        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
-            <h1 class="display-4">Materi Pembelajaran CPNS</h1>
-            <p>Selesaikan semua materi dan latihan untuk mengakses Tryout CPNS</p>
-        </div>
         
         <div class="row g-4 justify-content-center">
             @php
@@ -216,10 +212,52 @@
                 $allMaterialsCompleted = $allTWKCompleted && $allTIUCompleted && $allTKPCompleted;
                 $allLatihanCompleted = $twkLatihanCompleted && $tiuLatihanCompleted && $tkpLatihanCompleted;
             @endphp
+
+   @if(!isset($isLoggedIn) || !$isLoggedIn)
+        <!-- Pesan untuk pengguna yang belum login -->
+        <div class="alert alert-info text-center">
+            <h5><i class="fas fa-info-circle me-2"></i> Anda belum login</h5>
+            <p class="mb-3">Silakan login untuk mengakses detail materi dan mengerjakan latihan.</p>
+            <a href="{{ route('login') }}" class="btn btn-primary">Login Sekarang</a>
+            <span class="mx-2">atau</span>
+            <a href="{{ url('/register') }}" class="btn btn-outline-primary">Daftar Akun Baru</a>
+        </div>
+        @else
+               
+        <!-- Tryout Access Banner -->
+        @if($allMaterialsCompleted && $allLatihanCompleted)
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-success p-4 text-center">
+                        <h4 class="alert-heading mb-3"><i class="fas fa-check-circle me-2"></i> Selamat!</h4>
+                        <p class="mb-3">Anda telah menyelesaikan semua materi dan latihan. Anda sekarang bisa mengakses Tryout CPNS.</p>
+                        <a href="{{ url('/tryout') }}" class="btn btn-success px-4 py-2">Akses Tryout CPNS</a>
+                        
+                        @php
+                            // Update user access
+                            if(Auth::check() && !Auth::user()->is_akses) {
+                                Auth::user()->update(['is_akses' => true]);
+                            }
+                        @endphp
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="row ">
+                <div class="col-12">
+                    <div class="alert alert-info p-4 text-center">
+                        <h4 class="alert-heading mb-3"><i class="fas fa-info-circle me-2"></i> Petunjuk</h4>
+                        <p class="mb-0">Untuk mengakses Tryout CPNS, Anda harus menyelesaikan semua materi dan latihan dari ketiga kategori (TWK, TIU, dan TKP).</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @endif
             
             <!-- Materi TWK Card -->
             <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="blog-item rounded p-4 position-relative">
+                <div class="blog-item bg-light rounded p-4">
                     <div class="mb-4">
                         <h4 class="mb-2">Materi TWK</h4>
                         <div class="progress">
@@ -229,18 +267,18 @@
                             <span>Progress: {{ $completedTWKMaterials }}/{{ $totalTWKMaterials }}</span>
                             <span>{{ number_format($twkPercentage, 0) }}%</span>
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-3">
                             <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ $totalTWKMaterials }} Materi</span></p>
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $twkStatus }}</span></p>
                         </div>
                     </div>
-                    <a href="{{ !empty($twkMaterials->first()) ? route('materi.show', $twkMaterials->first()->first()->id) : '#' }}" class="btn btn-primary btn-rounded">Lihat Materi</a>
+                    <a href="{{ !empty($twkMaterials->first()) ? route('materi-belajar.show', $twkMaterials->first()->first()->id) : '#' }}" class="btn btn-primary btn-rounded">Lihat Materi</a>
                 </div>
             </div>
             
             <!-- Latihan TWK Card -->
             <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
-                <div class="blog-item rounded p-4 position-relative">
+                <div class="blog-item bg-light rounded p-4">
                     @if(!$allTWKCompleted)
                         <div class="locked-overlay">
                             <div class="text-center text-white">
@@ -259,7 +297,7 @@
                             <span>Progress: {{ $twkLatihanCompleted ? '1' : '0' }}/1</span>
                             <span>{{ $twkLatihanCompleted ? '100' : '0' }}%</span>
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-3">
                             <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ count($twkLatihan) }} Soal</span></p>
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $twkLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
                         </div>
@@ -274,7 +312,7 @@
             
             <!-- Materi TIU Card -->
             <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
-                <div class="blog-item rounded p-4 position-relative">
+                <div class="blog-item bg-light rounded p-4">
                     @if(!$tiuUnlocked)
                         <div class="locked-overlay">
                             <div class="text-center text-white">
@@ -293,13 +331,13 @@
                             <span>Progress: {{ $completedTIUMaterials }}/{{ $totalTIUMaterials }}</span>
                             <span>{{ number_format($tiuPercentage, 0) }}%</span>
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-3">
                             <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ $totalTIUMaterials }} Materi</span></p>
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tiuStatus }}</span></p>
                         </div>
                     </div>
                     @if($tiuUnlocked && !empty($tiuMaterials->first()))
-                        <a href="{{ route('materi.show', $tiuMaterials->first()->first()->id) }}" class="btn btn-primary btn-rounded">Lihat Materi</a>
+                        <a href="{{ route('materi-belajar.show', $tiuMaterials->first()->first()->id) }}" class="btn btn-primary btn-rounded">Lihat Materi</a>
                     @else
                         <button disabled class="btn btn-secondary btn-rounded">Lihat Materi</button>
                     @endif
@@ -308,7 +346,7 @@
             
             <!-- Latihan TIU Card -->
             <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="blog-item rounded p-4 position-relative">
+                <div class="blog-item bg-light rounded p-4">
                     @if(!$tiuUnlocked || !$allTIUCompleted)
                         <div class="locked-overlay">
                             <div class="text-center text-white">
@@ -327,7 +365,7 @@
                             <span>Progress: {{ $tiuLatihanCompleted ? '1' : '0' }}/1</span>
                             <span>{{ $tiuLatihanCompleted ? '100' : '0' }}%</span>
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-3">
                             <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ count($tiuLatihan) }} Soal</span></p>
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tiuLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
                         </div>
@@ -342,7 +380,7 @@
             
             <!-- Materi TKP Card -->
             <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
-                <div class="blog-item rounded p-4 position-relative">
+                <div class="blog-item bg-light rounded p-4">
                     @if(!$tkpUnlocked)
                         <div class="locked-overlay">
                             <div class="text-center text-white">
@@ -361,13 +399,13 @@
                             <span>Progress: {{ $completedTKPMaterials }}/{{ $totalTKPMaterials }}</span>
                             <span>{{ number_format($tkpPercentage, 0) }}%</span>
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-3">
                             <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ $totalTKPMaterials }} Materi</span></p>
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tkpStatus }}</span></p>
                         </div>
                     </div>
                     @if($tkpUnlocked && !empty($tkpMaterials->first()))
-                        <a href="{{ route('materi.show', $tkpMaterials->first()->first()->id) }}" class="btn btn-primary btn-rounded">Lihat Materi</a>
+                        <a href="{{ route('materi-belajar.show', $tkpMaterials->first()->first()->id) }}" class="btn btn-primary btn-rounded">Lihat Materi</a>
                     @else
                         <button disabled class="btn btn-secondary btn-rounded">Lihat Materi</button>
                     @endif
@@ -376,7 +414,7 @@
             
             <!-- Latihan TKP Card -->
             <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
-                <div class="blog-item rounded p-4 position-relative">
+                <div class="blog-item bg-light rounded p-4">
                     @if(!$tkpUnlocked || !$allTKPCompleted)
                         <div class="locked-overlay">
                             <div class="text-center text-white">
@@ -395,7 +433,7 @@
                             <span>Progress: {{ $tkpLatihanCompleted ? '1' : '0' }}/1</span>
                             <span>{{ $tkpLatihanCompleted ? '100' : '0' }}%</span>
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-3">
                             <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ count($tkpLatihan) }} Soal</span></p>
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tkpLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
                         </div>
@@ -408,35 +446,50 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Tryout Access Banner -->
-        @if($allMaterialsCompleted && $allLatihanCompleted)
-            <div class="row mt-5">
-                <div class="col-12">
-                    <div class="alert alert-success p-4 text-center">
-                        <h4 class="alert-heading mb-3"><i class="fas fa-check-circle me-2"></i> Selamat!</h4>
-                        <p class="mb-3">Anda telah menyelesaikan semua materi dan latihan. Anda sekarang bisa mengakses Tryout CPNS.</p>
-                        <a href="{{ url('/tryout') }}" class="btn btn-success px-4 py-2">Akses Tryout CPNS</a>
-                        
-                        @php
-                            // Update user access
-                            if(Auth::check() && !Auth::user()->is_akses) {
-                                Auth::user()->update(['is_akses' => true]);
-                            }
-                        @endphp
-                    </div>
-                </div>
-            </div>
-        @else
-            <div class="row mt-5">
-                <div class="col-12">
-                    <div class="alert alert-info p-4 text-center">
-                        <h4 class="alert-heading mb-3"><i class="fas fa-info-circle me-2"></i> Petunjuk</h4>
-                        <p class="mb-0">Untuk mengakses Tryout CPNS, Anda harus menyelesaikan semua materi dan latihan dari ketiga kategori (TWK, TIU, dan TKP).</p>
-                    </div>
-                </div>
-            </div>
-        @endif
     </div>
 </div>
 @endsection
+@push('after-script')
+<script>
+    // Script lainnya...
+    
+    // SweetAlert untuk pengguna yang mencoba akses tryout tanpa menyelesaikan materi
+    @if(session('sweetAlert'))
+        Swal.fire({
+            title: "{{ session('title') }}",
+            text: "{{ session('text') }}",
+            icon: "{{ session('type') }}",
+            showCancelButton: false,
+            confirmButtonText: "Oke",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Akan tetap di halaman materi
+                // Kita bisa scroll ke bagian materi yang belum selesai jika perlu
+                $('.nav-tabs a[href="#twk"]').tab('show'); // Misalnya, selalu tampilkan tab TWK
+            }
+        });
+    @endif
+</script>
+<script>
+    $(document).ready(function() {
+    @if(session('swal_msg'))
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+    
+    Toast.fire({
+        icon: "{{ session('swal_type') ?? 'info' }}",
+        title: "{{ session('swal_msg') }}"
+    });
+@endif
+    });
+</script>
+@endpush

@@ -6,7 +6,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Nama Paket:</strong> <span id="modalPaketName"></span></p>
                 <p><strong>Nama Set Soal:</strong> <span id="modalSetName"></span></p>
                 <p><strong>Jumlah Soal:</strong> <span id="modalJumlahSoal"></span></p>
                 <p><strong>Durasi:</strong> 110 Menit</p>

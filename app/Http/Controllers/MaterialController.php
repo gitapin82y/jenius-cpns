@@ -184,93 +184,105 @@ class MaterialController extends Controller
         ]);
     }
     
+
     public function public()
-    {
-        try {
-            $twkMaterials = Material::where('status', 'Publish')
-                ->where('kategori', 'TWK')
-                ->get()
-                ->groupBy('tipe');
-                
-            $tiuMaterials = Material::where('status', 'Publish')
-                ->where('kategori', 'TIU')
-                ->get()
-                ->groupBy('tipe');
-                
-            $tkpMaterials = Material::where('status', 'Publish')
-                ->where('kategori', 'TKP')
-                ->get()
-                ->groupBy('tipe');
-                
-            // Latihan soal (set soal dengan kategori latihan)
-            $twkLatihan = SetSoal::where('status', 'Publish')
-                ->where('kategori', 'Latihan')
-                ->whereHas('soal', function($query) {
-                    $query->where('kategori', 'TWK');
-                })
-                ->get();
-                
-            $tiuLatihan = SetSoal::where('status', 'Publish')
-                ->where('kategori', 'Latihan')
-                ->whereHas('soal', function($query) {
-                    $query->where('kategori', 'TIU');
-                })
-                ->get();
-                
-            $tkpLatihan = SetSoal::where('status', 'Publish')
-                ->where('kategori', 'Latihan')
-                ->whereHas('soal', function($query) {
-                    $query->where('kategori', 'TKP');
-                })
-                ->get();
-                
-            // Get user progress
-            $userProgress = [];
-            if (Auth::check()) {
-                $userId = Auth::id();
-                $userProgressData = UserMaterialProgress::where('user_id', $userId)
-                    ->where('is_completed', true)
-                    ->pluck('material_id')
-                    ->toArray();
-                    
-                $userProgress = array_flip($userProgressData);
-                
-                // Get user tryout progress
-                $userTryoutProgress = HasilTryout::where('user_id', $userId)
-                    ->pluck('set_soal_id')
-                    ->toArray();
-                
-                $userTryoutProgress = array_flip($userTryoutProgress);
-            }
+{
+    try {
+        $twkMaterials = Material::where('status', 'Publish')
+            ->where('kategori', 'TWK')
+            ->get()
+            ->groupBy('tipe');
             
-            return view('login.materi.index', compact(
-                'twkMaterials', 
-                'tiuMaterials', 
-                'tkpMaterials',
-                'twkLatihan',
-                'tiuLatihan',
-                'tkpLatihan',
-                'userProgress',
-                'userTryoutProgress'
-            ));
-        } catch (\Exception $e) {
-            // Log error
-            SystemErrorController::logError(
-                Auth::id(), 
-                $e->getCode() ?: '500', 
-                'Server Error', 
-                $e->getMessage()
-            );
+        $tiuMaterials = Material::where('status', 'Publish')
+            ->where('kategori', 'TIU')
+            ->get()
+            ->groupBy('tipe');
             
-            // Notify user
-            toast()->error('Terjadi kesalahan saat menampilkan materi. Tim kami sudah diberitahu.');
-            return redirect()->back();
+        $tkpMaterials = Material::where('status', 'Publish')
+            ->where('kategori', 'TKP')
+            ->get()
+            ->groupBy('tipe');
+            
+        // Latihan soal (set soal dengan kategori latihan)
+        $twkLatihan = SetSoal::where('status', 'Publish')
+            ->where('kategori', 'Latihan')
+            ->whereHas('soal', function($query) {
+                $query->where('kategori', 'TWK');
+            })
+            ->get();
+            
+        $tiuLatihan = SetSoal::where('status', 'Publish')
+            ->where('kategori', 'Latihan')
+            ->whereHas('soal', function($query) {
+                $query->where('kategori', 'TIU');
+            })
+            ->get();
+            
+        $tkpLatihan = SetSoal::where('status', 'Publish')
+            ->where('kategori', 'Latihan')
+            ->whereHas('soal', function($query) {
+                $query->where('kategori', 'TKP');
+            })
+            ->get();
+            
+        // Get user progress - buat kosong jika belum login
+        $userProgress = [];
+        $userTryoutProgress = [];
+        $isLoggedIn = Auth::check();
+        
+        if ($isLoggedIn) {
+            $userId = Auth::id();
+            $userProgressData = UserMaterialProgress::where('user_id', $userId)
+                ->where('is_completed', true)
+                ->pluck('material_id')
+                ->toArray();
+                
+            $userProgress = array_flip($userProgressData);
+            
+            // Get user tryout progress
+            $userTryoutProgress = HasilTryout::where('user_id', $userId)
+                ->pluck('set_soal_id')
+                ->toArray();
+            
+            $userTryoutProgress = array_flip($userTryoutProgress);
         }
+        
+        return view('login.materi.index', compact(
+            'twkMaterials', 
+            'tiuMaterials', 
+            'tkpMaterials',
+            'twkLatihan',
+            'tiuLatihan',
+            'tkpLatihan',
+            'userProgress',
+            'userTryoutProgress',
+            'isLoggedIn'
+        ));
+    } catch (\Exception $e) {
+        // Log error
+        SystemErrorController::logError(
+            Auth::id() ?: 0, // Tambahkan pengecekan untuk user yang belum login
+            $e->getCode() ?: '500', 
+            'Server Error', 
+            $e->getMessage()
+        );
+        
+        // Notify user
+        toast()->error('Terjadi kesalahan saat menampilkan materi. Tim kami sudah diberitahu.');
+        return redirect()->back();
     }
+}
     
    public function show($id)
 {
     try {
+        if (!Auth::check()) {
+            return redirect()->back()->with([
+            'swal_msg' => 'Anda harus login untuk melihat detail materi.',
+            'swal_type' => 'warning'
+        ]);;
+        }
+
         $material = Material::findOrFail($id);
         
         // Ambil progress user untuk materi ini

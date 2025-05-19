@@ -100,8 +100,12 @@ class TryoutController extends Controller
                         ->toArray();
                     
                     if (count($completed_latihan) < count($latihan_sets)) {
-                        toast()->warning('Anda harus menyelesaikan semua materi dan latihan terlebih dahulu.');
-                        return redirect()->route('public.materi.index');
+                          return redirect()->route('public.materi.index')->with([
+                        'sweetAlert' => true,
+                        'type' => 'warning',
+                        'title' => 'Akses Ditolak!',
+                        'text' => 'Anda harus menyelesaikan semua materi dan latihan terlebih dahulu.'
+                    ]);
                     } else {
                         // Jika semua sudah selesai, aktifkan is_akses
                         $user->is_akses = true;
@@ -126,7 +130,7 @@ class TryoutController extends Controller
             );
             
             // Notify user
-            toast()->error('Terjadi kesalahan pada sistem. Tim kami sudah diberitahu.');
+            toast()->error('Terjadi kesalahan pada sistem.');
             return redirect()->back();
         }
     }
@@ -295,7 +299,7 @@ if ($setSoal->kategori == 'Latihan') {
             );
             
             // Notify user
-            toast()->error('Terjadi kesalahan saat menampilkan hasil. Tim kami sudah diberitahu.');
+            toast()->error('Terjadi kesalahan saat menampilkan hasil.');
             return redirect()->back();
         }
     }
