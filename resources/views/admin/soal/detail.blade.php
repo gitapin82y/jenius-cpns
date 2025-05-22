@@ -18,12 +18,16 @@
                     <div class="d-flex">
                         <strong id="modalKategori"></strong>
                         &nbsp;>&nbsp; 
-                        <p id="modalTipe"></p>
+                        <p id="modalTipe" class="mb-0"></p>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Pertanyaan <small><span id="modalPoin"></span></small> :</label>
                     <p id="modalPertanyaan"></p>
+                </div>
+                <div class="form-group">
+                    <label>Kata Kunci:</label>
+                    <div id="modalKataKunciSoal"></div>
                 </div>
                 <div class="form-group">
                     <label>Jawaban</label>

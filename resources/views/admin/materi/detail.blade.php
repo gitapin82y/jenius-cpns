@@ -10,17 +10,22 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Judul:</label>
-                    <h5 id="modalTitle"></h5>
-                </div>
-                <div class="form-group">
                     <label>Kategori & Tipe</label>
                     <div class="d-flex">
                         <strong id="modalKategori"></strong>
                         &nbsp;>&nbsp; 
-                        <p id="modalTipe"></p>
+                        <p id="modalTipe" class="mb-0"></p>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Judul:</label>
+                    <h5 id="modalTitle"></h5>
+                </div>
+                <div class="form-group">
+                    <label>Kata Kunci:</label>
+                    <div id="modalKataKunci"></div>
+                </div>
+                
                 <div class="form-group">
                     <label>Isi Materi:</label>
                     <div id="modalContent" class="p-2 border rounded"></div>

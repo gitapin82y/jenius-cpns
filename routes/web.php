@@ -13,6 +13,7 @@ use App\Http\Controllers\DependantDropdownController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\SystemErrorController;
+use App\Http\Controllers\KeywordUpdateController;
 
 Route::get('/', [UserController::class, 'public']);
 Route::get('/kontak', [UserController::class, 'kontak']);
@@ -31,20 +32,19 @@ Route::post('/formulir',[AuthController::class, 'formulir'])->name('formulir');
 
 Route::get('/user/{id}', [UserController::class, 'show']);
 
-
-Route::get('provinces', [DependantDropdownController::class,'provinces'])->name('provinces');
-Route::get('cities', [DependantDropdownController::class,'cities'])->name('cities');
-
 Route::get('/tryout', [SetSoalController::class, 'public']);
 Route::get('/materi-belajar', [MaterialController::class, 'public'])->name('public.materi.index');
 Route::get('/materi-belajar/{id}', [MaterialController::class, 'show'])->name('materi-belajar.show');
-
 
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [UserController::class, 'dashboard']);
 
     Route::get('/logout', [AuthController::class, 'logout']);
+
+     // Route untuk keyword suggestions
+    Route::post('/materi/keyword-suggestions', [MaterialController::class, 'getKeywordSuggestions']);
+    Route::post('/soal/keyword-suggestions', [SoalController::class, 'getKeywordSuggestions']);
     
     Route::resource('/pengguna', UserController::class);
     Route::post('/pengguna/{id}', [UserController::class, 'update']);
@@ -61,19 +61,59 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->back();
     });
 
-        // Route untuk admin
+    // Route untuk admin - materi
     Route::resource('/materi', MaterialController::class);
     Route::post('materi/change-status/{id}', [MaterialController::class, 'changeStatus']);
     Route::get('/materi/get-tipes', [MaterialController::class, 'getTipes'])->name('materi.get-tipes');
-    
 
     Route::get('/tryout/{set_soal}', [TryoutController::class, 'index'])->name('tryout.index');
     Route::post('/tryout/submit', [TryoutController::class, 'submit'])->name('tryout.submit');
     Route::get('/tryout/result/{set_soal}', [TryoutController::class, 'result'])->name('tryout.result');
+     Route::get('/tryout/pembahasan/{set_soal}', [TryoutController::class, 'pembahasan'])->name('tryout.pembahasan');
+    
+    // Route untuk Content Based Filtering API
+    Route::get('/tryout/{setSoalId}/recommendations/{kategori}', [TryoutController::class, 'getRecommendationsByCategory'])
+        ->name('tryout.recommendations');
 
     Route::post('/materi-belajar/mark-completed/{id}', [MaterialController::class, 'markCompleted'])->name('materi.mark-completed');
     
-
     // Route untuk admin - laporan sistem
     Route::get('/system-error', [SystemErrorController::class, 'index'])->name('system-error.index');
+
+
+
+
+
+
+
+
+       // === KEYWORD UPDATE ROUTES ===
+    
+    // Halaman update keywords
+    Route::get('/admin/keyword-update', [KeywordUpdateController::class, 'showUpdatePage'])
+        ->name('admin.keyword-update');
+    
+    // Update semua keywords (materials + soals)
+    Route::post('/admin/keyword-update/all', [KeywordUpdateController::class, 'updateAllKeywords'])
+        ->name('admin.keyword-update.all');
+    
+    // Update keywords materials saja
+    Route::post('/admin/keyword-update/materials', [KeywordUpdateController::class, 'updateMaterialKeywords'])
+        ->name('admin.keyword-update.materials');
+    
+    // Update keywords soals saja  
+    Route::post('/admin/keyword-update/soals', [KeywordUpdateController::class, 'updateSoalKeywords'])
+        ->name('admin.keyword-update.soals');
+    
+    // Update single material
+    Route::post('/admin/keyword-update/material/{id}', [KeywordUpdateController::class, 'updateSingleMaterial'])
+        ->name('admin.keyword-update.single-material');
+    
+    // Update single soal
+    Route::post('/admin/keyword-update/soal/{id}', [KeywordUpdateController::class, 'updateSingleSoal'])
+        ->name('admin.keyword-update.single-soal');
+    
+    // Preview keywords yang akan diupdate
+    Route::post('/admin/keyword-update/preview', [KeywordUpdateController::class, 'previewKeywords'])
+        ->name('admin.keyword-update.preview');
 });

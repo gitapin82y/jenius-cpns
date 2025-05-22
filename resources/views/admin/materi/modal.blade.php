@@ -49,6 +49,27 @@
                             <option value="Anti Radikalisme" class="TKP">Anti Radikalisme</option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label for="kata_kunci">Kata Kunci</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="kata_kunci" name="kata_kunci" 
+                                   placeholder="Pisahkan dengan koma, atau kosongkan untuk auto-generate" 
+                                   value="{{ old('kata_kunci') }}">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary" id="generateKeywords">
+                                    <i class="fas fa-magic"></i> Auto
+                                </button>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">
+                            Kata kunci akan digunakan untuk sistem rekomendasi. Kosongkan untuk generate otomatis.
+                        </small>
+                        <div id="keywordSuggestions" class="mt-2" style="display:none;">
+                            <small class="text-muted">Saran kata kunci:</small>
+                            <div id="keywordList" class="d-flex flex-wrap mt-1"></div>
+                        </div>
+                    </div>
                     
                     <div class="form-group">
                         <label for="content">Isi Materi</label>

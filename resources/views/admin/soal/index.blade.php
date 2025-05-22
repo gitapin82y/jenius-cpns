@@ -45,6 +45,7 @@
                             <th>Tipe</th>
                             <th>Poin</th>
                             <th>Pertanyaan</th>
+                            <th>Kata Kunci</th>
                             <th>Jawaban Benar</th>
                             <th>Action</th>
                         </tr>
@@ -77,8 +78,25 @@
                 { data: 'tipe', name: 'tipe' },
                 { data: 'poin', name: 'poin' },
                 { data: 'pertanyaan', name: 'pertanyaan' },
+                { 
+                    data: 'kata_kunci_display', 
+                    name: 'kata_kunci_display', 
+                    orderable: false, 
+                    searchable: false,
+                    className: 'kata-kunci-column'
+                },
                 { data: 'jawaban_benar', name: 'jawaban_benar' },
                 { data: 'action', name: 'action', orderable: false, searchable: false },
+            ],
+            columnDefs: [
+                { width: "5%", targets: 0 },  // No
+                { width: "8%", targets: 1 },  // Kategori
+                { width: "12%", targets: 2 }, // Tipe
+                { width: "8%", targets: 3 },  // Poin
+                { width: "20%", targets: 4 }, // Pertanyaan
+                { width: "15%", targets: 5 }, // Kata Kunci
+                { width: "10%", targets: 6 }, // Jawaban Benar
+                { width: "22%", targets: 7 }  // Action
             ]
         });
 
@@ -173,6 +191,16 @@
             $('#score_e').val(soal.score_e);
             $('#pembahasan').val(soal.pembahasan);
 
+        // Set kata kunci
+        if (soal.kata_kunci) {
+            try {
+                const keywords = JSON.parse(soal.kata_kunci);
+                $('#kata_kunci_soal').val(keywords.join(', '));
+            } catch (e) {
+                $('#kata_kunci_soal').val(soal.kata_kunci);
+            }
+        }
+
         const baseUrl = window.location.origin;
         const updateUrl = `${baseUrl}/soal/${soal.id}`;
         $('#soalForm').attr('action', updateUrl);
@@ -194,6 +222,22 @@
     $('#modalPembahasan').text(soal.pembahasan);
     $('#modalKategori').text(soal.kategori);
     $('#modalTipe').text(soal.tipe);
+
+    // Show kata kunci
+    let keywordHtml = '';
+    if (soal.kata_kunci) {
+        try {
+            const keywords = JSON.parse(soal.kata_kunci);
+            keywords.forEach(keyword => {
+                keywordHtml += `<span class="badge badge-info mt-1 me-1">${keyword}</span>`;
+            });
+        } catch (e) {
+            keywordHtml = `<span class="text-muted">${soal.kata_kunci}</span>`;
+        }
+    } else {
+        keywordHtml = '<span class="text-muted">Tidak ada kata kunci</span>';
+    }
+    $('#modalKataKunciSoal').html(keywordHtml);
 
     if(soal.kategori == "TKP"){
     $('#modalJawabanBenar').text('A-E');
@@ -243,10 +287,124 @@
             $('#soalForm').attr('action', '{{ route("soal.store") }}'); // Reset action to store
             $('#soalForm').attr('method', 'POST'); // Reset form method to POST
 
+            // Clear keyword suggestions
+            $('#soalKeywordSuggestions').hide();
+
             // Dynamically generate CSRF token
             const token = $('meta[name="csrf-token"]').attr('content');
             $('#soalForm').find('input[name="_token"]').remove(); // Remove any existing token
             $('#soalForm').prepend(`<input type="hidden" name="_token" value="${token}">`); // Add fresh token
         });
+</script>
+<script>
+$(document).ready(function() {
+    // Show/hide fields based on category
+    $('#tipe').change(function() {
+        var selectedValue = $(this).val();
+        var kategoriMap = {
+            'Nasionalisme': 'TWK', 'Integritas': 'TWK', 'Bela Negara': 'TWK', 'Pilar Negara': 'TWK', 'Bahasa Indonesia': 'TWK',
+            'Verbal (Analogi)': 'TIU', 'Verbal (Silogisme)': 'TIU', 'Verbal (Analisis)': 'TIU',
+            'Numerik (Hitung Cepat)': 'TIU', 'Numerik (Deret Angka)': 'TIU', 'Numerik (Perbandingan Kuantitatif)': 'TIU', 'Numerik (Soal Cerita)': 'TIU',
+            'Figural (Analogi)': 'TIU', 'Figural (Ketidaksamaan)': 'TIU', 'Figural (Serial)': 'TIU',
+            'Pelayanan Publik': 'TKP', 'Jejaring Kerja': 'TKP', 'Sosial Budaya': 'TKP',
+            'Teknologi Informasi dan Komunikasi (TIK)': 'TKP', 'Profesionalisme': 'TKP', 'Anti Radikalisme': 'TKP'
+        };
+        
+        var kategori = kategoriMap[selectedValue];
+        
+        if (kategori === 'TKP') {
+            $('.TKP-fields').show();
+            $('.non-TKP-fields').hide();
+            $('#poin').prop('required', false);
+            $('#jawaban_benar').prop('required', false);
+            $('#score_a, #score_b, #score_c, #score_d, #score_e').prop('required', true);
+        } else {
+            $('.TKP-fields').hide();
+            $('.non-TKP-fields').show();
+            $('#poin').prop('required', true);
+            $('#jawaban_benar').prop('required', true);
+            $('#score_a, #score_b, #score_c, #score_d, #score_e').prop('required', false);
+        }
+
+        // Auto generate keywords ketika tipe berubah
+        if ($('#kata_kunci_soal').val() === '') {
+            generateSoalKeywordSuggestions();
+        }
+    });
+
+    // Generate keywords otomatis untuk soal
+    $('#generateSoalKeywords').click(function() {
+        generateSoalKeywordSuggestions();
+    });
+
+    // Auto generate ketika pertanyaan berubah (dengan debounce)
+    let soalKeywordTimeout;
+    $('#pertanyaan').on('input', function() {
+        clearTimeout(soalKeywordTimeout);
+        soalKeywordTimeout = setTimeout(function() {
+            if ($('#kata_kunci_soal').val() === '') {
+                generateSoalKeywordSuggestions();
+            }
+        }, 1000);
+    });
+
+    function generateSoalKeywordSuggestions() {
+        const tipe = $('#tipe').val();
+        const pertanyaan = $('#pertanyaan').val();
+
+        if (!tipe || tipe === 'Pilih Kategori & Tipe') {
+            return;
+        }
+
+        $.ajax({
+            url: '/soal/keyword-suggestions',
+            method: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                tipe: tipe,
+                pertanyaan: pertanyaan
+            },
+            success: function(response) {
+                displaySoalKeywordSuggestions(response.keywords);
+            },
+            error: function() {
+                console.log('Error generating soal keywords');
+            }
+        });
+    }
+
+    function displaySoalKeywordSuggestions(keywords) {
+        if (keywords.length === 0) {
+            $('#soalKeywordSuggestions').hide();
+            return;
+        }
+
+        const keywordList = $('#soalKeywordList');
+        keywordList.empty();
+
+        keywords.forEach(function(keyword) {
+            const badge = $(`
+                <span class="badge badge-light mr-1 mb-1 soal-keyword-suggestion" style="cursor: pointer;">
+                    ${keyword} <i class="fas fa-plus"></i>
+                </span>
+            `);
+            
+            badge.click(function() {
+                addSoalKeywordToInput(keyword);
+                $(this).remove();
+            });
+            
+            keywordList.append(badge);
+        });
+
+        $('#soalKeywordSuggestions').show();
+    }
+
+    function addSoalKeywordToInput(keyword) {
+        const currentKeywords = $('#kata_kunci_soal').val();
+        let newKeywords = currentKeywords ? currentKeywords + ', ' + keyword : keyword;
+        $('#kata_kunci_soal').val(newKeywords);
+    }
+});
 </script>
 @endpush

@@ -128,6 +128,7 @@
                             <th>Kategori</th>
                             <th>Tipe</th>
                             <th>Konten</th>
+                            <th>Kata Kunci</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -141,6 +142,93 @@
 @endsection
 
 @push('after-script')
+<script>
+$(document).ready(function() {
+    // Generate keywords otomatis
+    $('#generateKeywords').click(function() {
+        generateKeywordSuggestions();
+    });
+
+    // Auto generate ketika tipe berubah
+    $('#tipe').change(function() {
+        if ($('#kata_kunci').val() === '') {
+            generateKeywordSuggestions();
+        }
+    });
+
+    // Auto generate ketika title atau content berubah (dengan debounce)
+    let keywordTimeout;
+    $('#title, #content').on('input', function() {
+        clearTimeout(keywordTimeout);
+        keywordTimeout = setTimeout(function() {
+            if ($('#kata_kunci').val() === '') {
+                generateKeywordSuggestions();
+            }
+        }, 1000);
+    });
+
+    function generateKeywordSuggestions() {
+        const tipe = $('#tipe').val();
+        const title = $('#title').val();
+        const content = $('#content').val();
+
+        if (!tipe || tipe === 'Pilih Kategori & Tipe') {
+            return;
+        }
+
+        $.ajax({
+            url: '/materi/keyword-suggestions',
+            method: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                tipe: tipe,
+                title: title,
+                content: content
+            },
+            success: function(response) {
+                displayKeywordSuggestions(response.keywords);
+                console.log(response.keywords);
+            },
+            error: function() {
+                console.log('Error generating keywords');
+            }
+        });
+    }
+
+    function displayKeywordSuggestions(keywords) {
+        if (keywords.length === 0) {
+            $('#keywordSuggestions').hide();
+            return;
+        }
+
+        const keywordList = $('#keywordList');
+        keywordList.empty();
+
+        keywords.forEach(function(keyword) {
+            const badge = $(`
+                <span class="badge badge-light mr-1 mb-1 keyword-suggestion" style="cursor: pointer;">
+                    ${keyword} <i class="fas fa-plus"></i>
+                </span>
+            `);
+            
+            badge.click(function() {
+                addKeywordToInput(keyword);
+                $(this).remove();
+            });
+            
+            keywordList.append(badge);
+        });
+
+        $('#keywordSuggestions').show();
+    }
+
+    function addKeywordToInput(keyword) {
+        const currentKeywords = $('#kata_kunci').val();
+        let newKeywords = currentKeywords ? currentKeywords + ', ' + keyword : keyword;
+        $('#kata_kunci').val(newKeywords);
+    }
+});
+</script>
 <script>
 
     // Initialize DataTable - PERBAIKAN: Simpan instance DataTable dalam variabel 'table'
@@ -159,6 +247,13 @@ let table = $('#dataTable').DataTable({
         { data: 'kategori', name: 'kategori' },
         { data: 'tipe', name: 'tipe' },
         { data: 'excerpt', name: 'excerpt' },
+        { 
+            data: 'kata_kunci_display', 
+            name: 'kata_kunci_display', 
+            orderable: false, 
+            searchable: false,
+            className: 'kata-kunci-column'
+        },
         { data: 'status', name: 'status', render: function(data) {
             let status = '';
             switch(data) {
@@ -174,6 +269,15 @@ let table = $('#dataTable').DataTable({
             return `<span class="badge ${status}">${data}</span>`;
         }},
         { data: 'action', name: 'action', orderable: false, searchable: false },
+    ],
+    columnDefs: [
+        { width: "20%", targets: 0 }, // Judul
+        { width: "5%", targets: 1 },  // Kategori
+        { width: "15%", targets: 2 }, // Tipe
+        { width: "20%", targets: 3 }, // Konten
+        { width: "15%", targets: 4 }, // Kata Kunci
+        { width: "8%", targets: 5 },  // Status
+        { width: "19%", targets: 6 }  // Action
     ]
 });
 
@@ -211,6 +315,24 @@ $('#btn-reset-filter').click(function() {
         $('#modalKategori').text(material.kategori);
         $('#modalTipe').text(material.tipe);
         $('#modalContent').html(material.content);
+
+         // Show kata kunci
+        let keywordHtml = '';
+        if (material.kata_kunci) {
+            try {
+                const keywords = JSON.parse(material.kata_kunci);
+                keywords.forEach(keyword => {
+                    keywordHtml += `<span class="badge badge-primary me-1 mt-1">${keyword}</span>`;
+                });
+            } catch (e) {
+                keywordHtml = `<span class="text-muted">${material.kata_kunci}</span>`;
+            }
+        } else {
+            keywordHtml = '<span class="text-muted">Tidak ada kata kunci</span>';
+        }
+        $('#modalKataKunci').html(keywordHtml);
+        
+
         $('#detailMateriModal').modal('show');
     }
 

@@ -11,9 +11,18 @@ use Illuminate\Support\Str;
 use App\Models\UserMaterialProgress;
 use App\Models\HasilTryout;
 use App\Models\SetSoal;
+use App\Services\KeywordExtractionService;
 
 class MaterialController extends Controller
 {
+
+        private $keywordService;
+
+    public function __construct(KeywordExtractionService $keywordService)
+    {
+        $this->keywordService = $keywordService;
+    }
+
     public function index(Request $request)
 {
     if(!Auth::user()->is_admin){
@@ -43,6 +52,26 @@ class MaterialController extends Controller
              ->addColumn('excerpt', function($material) {
                     return Str::limit(strip_tags($material->content), 40, '...');
                 })
+                ->addColumn('kata_kunci_display', function($material) {
+                        if ($material->kata_kunci) {
+                            $keywords = json_decode($material->kata_kunci, true);
+                            if (is_array($keywords) && count($keywords) > 0) {
+                                $badges = '';
+                                $displayKeywords = array_slice($keywords, 0, 3); // Tampilkan 3 kata kunci pertama
+                                
+                                foreach ($displayKeywords as $keyword) {
+                                    $badges .= '<span class="badge badge-primary me-1 mb-1">' . htmlspecialchars($keyword) . '</span>';
+                                }
+                                
+                                if (count($keywords) > 3) {
+                                    $badges .= '<span class="badge badge-secondary">+' . (count($keywords) - 3) . '</span>';
+                                }
+                                
+                                return $badges;
+                            }
+                        }
+                        return '<span class="text-muted"><em>Auto-generate saat edit</em></span>';
+                    })
                 ->addColumn('action', function ($material) {
                     $statusButton = $material->status == 'Draf' ?
                     '<button type="button" class="btn btn-success btn-sm" onclick="changeStatus(' . $material->id . ', \'Publish\')"><i class="fas fa-check-circle fa-sm text-white-50"></i> Publish</button>' :
@@ -55,7 +84,7 @@ class MaterialController extends Controller
                         <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(' . $material->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
                     ';
                 })
-            ->rawColumns(['action'])
+            ->rawColumns(['action', 'kata_kunci_display'])
             ->make(true);
     }
     
@@ -98,9 +127,24 @@ class MaterialController extends Controller
             'title' => 'required|string|max:255',
             'tipe' => 'required|string',
             'content' => 'required|string',
+            'kata_kunci' => 'nullable|string'
         ]);
     
         $validatedData['kategori'] = $kategori;
+
+        // Generate kata kunci otomatis jika tidak diisi
+        if (empty($validatedData['kata_kunci'])) {
+            $keywords = $this->keywordService->extractKeywords(
+                $validatedData['title'], 
+                $validatedData['tipe'], 
+                $validatedData['content']
+            );
+            $validatedData['kata_kunci'] = json_encode($keywords);
+        } else {
+            // Jika diisi manual, convert ke array JSON
+            $manualKeywords = array_map('trim', explode(',', $validatedData['kata_kunci']));
+            $validatedData['kata_kunci'] = json_encode($manualKeywords);
+        }
     
         Material::create($validatedData);
     
@@ -142,9 +186,23 @@ class MaterialController extends Controller
             'title' => 'required|string|max:255',
             'tipe' => 'required|string',
             'content' => 'required|string',
+            'kata_kunci' => 'nullable|string'
         ]);
     
         $validatedData['kategori'] = $kategori;
+
+        if (empty($validatedData['kata_kunci'])) {
+            $keywords = $this->keywordService->extractKeywords(
+                $validatedData['title'], 
+                $validatedData['tipe'], 
+                $validatedData['content']
+            );
+            $validatedData['kata_kunci'] = json_encode($keywords);
+        } else {
+            // Jika diisi manual, convert ke array JSON
+            $manualKeywords = array_map('trim', explode(',', $validatedData['kata_kunci']));
+            $validatedData['kata_kunci'] = json_encode($manualKeywords);
+        }
         
         $material->update($validatedData);
     
@@ -182,6 +240,21 @@ class MaterialController extends Controller
             'status' => true,
             'message' => 'Status Berhasil Diperbarui!'
         ]);
+    }
+
+        public function getKeywordSuggestions(Request $request)
+    {
+        $tipe = $request->input('tipe');
+        $title = $request->input('title', '');
+        $content = $request->input('content', '');
+        
+        if (!$tipe) {
+            return response()->json(['keywords' => []]);
+        }
+        
+        $keywords = $this->keywordService->extractKeywords($title, $tipe, $content);
+        
+        return response()->json(['keywords' => $keywords]);
     }
     
 

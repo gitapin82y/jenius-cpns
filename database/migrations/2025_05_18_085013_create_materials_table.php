@@ -39,6 +39,7 @@ return new class extends Migration
                 'Anti Radikalisme',
             ]);
             $table->longText('content');
+            $table->text('kata_kunci')->nullable();
             $table->enum('status', ['Draf', 'Publish'])->default('Draf');
             $table->timestamps();
         });

@@ -20,6 +20,8 @@
         <div class="topbar-divider d-none d-sm-block mx-0"></div>
         <a href="{{ url('system-error') }}" class="nav-item nav-link {{ Request::is('system-error') ? 'active' : '' }}">Laporan Sistem</a>
         <div class="topbar-divider d-none d-sm-block mx-0"></div>
+         <a href="{{ route('admin.keyword-update') }}" class="nav-item nav-link {{ Request::is('/admin/keyword-update') ? 'active' : '' }}">Kata Kunci</a>
+        <div class="topbar-divider d-none d-sm-block mx-0"></div>        
     </div>
 
 

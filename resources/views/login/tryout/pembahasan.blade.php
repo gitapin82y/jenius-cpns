@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Hasil Tryout SKD')
+@section('title', 'Pembahasan')
 
 @push('after-style')
  <style>
@@ -47,7 +47,7 @@
                 <!-- Kategori Soal -->
                 <div class="col-md-6 col-12 text-start">
                     <p class="badge-category d-inline-block">
-                        <strong>Kategori:</strong> {{ strtoupper($soal->kategori) }}
+                        <strong>{{ strtoupper($soal->kategori) }} </strong> - {{ $soal->tipe }}
                     </p>
                 </div>
                 

@@ -10,9 +10,16 @@ use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Services\KeywordExtractionService;
 
 class SoalController extends Controller
 {
+        private $keywordService;
+
+    public function __construct(KeywordExtractionService $keywordService)
+    {
+        $this->keywordService = $keywordService;
+    }
     public function index(Request $request, $id)
     {
         if(!Auth::user()->is_admin){
@@ -29,6 +36,26 @@ class SoalController extends Controller
             ->addColumn('pertanyaan', function($soal) {
                 return Str::limit($soal->pertanyaan, 20, '...');
             })
+             ->addColumn('kata_kunci_display', function($soal) {
+                if ($soal->kata_kunci) {
+                    $keywords = json_decode($soal->kata_kunci, true);
+                    if (is_array($keywords) && count($keywords) > 0) {
+                        $badges = '';
+                        $displayKeywords = array_slice($keywords, 0, 3); // Tampilkan 3 kata kunci pertama
+                        
+                        foreach ($displayKeywords as $keyword) {
+                            $badges .= '<span class="badge badge-info me-1 mb-1">' . htmlspecialchars($keyword) . '</span>';
+                        }
+                        
+                        if (count($keywords) > 3) {
+                            $badges .= '<span class="badge badge-secondary">+' . (count($keywords) - 3) . '</span>';
+                        }
+                        
+                        return $badges;
+                    }
+                }
+                return '<span class="text-muted"><em>Auto-generate saat edit</em></span>';
+            })
             ->addColumn('action', function ($soal) {
                     return '
                     <button type="button" class="btn btn-info btn-sm" onclick="showDetailSoalModal(' . htmlspecialchars(json_encode($soal), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-eye fa-sm text-white-50"></i> Detail</button>
@@ -38,6 +65,7 @@ class SoalController extends Controller
                             <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
                         </form>';
                 })
+                 ->rawColumns(['action', 'kata_kunci_display'])
                 ->make(true);
         }
 
@@ -119,6 +147,19 @@ class SoalController extends Controller
             $validatedData['score_c'] = null;
             $validatedData['score_d'] = null;
             $validatedData['score_e'] = null;
+        }
+
+         // Generate kata kunci otomatis jika tidak diisi
+        if (empty($validatedData['kata_kunci'])) {
+            $keywords = $this->keywordService->extractKeywords(
+                $validatedData['pertanyaan'], 
+                $validatedData['tipe']
+            );
+            $validatedData['kata_kunci'] = json_encode($keywords);
+        } else {
+            // Jika diisi manual, convert ke array JSON
+            $manualKeywords = array_map('trim', explode(',', $validatedData['kata_kunci']));
+            $validatedData['kata_kunci'] = json_encode($manualKeywords);
         }
     
         $setSoal = SetSoal::findOrFail($validatedData['set_soal_id']);
@@ -211,6 +252,19 @@ class SoalController extends Controller
             $validatedData['score_e'] = null;
         }
     
+          // Generate kata kunci otomatis jika tidak diisi
+        if (empty($validatedData['kata_kunci'])) {
+            $keywords = $this->keywordService->extractKeywords(
+                $validatedData['pertanyaan'], 
+                $validatedData['tipe']
+            );
+            $validatedData['kata_kunci'] = json_encode($keywords);
+        } else {
+            // Jika diisi manual, convert ke array JSON
+            $manualKeywords = array_map('trim', explode(',', $validatedData['kata_kunci']));
+            $validatedData['kata_kunci'] = json_encode($manualKeywords);
+        }
+
         if ($request->hasFile('foto')) {
             if ($soal->foto) {
                 Storage::delete('public/' . $soal->foto);
@@ -224,6 +278,21 @@ class SoalController extends Controller
     
         return response()->json(['message' => 'Data Berhasil Diupdate!']);
     }
+
+        public function getKeywordSuggestions(Request $request)
+    {
+        $tipe = $request->input('tipe');
+        $pertanyaan = $request->input('pertanyaan', '');
+        
+        if (!$tipe) {
+            return response()->json(['keywords' => []]);
+        }
+        
+        $keywords = $this->keywordService->extractKeywords($pertanyaan, $tipe);
+        
+        return response()->json(['keywords' => $keywords]);
+    }
+
     
 
     

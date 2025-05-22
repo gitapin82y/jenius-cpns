@@ -13,6 +13,11 @@
                     <input type="hidden" name="set_soal_id" id="set_soal_id" value="{{ $setSoal->id }}">
                 
                     <div class="form-group">
+                        <label for="pertanyaan">Pertanyaan</label>
+                        <input name="pertanyaan" id="pertanyaan" class="form-control" required></input>
+                    </div>
+
+                    <div class="form-group">
                         <label for="tipe">Kategori & Tipe</label>
                         <select name="tipe" id="tipe" class="form-control" required>
                             <option>Pilih Kategori & Tipe</option>
@@ -52,10 +57,27 @@
                         <input type="file" name="foto" id="foto" accept=".png, .jpg, .jpeg" class="form-control">
                     </div>
                 
+
+
                     <div class="form-group">
-                        <label for="pertanyaan">Pertanyaan</label>
-                        <textarea name="pertanyaan" id="pertanyaan" class="form-control" required></textarea>
-                    </div>
+                                <label for="kata_kunci_soal">Kata Kunci</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="kata_kunci_soal" name="kata_kunci" 
+                                           placeholder="Pisahkan dengan koma, atau kosongkan untuk auto-generate">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary" id="generateSoalKeywords">
+                                            <i class="fas fa-magic"></i> Auto
+                                        </button>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Kata kunci untuk sistem rekomendasi CBF. Kosongkan untuk generate otomatis.
+                                </small>
+                                <div id="soalKeywordSuggestions" class="mt-2" style="display:none;">
+                                    <small class="text-muted">Saran kata kunci:</small>
+                                    <div id="soalKeywordList" class="d-flex flex-wrap mt-1"></div>
+                                </div>
+                            </div>
                 
                     <div class="form-group">
                         <label for="jawaban_a">Jawaban A</label>

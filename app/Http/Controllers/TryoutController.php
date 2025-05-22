@@ -11,10 +11,23 @@ use App\Models\Soal;
 use App\Models\SystemError;
 use App\Models\Material;
 use App\Models\UserMaterialProgress;
+use App\Services\ContentBasedFilteringService;
+use App\Services\YouTubeService;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class TryoutController extends Controller
 {
+    private $cbfService;
+    private $youtubeService;
+
+    public function __construct(
+        ContentBasedFilteringService $cbfService,
+        YouTubeService $youtubeService
+    ) {
+        $this->cbfService = $cbfService;
+        $this->youtubeService = $youtubeService;
+    }
+
     public function index($set_soal_id)
     {
         try {
@@ -287,7 +300,32 @@ if ($setSoal->kategori == 'Latihan') {
             $skbSetSoal = SetSoal::findOrFail($set_soal);
             $jawabanUsers = JawabanUser::where('user_id', $userId)->where('set_soal_id', $set_soal)->with('soal')->get();
             
-            return view('login.tryout.hasil', compact('soals', 'skbSetSoal', 'hasilTryout', 'jawabanUsers'));
+            // Generate rekomendasi materi menggunakan Content Based Filtering
+            $recommendations = $this->cbfService->generateMaterialRecommendations($userId, $set_soal);
+            
+            // Generate video recommendations
+            $videoRecommendations = $this->generateVideoRecommendations($recommendations['recommendations']);
+            
+            // Generate weight table untuk debugging (optional - hanya jika method ada)
+            $weightTable = null;
+            if (config('app.debug') && method_exists($this->cbfService, 'generateWeightTable')) {
+                try {
+                    $weightTable = $this->cbfService->generateWeightTable($userId, $set_soal);
+                } catch (\Exception $e) {
+                    // Ignore jika ada error di weight table
+                    $weightTable = null;
+                }
+            }
+            
+            return view('login.tryout.hasil', compact(
+                'soals', 
+                'skbSetSoal', 
+                'hasilTryout', 
+                'jawabanUsers',
+                'recommendations',
+                'videoRecommendations',
+                'weightTable'
+            ));
             
         } catch (\Exception $e) {
             // Log error
@@ -301,6 +339,92 @@ if ($setSoal->kategori == 'Latihan') {
             // Notify user
             toast()->error('Terjadi kesalahan saat menampilkan hasil.');
             return redirect()->back();
+        }
+    }
+
+      public function pembahasan($set_soal)
+    {
+        try {
+            $userId = Auth::user()->id;
+            $hasilTryout = HasilTryout::where('user_id', $userId)->where('set_soal_id', $set_soal)->first();
+            
+            if(!$hasilTryout){
+                toast()->error('Anda belum mengerjakan tryout!');
+                return redirect()->back();
+            }
+            
+            $soals = Soal::where('set_soal_id', $set_soal)->get();
+            $skbSetSoal = SetSoal::findOrFail($set_soal);
+            $jawabanUsers = JawabanUser::where('user_id', $userId)->where('set_soal_id', $set_soal)->with('soal')->get();
+            
+            
+            return view('login.tryout.pembahasan', compact(
+                'soals', 
+                'skbSetSoal', 
+                'jawabanUsers',
+            ));
+            
+        } catch (\Exception $e) {
+            // Log error
+            SystemErrorController::logError(
+                Auth::id(), 
+                $e->getCode() ?: '500', 
+                'Server Error', 
+                $e->getMessage()
+            );
+            
+            // Notify user
+            toast()->error('Terjadi kesalahan saat menampilkan hasil.');
+            return redirect()->back();
+        }
+    }
+
+    private function generateVideoRecommendations(array $materialRecommendations): array
+    {
+        $videoRecommendations = [
+            'TWK' => [],
+            'TIU' => [],
+            'TKP' => []
+        ];
+
+        foreach ($materialRecommendations as $kategori => $materials) {
+            if (!empty($materials)) {
+                // Ambil kata kunci dari 3 materi teratas
+                $keywords = [];
+                foreach (array_slice($materials, 0, 3) as $item) {
+                    $materialKeywords = json_decode($item['material']->kata_kunci ?? '[]', true);
+                    $keywords = array_merge($keywords, array_slice($materialKeywords, 0, 2));
+                }
+                
+                if (!empty($keywords)) {
+                    $videos = $this->youtubeService->searchVideosByKeywords($keywords, 3);
+                    $videoRecommendations[$kategori] = $videos;
+                }
+            }
+        }
+
+        return $videoRecommendations;
+    }
+
+     /**
+     * API endpoint untuk mendapatkan rekomendasi berdasarkan kategori
+     */
+    public function getRecommendationsByCategory(Request $request, $setSoalId, $kategori)
+    {
+        try {
+            $userId = Auth::id();
+            $recommendations = $this->cbfService->generateCategorySpecificRecommendations($userId, $setSoalId, $kategori);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $recommendations
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil rekomendasi'
+            ], 500);
         }
     }
     
