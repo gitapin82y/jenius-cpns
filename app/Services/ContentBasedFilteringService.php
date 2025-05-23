@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Material;
 use App\Models\Soal;
 use App\Models\JawabanUser;
+use App\Models\SetSoal;
 use Illuminate\Support\Collection;
 
 class ContentBasedFilteringService
@@ -81,11 +82,18 @@ class ContentBasedFilteringService
     }
 
     /**
-     * STEP 2: Mengambil Kata Kunci dari SEMUA Materi Pembelajaran
+     * STEP 2: Mengambil Kata Kunci dari Materi Pembelajaran (FILTER BY KATEGORI)
      */
-    public function extractAllMaterialKeywords(): array
+    public function extractMaterialKeywordsByCategory(array $allowedCategories = null): array
     {
-        $materials = Material::where('status', 'Publish')->get();
+        $query = Material::where('status', 'Publish');
+        
+        // Filter berdasarkan kategori jika ditentukan
+        if ($allowedCategories && !empty($allowedCategories)) {
+            $query->whereIn('kategori', $allowedCategories);
+        }
+        
+        $materials = $query->get();
         $allMaterialKeywords = [];
         
         foreach ($materials as $material) {
@@ -130,7 +138,6 @@ class ContentBasedFilteringService
 
     /**
      * STEP 4: Konversi ke Vektor Biner
-     * Membuat vektor biner berdasarkan kata kunci unik untuk soal dan setiap materi
      */
     public function convertToBobtVector(array $itemKeywords, array $uniqueKeywords): array
     {
@@ -183,17 +190,44 @@ class ContentBasedFilteringService
     }
 
     /**
-     * STEP 6: Penyajian Rekomendasi Materi Berdasarkan Skor Tertinggi
-     * Method utama yang mengimplementasikan semua step CBF
+     * Deteksi jenis tryout dan kategori soal
+     */
+    private function detectTryoutTypeAndCategories(int $setSoalId): array
+    {
+        $setSoal = SetSoal::findOrFail($setSoalId);
+        
+        // Cek apakah ini tryout resmi atau latihan
+        $isTryoutResmi = ($setSoal->kategori === 'Tryout');
+        
+        // Ambil kategori soal yang ada dalam set soal ini
+        $kategoriFocus = Soal::where('set_soal_id', $setSoalId)
+            ->select('kategori')
+            ->distinct()
+            ->pluck('kategori')
+            ->toArray();
+        
+        return [
+            'is_tryout_resmi' => $isTryoutResmi,
+            'kategori_focus' => $kategoriFocus,
+            'set_soal_kategori' => $setSoal->kategori
+        ];
+    }
+
+    /**
+     * STEP 6: Method utama dengan penyesuaian untuk latihan vs tryout resmi
      */
     public function generateMaterialRecommendations(int $userId, int $setSoalId): array
     {
-        // STEP 1: Kumpulkan jawaban yang salah (termasuk TKP poin 1)
+        // Deteksi jenis tryout dan kategori focus
+        $tryoutInfo = $this->detectTryoutTypeAndCategories($setSoalId);
+        
+        // STEP 1: Kumpulkan jawaban yang salah
         $wrongAnswers = $this->collectWrongAnswers($userId, $setSoalId);
         
         if ($wrongAnswers->isEmpty()) {
             return [
                 'recommendations' => [],
+                'tryout_info' => $tryoutInfo,
                 'debug_info' => [
                     'message' => 'Tidak ada jawaban salah atau TKP poin 1 ditemukan',
                     'steps' => []
@@ -204,8 +238,16 @@ class ContentBasedFilteringService
         // STEP 2a: Extract kata kunci dari soal yang dijawab salah
         $soalKeywords = $this->extractWrongAnswerKeywords($wrongAnswers);
         
-        // STEP 2b: Extract kata kunci dari SEMUA materi
-        $allMaterialKeywords = $this->extractAllMaterialKeywords();
+        // STEP 2b: Extract kata kunci dari materi (FILTER BERDASARKAN JENIS TRYOUT)
+        $allowedCategories = null;
+        
+        // Jika ini latihan, fokus hanya pada kategori yang relevan
+        if (!$tryoutInfo['is_tryout_resmi']) {
+            $allowedCategories = $tryoutInfo['kategori_focus'];
+        }
+        // Jika tryout resmi, ambil semua kategori (null = semua)
+        
+        $allMaterialKeywords = $this->extractMaterialKeywordsByCategory($allowedCategories);
         
         // STEP 3: Gabungkan dan hapus duplikat kata kunci
         $uniqueKeywords = $this->combineAndRemoveDuplicateKeywords($soalKeywords, $allMaterialKeywords);
@@ -215,7 +257,13 @@ class ContentBasedFilteringService
         
         // STEP 5 & 6: Loop setiap materi, hitung similarity, dan urutkan
         $similarities = [];
-        $materials = Material::where('status', 'Publish')->get();
+        
+        // Query materi dengan filter kategori yang sama
+        $materialsQuery = Material::where('status', 'Publish');
+        if ($allowedCategories && !empty($allowedCategories)) {
+            $materialsQuery->whereIn('kategori', $allowedCategories);
+        }
+        $materials = $materialsQuery->get();
         
         foreach ($materials as $material) {
             // Ambil kata kunci materi
@@ -246,15 +294,26 @@ class ContentBasedFilteringService
         });
         
         // Group berdasarkan kategori dan ambil top 5 per kategori
-        $recommendations = [
-            'TWK' => [],
-            'TIU' => [],
-            'TKP' => []
-        ];
+        $recommendations = [];
+        
+        // Inisialisasi berdasarkan jenis tryout
+        if ($tryoutInfo['is_tryout_resmi']) {
+            // Tryout resmi: tampilkan semua kategori
+            $recommendations = [
+                'TWK' => [],
+                'TIU' => [],
+                'TKP' => []
+            ];
+        } else {
+            // Latihan: hanya kategori yang relevan
+            foreach ($tryoutInfo['kategori_focus'] as $kategori) {
+                $recommendations[$kategori] = [];
+            }
+        }
         
         foreach ($similarities as $item) {
             $kategori = $item['material']->kategori;
-            if (count($recommendations[$kategori]) < 5) {
+            if (isset($recommendations[$kategori]) && count($recommendations[$kategori]) < 5) {
                 $recommendations[$kategori][] = $item;
             }
         }
@@ -265,7 +324,7 @@ class ContentBasedFilteringService
             return $jawaban->soal->kategori === 'TKP' && $jawaban->status === 'benar';
         });
         
-        // Debugging info untuk sidang
+        // Debugging info
         $debugInfo = [
             'total_wrong_answers' => $wrongAnswers->count(),
             'regular_wrong_answers' => $wrongAnswersRegular->count(),
@@ -276,71 +335,24 @@ class ContentBasedFilteringService
             'unique_keywords' => $uniqueKeywords,
             'soal_vector' => $soalVector,
             'total_similarities_calculated' => count($similarities),
+            'filtered_categories' => $allowedCategories,
             'steps' => [
+                'step_0' => 'Deteksi jenis: ' . ($tryoutInfo['is_tryout_resmi'] ? 'Tryout Resmi' : 'Latihan ' . implode(', ', $tryoutInfo['kategori_focus'])),
                 'step_1' => 'Mengumpulkan ' . $wrongAnswers->count() . ' soal bermasalah (' . $wrongAnswersRegular->count() . ' salah + ' . $tkpPoin1->count() . ' TKP poin 1)',
                 'step_2a' => 'Extract ' . count($soalKeywords) . ' kata kunci dari soal bermasalah',
-                'step_2b' => 'Extract ' . count($allMaterialKeywords) . ' kata kunci dari semua materi',
+                'step_2b' => 'Extract ' . count($allMaterialKeywords) . ' kata kunci dari materi' . ($allowedCategories ? ' (filter: ' . implode(', ', $allowedCategories) . ')' : ' (semua kategori)'),
                 'step_3' => 'Gabung dan hapus duplikat, hasil: ' . count($uniqueKeywords) . ' kata kunci unik',
                 'step_4' => 'Konversi ke vektor biner (panjang: ' . count($soalVector) . ')',
                 'step_5' => 'Hitung cosine similarity untuk ' . $materials->count() . ' materi',
-                'step_6' => 'Urutkan dan kelompokkan hasil rekomendasi'
+                'step_6' => 'Urutkan dan kelompokkan hasil rekomendasi berdasarkan kategori yang relevan'
             ]
         ];
         
         return [
             'recommendations' => $recommendations,
+            'tryout_info' => $tryoutInfo,
             'debug_info' => $debugInfo
         ];
-    }
-
-    /**
-     * Generate tabel bobot untuk debugging/penjelasan sidang
-     */
-    public function generateWeightTable(int $userId, int $setSoalId): array
-    {
-        $wrongAnswers = $this->collectWrongAnswers($userId, $setSoalId);
-        
-        if ($wrongAnswers->isEmpty()) {
-            return [];
-        }
-
-        $soalKeywords = $this->extractWrongAnswerKeywords($wrongAnswers);
-        $allMaterialKeywords = $this->extractAllMaterialKeywords();
-        $uniqueKeywords = $this->combineAndRemoveDuplicateKeywords($soalKeywords, $allMaterialKeywords);
-        
-        $table = [];
-        
-        // Header: Kata Kunci Unik
-        $table['headers'] = ['Kata Kunci', 'Soal Vector'];
-        
-        // Tambah kolom untuk setiap materi (limit 5 untuk display)
-        $materials = Material::where('status', 'Publish')->limit(5)->get();
-        foreach ($materials as $material) {
-            $table['headers'][] = substr($material->title, 0, 20) . '...';
-        }
-        
-        // Rows: Setiap kata kunci unik
-        $soalVector = $this->convertToBobtVector($soalKeywords, $uniqueKeywords);
-        $table['rows'] = [];
-        
-        foreach ($uniqueKeywords as $index => $keyword) {
-            $row = [
-                'keyword' => $keyword,
-                'soal' => $soalVector[$index]
-            ];
-            
-            foreach ($materials as $material) {
-                $materialKeywords = $material->kata_kunci 
-                    ? json_decode($material->kata_kunci, true) 
-                    : [];
-                $materialVector = $this->convertToBobtVector($materialKeywords, $uniqueKeywords);
-                $row['material_' . $material->id] = $materialVector[$index];
-            }
-            
-            $table['rows'][] = $row;
-        }
-        
-        return $table;
     }
 
     /**
@@ -352,7 +364,16 @@ class ContentBasedFilteringService
         
         return [
             'recommendations' => $allRecommendations['recommendations'][$kategori] ?? [],
+            'tryout_info' => $allRecommendations['tryout_info'],
             'debug_info' => $allRecommendations['debug_info']
         ];
+    }
+
+    /**
+     * Legacy method untuk backward compatibility
+     */
+    public function extractAllMaterialKeywords(): array
+    {
+        return $this->extractMaterialKeywordsByCategory();
     }
 }
