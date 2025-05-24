@@ -6,6 +6,9 @@ use App\Models\Material;
 use App\Models\Soal;
 use App\Models\JawabanUser;
 use App\Models\SetSoal;
+use App\Models\RecommendationLog;
+use App\Models\CBFEvaluation;
+
 use Illuminate\Support\Collection;
 
 class ContentBasedFilteringService
@@ -347,13 +350,29 @@ class ContentBasedFilteringService
                 'step_6' => 'Urutkan dan kelompokkan hasil rekomendasi berdasarkan kategori yang relevan'
             ]
         ];
-        
-        return [
-            'recommendations' => $recommendations,
-            'tryout_info' => $tryoutInfo,
-            'debug_info' => $debugInfo
-        ];
+
+          $result = [
+        'recommendations' => $recommendations, // Ini akan menghasilkan struktur yang diharapkan blade
+        'tryout_info' => $tryoutInfo,
+        'debug_info' => $debugInfo
+    ];
+
+    // Log recommendations dengan struktur yang benar
+    $this->logRecommendations($userId, $setSoalId, $result);
+    
+    return $result;
     }
+
+private function logRecommendations($userId, $setSoalId, $fullResult)
+{
+    RecommendationLog::create([
+        'user_id' => $userId,
+        'set_soal_id' => $setSoalId,
+        'recommendations' => $fullResult['recommendations'],
+        'debug_info' => $fullResult['debug_info']
+    ]);
+    
+}
 
     /**
      * Generate rekomendasi berdasarkan kategori specific

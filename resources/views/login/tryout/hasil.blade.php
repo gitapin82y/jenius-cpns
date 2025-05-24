@@ -343,6 +343,379 @@
         @endif
     </div>
 </div>
+<!-- Card Evaluasi Sistem Rekomendasi Materi -->
+@php
+    $hasRecommendations = collect($recommendations['recommendations'] ?? [])->flatten(1)->isNotEmpty();
+    $userHasReviewed = Auth::user()->is_review; // Cek dari kolom is_review di tabel users
+@endphp
+
+@if($hasRecommendations && !$userHasReviewed)
+    <!-- Tampilkan card evaluasi jika belum pernah mengevaluasi -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h6 class="fw-bold">Evaluasi Sistem Rekomendasi Materi</h6>
+            <p class="mb-2">Bantu kami meningkatkan kualitas rekomendasi materi dengan memberikan penilaian relevansi materi yang direkomendasikan.</p>
+            
+            <div class="alert alert-info">
+                <small>
+                    <i class="fas fa-info-circle"></i> 
+                    Anda hanya dapat memberikan penilaian <strong>satu kali</strong> untuk membantu penelitian kami.
+                </small>
+            </div>
+            
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cbfEvaluationModal">
+                <i class="fas fa-star"></i> Berikan Penilaian Rekomendasi
+            </button>
+        </div>
+    </div>
+@elseif($hasRecommendations && $userHasReviewed)
+    <!-- Tampilkan pesan terima kasih dengan link ke UAT form -->
+    <div class="card mt-4 border-success">
+        <div class="card-body">
+            <h6 class="fw-bold text-success">
+                <i class="fas fa-check-circle"></i> Evaluasi Sistem Rekomendasi Materi
+            </h6>
+            <div class="alert alert-success mb-0">
+                <h6 class="alert-heading">Terima kasih atas evaluasi Anda!</h6>
+                <p class="mb-3">Anda telah memberikan penilaian untuk sistem rekomendasi materi. Kontribusi Anda sangat membantu penelitian ini.</p>
+                
+                @php
+                    // Ambil statistik evaluasi user untuk semua tryout yang pernah dievaluasi
+                    $userEvaluations = \App\Models\CBFEvaluation::where('user_id', Auth::id())
+                        ->where('evaluation_source', 'user')
+                        ->whereNotNull('user_feedback')
+                        ->get();
+                    
+                    $totalEvaluated = $userEvaluations->count();
+                    $relevantCount = $userEvaluations->where('user_feedback', true)->count();
+                    $notRelevantCount = $userEvaluations->where('user_feedback', false)->count();
+                    
+                    // Ambil evaluasi terakhir untuk tanggal
+                    $lastEvaluation = $userEvaluations->sortByDesc('created_at')->first();
+                @endphp
+                
+                <div class="row text-center mb-3">
+                    <div class="col-md-4">
+                        <div class="text-primary">
+                            <i class="fas fa-list-check fa-2x"></i>
+                            <h5 class="mt-2">{{ $totalEvaluated }}</h5>
+                            <small>Total Dievaluasi</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-success">
+                            <i class="fas fa-thumbs-up fa-2x"></i>
+                            <h5 class="mt-2">{{ $relevantCount }}</h5>
+                            <small>Relevan</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-danger">
+                            <i class="fas fa-thumbs-down fa-2x"></i>
+                            <h5 class="mt-2">{{ $notRelevantCount }}</h5>
+                            <small>Tidak Relevan</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Call to Action untuk UAT Form -->
+                <div class="bg-light p-3 rounded">
+                    <h6 class="text-primary">
+                        <i class="fas fa-clipboard-list"></i> Langkah Selanjutnya
+                    </h6>
+                    <p class="mb-2">Untuk melengkapi penelitian, kami mengundang Anda mengisi kuesioner User Acceptance Testing (UAT) mengenai pengalaman menggunakan sistem ini.</p>
+                    
+                    <button type="button" class="btn btn-primary" id="openUATForm">
+                        <i class="fas fa-external-link-alt"></i> Isi Kuesioner UAT
+                    </button>
+                    
+                    <button type="button" class="btn btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#cbfEvaluationModal">
+                        <i class="fas fa-eye"></i> Lihat Riwayat Penilaian
+                    </button>
+                </div>
+                
+                @if($lastEvaluation)
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar"></i> 
+                        Terakhir dievaluasi: {{ $lastEvaluation->created_at->format('d M Y, H:i') }}
+                    </small>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+@elseif(!$hasRecommendations && $userHasReviewed)
+    <!-- Jika tidak ada rekomendasi tapi user sudah pernah review -->
+    <div class="card mt-4 border-info">
+        <div class="card-body">
+            <h6 class="fw-bold text-info">
+                <i class="fas fa-trophy"></i> Hasil Optimal & Evaluasi Selesai
+            </h6>
+            <div class="alert alert-info mb-0">
+                <p class="mb-2">
+                    <i class="fas fa-star text-warning"></i> 
+                    Selamat! Semua jawaban Anda optimal untuk tryout ini.
+                </p>
+                <p class="mb-3">
+                    Anda juga telah berkontribusi dalam penelitian dengan memberikan evaluasi sistem rekomendasi.
+                </p>
+                
+                <button type="button" class="btn btn-primary btn-sm" id="openUATForm">
+                    <i class="fas fa-external-link-alt"></i> Isi Kuesioner UAT
+                </button>
+            </div>
+        </div>
+    </div>
+@elseif(!$hasRecommendations && !$userHasReviewed)
+    <!-- Jika tidak ada rekomendasi dan belum pernah review -->
+    <div class="card mt-4 border-info">
+        <div class="card-body">
+            <h6 class="fw-bold text-info">
+                <i class="fas fa-info-circle"></i> Tidak Ada Rekomendasi
+            </h6>
+            <div class="alert alert-info mb-0">
+                <p class="mb-0">
+                    <i class="fas fa-trophy text-warning"></i> 
+                    Selamat! Tidak ada rekomendasi materi karena semua jawaban Anda sudah optimal.
+                </p>
+                <small class="text-muted">
+                    Untuk berkontribusi dalam penelitian, silakan ikuti tryout lain atau tunggu rekomendasi dari tryout berikutnya.
+                </small>
+            </div>
+        </div>
+    </div>
+@endif
+<!-- Modal CBF Evaluation - Complete Version -->
+<div class="modal fade" id="cbfEvaluationModal" tabindex="-1" aria-labelledby="cbfEvaluationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cbfEvaluationModalLabel">
+                    <i class="fas fa-star"></i> 
+                    @if($userHasReviewed)
+                        Riwayat Penilaian Rekomendasi Anda
+                    @else
+                        Evaluasi Rekomendasi Materi
+                    @endif
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if($userHasReviewed)
+                    <!-- Show all user evaluations history -->
+                    <div class="alert alert-success">
+                        <strong>Status:</strong> Anda telah berkontribusi dalam penelitian ini dengan memberikan evaluasi sistem rekomendasi.
+                    </div>
+                    
+                    @php
+                        // Ambil semua evaluasi user dari semua tryout
+                        $allUserEvaluations = \App\Models\CBFEvaluation::where('user_id', Auth::id())
+                            ->where('evaluation_source', 'user')
+                            ->where('is_recommended', true)
+                            ->whereNotNull('user_feedback')
+                            ->with(['material', 'setSoal'])
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+                        
+                        $evaluationsByTryout = $allUserEvaluations->groupBy('set_soal_id');
+                    @endphp
+                    
+                    @forelse($evaluationsByTryout as $setSoalId => $evaluations)
+                        @php
+                            $tryoutTitle = $evaluations->first()->setSoal->title ?? 'Tryout #' . $setSoalId;
+                            $evaluationDate = $evaluations->first()->created_at;
+                            $groupedByCategory = $evaluations->groupBy('material.kategori');
+                        @endphp
+                        
+                        <div class="mb-4 border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold text-primary mb-0">
+                                    <i class="fas fa-file-alt"></i> {{ $tryoutTitle }}
+                                </h6>
+                                <small class="text-muted">{{ $evaluationDate->format('d M Y, H:i') }}</small>
+                            </div>
+                            
+                            @foreach($groupedByCategory as $kategori => $categoryEvaluations)
+                                <div class="mb-3">
+                                    <h6 class="fw-bold text-{{ $kategori == 'TWK' ? 'primary' : ($kategori == 'TIU' ? 'success' : 'info') }}">
+                                        Kategori {{ $kategori }}
+                                    </h6>
+                                    
+                                    <div class="row">
+                                        @foreach($categoryEvaluations as $evaluation)
+                                            <div class="col-md-6 mb-2">
+                                                <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+                                                    <div>
+                                                        <strong>{{ Str::limit($evaluation->material->title, 25) }}</strong>
+                                                        <br><small class="text-muted">{{ $evaluation->material->tipe }}</small>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <div>
+                                                            @if($evaluation->user_feedback === true)
+                                                                <span class="badge bg-success">
+                                                                    <i class="fas fa-thumbs-up"></i> Relevan
+                                                                </span>
+                                                            @else
+                                                                <span class="badge bg-danger">
+                                                                    <i class="fas fa-thumbs-down"></i> Tidak Relevan
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                        <small class="text-muted">{{ number_format($evaluation->similarity_score * 100, 1) }}%</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                            
+                            @if($evaluations->first()->user_comment)
+                                <div class="mt-2">
+                                    <strong>Komentar:</strong>
+                                    <div class="bg-light p-2 rounded">
+                                        <small>{{ $evaluations->first()->user_comment }}</small>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted"></i>
+                            <p class="text-muted mt-2">Belum ada riwayat evaluasi</p>
+                        </div>
+                    @endforelse
+                    
+                @else
+                    <!-- Form untuk evaluasi baru -->
+                    <div class="alert alert-info">
+                        <strong>Petunjuk:</strong> Berikan centang pada kolom "Relevan" jika materi tersebut sesuai dan membantu Anda memahami soal yang salah.
+                        <br><strong>Penting:</strong> Anda hanya dapat memberikan penilaian satu kali untuk penelitian ini.
+                    </div>
+                    
+                    <!-- Form Evaluation -->
+                    <form id="cbfEvaluationForm">
+                        @csrf
+                        <input type="hidden" name="set_soal_id" value="{{ $skbSetSoal->id }}">
+                        
+                        @php
+                            $hasRecommendations = collect($recommendations['recommendations'] ?? [])->flatten(1)->isNotEmpty();
+                            $availableCategories = !empty($recommendations['recommendations']) ? array_keys($recommendations['recommendations']) : [];
+                        @endphp
+                        
+                        @if($hasRecommendations)
+                            @foreach($availableCategories as $kategori)
+                                @if(!empty($recommendations['recommendations'][$kategori]))
+                                    <div class="mb-4">
+                                        <h6 class="fw-bold text-{{ $kategori == 'TWK' ? 'primary' : ($kategori == 'TIU' ? 'success' : 'info') }}">
+                                            Kategori {{ $kategori }}
+                                        </h6>
+                                        
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Materi</th>
+                                                        <th>Tipe</th>
+                                                        <th>Relevansi</th>
+                                                        <th class="text-center">Penilaian</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($recommendations['recommendations'][$kategori] as $index => $item)
+                                                        <tr>
+                                                            <td>
+                                                                <strong>{{ $item['material']->title }}</strong>
+                                                            </td>
+                                                            <td>
+                                                                <small class="text-muted">{{ $item['material']->tipe }}</small>
+                                                            </td>
+                                                            <td>
+                                                                <small class="text-info">{{ number_format($item['similarity'] * 100, 1) }}%</small>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <div class="btn-group" role="group" aria-label="Penilaian {{ $item['material']->title }}">
+                                                                    <input 
+                                                                        type="radio" 
+                                                                        class="btn-check" 
+                                                                        name="material_{{ $item['material']->id }}" 
+                                                                        id="relevan_{{ $item['material']->id }}"
+                                                                        value="1"
+                                                                        data-material-id="{{ $item['material']->id }}"
+                                                                        data-similarity="{{ $item['similarity'] }}"
+                                                                    >
+                                                                    <label class="btn btn-outline-success btn-sm" for="relevan_{{ $item['material']->id }}">
+                                                                        <i class="fas fa-thumbs-up"></i> Relevan
+                                                                    </label>
+                                                                    
+                                                                    <input 
+                                                                        type="radio" 
+                                                                        class="btn-check" 
+                                                                        name="material_{{ $item['material']->id }}" 
+                                                                        id="tidak_relevan_{{ $item['material']->id }}"
+                                                                        value="0"
+                                                                        data-material-id="{{ $item['material']->id }}"
+                                                                        data-similarity="{{ $item['similarity'] }}"
+                                                                    >
+                                                                    <label class="btn btn-outline-danger btn-sm" for="tidak_relevan_{{ $item['material']->id }}">
+                                                                        <i class="fas fa-thumbs-down"></i> Tidak Relevan
+                                                                    </label>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                            
+                            <!-- Komentar Tambahan -->
+                            <div class="mb-3">
+                                <label for="user_comment" class="form-label">
+                                    <strong>Komentar Tambahan (Opsional)</strong>
+                                </label>
+                                <textarea 
+                                    class="form-control" 
+                                    id="user_comment" 
+                                    name="user_comment" 
+                                    rows="3" 
+                                    placeholder="Berikan komentar atau saran untuk perbaikan sistem rekomendasi..."
+                                ></textarea>
+                                <small class="text-muted">Komentar Anda akan membantu penelitian untuk meningkatkan kualitas rekomendasi.</small>
+                            </div>
+                            
+                        @else
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                Tidak ada rekomendasi untuk dievaluasi karena semua jawaban Anda sudah optimal.
+                            </div>
+                        @endif
+                    </form>
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    {{ $userHasReviewed ? 'Tutup' : 'Batal' }}
+                </button>
+                @if(!$userHasReviewed && $hasRecommendations)
+                    <button type="button" class="btn btn-primary" id="submitEvaluation">
+                        <i class="fas fa-paper-plane"></i> Kirim Penilaian (Hanya 1x)
+                    </button>
+                @elseif($userHasReviewed)
+                    <button type="button" class="btn btn-primary" id="openUATFormFromModal">
+                        <i class="fas fa-external-link-alt"></i> Isi Kuesioner UAT
+                    </button>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
         </div>
     </div>
 
@@ -517,26 +890,7 @@
     </div>
 @endif
 
-    <!-- Penilaian -->
-    @if(Auth::user()->is_review == 1)
-    <div class="card mt-4">
-        <div class="card-body">
-            <h6 class="fw-bold">Penilaian Efektivitas Sistem Tryout CPNS</h6>
-            <p class="mb-2">Terima kasih telah mengikuti tryout CPNS. Untuk meningkatkan kualitas sistem rekomendasi tryout, Anda dapat memberikan penilaian.</p>
-            
-            <form action="{{url('/send-feedback')}}" method="POST">
-                @csrf
-                <input type="hidden" name="name" value="{{Auth::user()->name}}">
-                <input type="hidden" name="email" value="{{Auth::user()->email}}">
-                <div class="form-floating mb-3">
-                    <textarea class="form-control" required placeholder="Kirim penilaian berupa kritik atau saran dan pengalaman anda menggunakan sistem CPNS" id="message" name="message" style="height: 120px"></textarea>
-                    <label for="message">Penilaian (Kritik/Saran)</label>
-                </div>
-                <button type="submit" class="btn btn-primary" onclick="this.disabled=true;this.form.submit();">Berikan Penilaian</button>
-            </form>
-        </div>
-    </div>
-    @endif
+
 </div>
 @endsection
 
@@ -660,5 +1014,268 @@ if (tryoutInfo.is_tryout_resmi || tryoutInfo.kategori_focus.includes('TKP')) {
             timer: 5000
         });
     @endif
+</script>
+<script>
+// Variable untuk menyimpan URL Google Form UAT
+const UAT_FORM_URL = '{{ config("app.uat_form_url", "https://forms.gle/your-google-form-id") }}';
+
+// Handle UAT Form opening
+function openUATForm() {
+    Swal.fire({
+        icon: 'info',
+        title: 'Kuesioner User Acceptance Testing',
+        html: `
+            <p>Anda akan diarahkan ke kuesioner UAT untuk memberikan penilaian terhadap sistem tryout CPNS ini.</p>
+            <p><strong>Kuesioner ini membutuhkan waktu sekitar 3-5 menit.</strong></p>
+            <small class="text-muted">Kontribusi Anda sangat membantu penelitian ini.</small>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#007bff',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-external-link-alt"></i> Buka Kuesioner',
+        cancelButtonText: 'Nanti Saja',
+        allowOutsideClick: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Buka Google Form di tab baru
+            window.open(UAT_FORM_URL, '_blank');
+            
+            // Show thank you message
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Terima Kasih!',
+                    text: 'Kuesioner telah dibuka di tab baru. Silakan lengkapi kuesioner untuk membantu penelitian ini.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#28a745'
+                });
+            }, 500);
+        }
+    });
+}
+
+// Event listeners untuk tombol UAT
+document.addEventListener('DOMContentLoaded', function() {
+    // Tombol UAT di card
+    const uatButton = document.getElementById('openUATForm');
+    if (uatButton) {
+        uatButton.addEventListener('click', openUATForm);
+    }
+    
+    // Tombol UAT di modal
+    const uatButtonModal = document.getElementById('openUATFormFromModal');
+    if (uatButtonModal) {
+        uatButtonModal.addEventListener('click', openUATForm);
+    }
+});
+
+// Handle submit evaluation - hanya jika belum evaluated
+@if(!$userHasReviewed)
+document.getElementById('submitEvaluation').addEventListener('click', function() {
+    const form = document.getElementById('cbfEvaluationForm');
+    const formData = new FormData(form);
+    
+    // Collect all material evaluations
+    const evaluations = [];
+    const radioButtons = form.querySelectorAll('input[type="radio"]:checked');
+    
+    // Validasi: pastikan semua materi sudah dievaluasi
+    const allMaterials = form.querySelectorAll('input[type="radio"][data-material-id]');
+    const uniqueMaterialIds = [...new Set(Array.from(allMaterials).map(input => input.dataset.materialId))];
+    const evaluatedMaterialIds = [...new Set(Array.from(radioButtons).map(input => input.dataset.materialId))];
+    
+    if (evaluatedMaterialIds.length < uniqueMaterialIds.length) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Evaluasi Belum Lengkap',
+            text: 'Mohon berikan penilaian untuk semua materi yang direkomendasikan.',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
+    
+    // Collect evaluations
+    radioButtons.forEach(radio => {
+        evaluations.push({
+            material_id: radio.dataset.materialId,
+            similarity_score: parseFloat(radio.dataset.similarity),
+            user_feedback: radio.value === '1',
+            is_recommended: true
+        });
+    });
+    
+    // Prepare data
+    const data = {
+        set_soal_id: formData.get('set_soal_id'),
+        user_comment: formData.get('user_comment'),
+        evaluations: evaluations,
+        _token: formData.get('_token')
+    };
+    
+    // Disable submit button
+    const submitBtn = document.getElementById('submitEvaluation');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+    
+    // Send AJAX request
+    fetch('{{ route("user.cbf.evaluation.submit") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Handle HTTP errors
+            return response.json().then(err => Promise.reject(err));
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Success response dengan prompt UAT
+            Swal.fire({
+                icon: 'success',
+                title: 'Penilaian Berhasil Disimpan!',
+                html: `
+                    <p>${data.message}</p>
+                    <hr>
+                    <p><strong>Langkah selanjutnya:</strong> Isi kuesioner User Acceptance Testing untuk melengkapi kontribusi Anda dalam penelitian ini.</p>
+                `,
+                showCancelButton: true,
+                confirmButtonColor: '#007bff',
+                cancelButtonColor: '#28a745',
+                confirmButtonText: '<i class="fas fa-external-link-alt"></i> Isi Kuesioner UAT',
+                cancelButtonText: '<i class="fas fa-check"></i> Nanti Saja',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Buka UAT form
+                    window.open(UAT_FORM_URL, '_blank');
+                    
+                    // Show additional thank you message
+                    setTimeout(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Terima Kasih!',
+                            text: 'Kuesioner UAT telah dibuka di tab baru. Silakan lengkapi untuk membantu penelitian ini.',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#28a745'
+                        });
+                    }, 500);
+                }
+                
+                // Close modal dan refresh halaman
+                const modal = bootstrap.Modal.getInstance(document.getElementById('cbfEvaluationModal'));
+                modal.hide();
+                location.reload();
+            });
+        } else {
+            // Handle error responses
+            if (data.error_code === 'ALREADY_REVIEWED') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Penilaian Sudah Diberikan',
+                    text: data.message,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#007bff'
+                }).then(() => {
+                    location.reload(); // Refresh to update UI
+                });
+            } else {
+                throw new Error(data.message || 'Terjadi kesalahan tidak dikenal');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('CBF Evaluation Error:', error);
+        
+        let errorMessage = 'Terjadi kesalahan saat menyimpan penilaian.';
+        let errorTitle = 'Gagal Menyimpan';
+        
+        // Handle specific error messages
+        if (error.message) {
+            if (error.message.includes('sudah pernah memberikan penilaian') || error.message.includes('ALREADY_REVIEWED')) {
+                errorTitle = 'Penilaian Sudah Ada';
+                errorMessage = 'Anda sudah pernah memberikan penilaian sebelumnya. Setiap pengguna hanya dapat memberikan penilaian satu kali untuk penelitian ini.';
+                
+                Swal.fire({
+                    icon: 'info',
+                    title: errorTitle,
+                    text: errorMessage,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#007bff'
+                }).then(() => {
+                    location.reload();
+                });
+                return;
+            } else if (error.message.includes('validation')) {
+                errorTitle = 'Data Tidak Valid';
+                errorMessage = 'Data yang dikirim tidak valid. Mohon periksa kembali penilaian Anda.';
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                errorTitle = 'Masalah Koneksi';
+                errorMessage = 'Gagal terhubung ke server. Periksa koneksi internet Anda dan coba lagi.';
+            } else {
+                errorMessage = error.message;
+            }
+        }
+        
+        // Show error alert
+        Swal.fire({
+            icon: 'error',
+            title: errorTitle,
+            text: errorMessage,
+            confirmButtonText: 'Coba Lagi',
+            confirmButtonColor: '#dc3545',
+            footer: '<small class="text-muted">Jika masalah berlanjut, hubungi administrator</small>'
+        });
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+    });
+});
+@endif
+
+// Handle modal close dengan konfirmasi jika ada perubahan (hanya untuk mode input)
+@if(!$userHasReviewed)
+document.getElementById('cbfEvaluationModal').addEventListener('hide.bs.modal', function (event) {
+    const form = document.getElementById('cbfEvaluationForm');
+    const radioButtons = form.querySelectorAll('input[type="radio"]:checked');
+    const commentField = form.querySelector('#user_comment');
+    
+    // Cek apakah ada input yang sudah diisi
+    if (radioButtons.length > 0 || (commentField && commentField.value.trim() !== '')) {
+        // Prevent modal from closing
+        event.preventDefault();
+        
+        Swal.fire({
+            icon: 'warning',
+            title: 'Tutup Penilaian?',
+            text: 'Anda memiliki penilaian yang belum disimpan. Yakin ingin menutup?',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Tutup',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Force close modal
+                const modal = bootstrap.Modal.getInstance(event.target);
+                modal.hide();
+                
+                // Reset form
+                form.reset();
+            }
+        });
+    }
+});
+@endif
+
 </script>
 @endpush

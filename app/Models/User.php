@@ -51,4 +51,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(HasilTryout::class);
     }
+
+     public function cbfEvaluations()
+    {
+        return $this->hasMany(CBFEvaluation::class);
+    }
 }

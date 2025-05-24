@@ -49,6 +49,22 @@
     </li>
     <hr class="sidebar-divider my-0">
 
+      <!-- Nav Item - System Error -->
+    <li class="nav-item {{Request::is('/admin/keyword-update') ? 'active' : ''}}">
+        <a class="nav-link" href="{{ route('admin.keyword-update') }}">
+            <i class="fas fa-fw fa-exclamation-triangle"></i>
+            <span>Kata Kunci</span></a>
+    </li>
+    <hr class="sidebar-divider my-0">
+
+      <!-- Nav Item - System Error -->
+    <li class="nav-item {{Request::is('/admin/cbf-evaluation') ? 'active' : ''}}">
+        <a class="nav-link" href="{{ route('admin.cbf-evaluation.dashboard') }}">
+             <i class="fas fa-chart-line"></i>
+            <span>CBF Evaluation</span></a>
+    </li>
+    <hr class="sidebar-divider my-0">
+
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
 

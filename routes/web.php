@@ -14,6 +14,8 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\SystemErrorController;
 use App\Http\Controllers\KeywordUpdateController;
+use App\Http\Controllers\CBFEvaluationController;
+use App\Http\Controllers\UserCBFEvaluationController;
 
 Route::get('/', [UserController::class, 'public']);
 Route::get('/kontak', [UserController::class, 'kontak']);
@@ -84,9 +86,6 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-
-
-
        // === KEYWORD UPDATE ROUTES ===
     
     // Halaman update keywords
@@ -116,4 +115,26 @@ Route::middleware(['auth'])->group(function () {
     // Preview keywords yang akan diupdate
     Route::post('/admin/keyword-update/preview', [KeywordUpdateController::class, 'previewKeywords'])
         ->name('admin.keyword-update.preview');
+
+
+      Route::get('/admin/cbf-evaluation', [CBFEvaluationController::class, 'dashboard'])
+        ->name('admin.cbf-evaluation.dashboard');
+    Route::get('/admin/cbf-evaluation/data', [CBFEvaluationController::class, 'getEvaluationData'])
+        ->name('admin.cbf-evaluation.data');
+    Route::get('/admin/cbf-evaluation/{id}/detail', [CBFEvaluationController::class, 'showEvaluationDetail'])
+        ->name('admin.cbf-evaluation.detail');
+    Route::delete('/admin/cbf-evaluation/{id}', [CBFEvaluationController::class, 'deleteEvaluation'])
+        ->name('admin.cbf-evaluation.delete');
+    Route::post('/admin/cbf-evaluation/bulk-delete', [CBFEvaluationController::class, 'bulkDeleteEvaluations'])
+        ->name('admin.cbf-evaluation.bulk-delete');
+    Route::post('/admin/cbf-evaluation/reset-user', [CBFEvaluationController::class, 'resetUserReview'])
+        ->name('admin.cbf-evaluation.reset-user');
+
+
+
+    Route::post('/user/cbf-evaluation/submit', [UserCBFEvaluationController::class, 'submitEvaluation'])
+        ->name('user.cbf.evaluation.submit');
+
+    Route::get('/user/cbf-evaluation/stats', [UserCBFEvaluationController::class, 'getUserEvaluationStats'])
+        ->name('user.cbf.evaluation.stats');
 });
