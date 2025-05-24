@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('phone');
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_akses')->default(false);
-            $table->boolean('is_review')->default(true);
+            $table->boolean('is_review')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

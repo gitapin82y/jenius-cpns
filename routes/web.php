@@ -115,7 +115,8 @@ Route::middleware(['auth'])->group(function () {
     // Preview keywords yang akan diupdate
     Route::post('/admin/keyword-update/preview', [KeywordUpdateController::class, 'previewKeywords'])
         ->name('admin.keyword-update.preview');
-
+Route::post('/tryout/check-history', [TryoutController::class, 'checkHistory'])
+    ->name('tryout.check-history');
 
       Route::get('/admin/cbf-evaluation', [CBFEvaluationController::class, 'dashboard'])
         ->name('admin.cbf-evaluation.dashboard');

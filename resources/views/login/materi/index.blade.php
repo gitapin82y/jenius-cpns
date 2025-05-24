@@ -302,11 +302,21 @@
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $twkLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
                         </div>
                     </div>
-                    @if($allTWKCompleted && count($twkLatihan) > 0)
-                        <a href="{{ route('tryout.index', $twkLatihan->first()->id) }}" class="btn btn-primary btn-rounded">Kerjakan</a>
-                    @else
-                        <button disabled class="btn btn-secondary btn-rounded">Kerjakan</button>
-                    @endif
+                  @if($allTWKCompleted && count($twkLatihan) > 0)
+                <a href="{{ route('tryout.index', $twkLatihan->first()->id) }}" class="btn btn-primary btn-rounded flex-fill">Kerjakan</a>
+                <a href="#" class="btn btn-dark-rounded btn-riwayat-latihan" 
+                   data-soal="{{ $twkLatihan->first()->id }}" 
+                   data-title="Latihan TWK"
+                   data-kategori="TWK">
+                    Riwayat
+                </a>
+            @else
+                <button disabled class="btn btn-secondary btn-rounded flex-fill">Kerjakan</button>
+                <button disabled class="btn btn-secondary btn-rounded">
+                    Riwayat
+                </button>
+            @endif
+
                 </div>
             </div>
             
@@ -371,10 +381,19 @@
                         </div>
                     </div>
                     @if($tiuUnlocked && $allTIUCompleted && count($tiuLatihan) > 0)
-                        <a href="{{ route('tryout.index', $tiuLatihan->first()->id) }}" class="btn btn-primary btn-rounded">Kerjakan</a>
-                    @else
-                        <button disabled class="btn btn-secondary btn-rounded">Kerjakan</button>
-                    @endif
+                <a href="{{ route('tryout.index', $tiuLatihan->first()->id) }}" class="btn btn-primary btn-rounded flex-fill">Kerjakan</a>
+                <a href="#" class="btn btn-dark-rounded btn-riwayat-latihan" 
+                   data-soal="{{ $tiuLatihan->first()->id }}" 
+                   data-title="Latihan TIU"
+                   data-kategori="TIU">
+                    Riwayat
+                </a>
+            @else
+                <button disabled class="btn btn-secondary btn-rounded flex-fill">Kerjakan</button>
+                <button disabled class="btn btn-secondary btn-rounded">
+                    Riwayat
+                </button>
+            @endif
                 </div>
             </div>
             
@@ -438,11 +457,20 @@
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tkpLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
                         </div>
                     </div>
-                    @if($tkpUnlocked && $allTKPCompleted && count($tkpLatihan) > 0)
-                        <a href="{{ route('tryout.index', $tkpLatihan->first()->id) }}" class="btn btn-primary btn-rounded">Kerjakan</a>
-                    @else
-                        <button disabled class="btn btn-secondary btn-rounded">Kerjakan</button>
-                    @endif
+            @if($tkpUnlocked && $allTKPCompleted && count($tkpLatihan) > 0)
+                <a href="{{ route('tryout.index', $tkpLatihan->first()->id) }}" class="btn btn-primary btn-rounded flex-fill">Kerjakan</a>
+                <a href="#" class="btn btn-dark-rounded btn-riwayat-latihan" 
+                   data-soal="{{ $tkpLatihan->first()->id }}" 
+                   data-title="Latihan TKP"
+                   data-kategori="TKP">
+                    Riwayat
+                </a>
+            @else
+                <button disabled class="btn btn-secondary btn-rounded flex-fill">Kerjakan</button>
+                <button disabled class="btn btn-secondary btn-rounded">
+                    Riwayat
+                </button>
+            @endif
                 </div>
             </div>
         </div>
@@ -491,5 +519,107 @@
     });
 @endif
     });
+</script>
+
+<script>
+$(document).ready(function() {
+    console.log('Document ready - Setting up riwayat latihan handlers');
+    
+    // Event untuk tombol Riwayat Latihan
+    $(document).on('click', '.btn-riwayat-latihan', function(e) {
+        e.preventDefault();
+        console.log('Tombol Riwayat Latihan diklik');
+        
+        const setSoalId = $(this).data('soal');
+        const setTitle = $(this).data('title');
+        const kategori = $(this).data('kategori');
+        
+        console.log('Riwayat Latihan Parameters:', {setSoalId, setTitle, kategori});
+        
+        try {
+            @if(isset($isLoggedIn) && $isLoggedIn)
+               checkLatihanHistory(setSoalId, setTitle);
+            @else
+                // User belum login, tampilkan peringatan
+                Swal.fire({
+                    title: 'Tidak dapat akses riwayat!',
+                    text: 'Silahkan login terlebih dahulu untuk melihat riwayat nilai latihan.',
+                    icon: 'warning',
+                    confirmButtonText: 'Login',
+                    cancelButtonText: 'Batal',
+                    showCancelButton: true,
+                    preConfirm: () => {
+                        window.location.href = "{{ route('login') }}";
+                    },
+                });
+            @endif
+        } catch (error) {
+            console.error('Error dalam click handler btn-riwayat-latihan:', error);
+            
+            Swal.fire({
+                title: 'Terjadi Kesalahan',
+                text: 'Gagal mengakses riwayat latihan. Silakan coba lagi.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+    
+ 
+  // Fungsi untuk cek riwayat latihan
+    function checkLatihanHistory(setSoalId, setTitle) {
+        
+        // Ajax request untuk cek apakah user sudah pernah mengerjakan
+        $.ajax({
+            url: '{{ route("tryout.check-history") }}',
+            method: 'POST',
+            data: {
+                set_soal_id: setSoalId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                Swal.close();
+                
+                if (response.hasHistory) {
+                    // Ada riwayat, arahkan ke halaman result
+                    window.location.href = `{{ url('/tryout/result/') }}/${setSoalId}`;
+                } else {
+                    // Belum ada riwayat, tampilkan pesan
+                    Swal.fire({
+                        title: 'Belum Ada Riwayat',
+                        html: `Anda belum mengerjakan <b>${setTitle}</b>.`,
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.close();
+                console.error('Ajax error:', {xhr, status, error});
+                
+                if (xhr.status === 401) {
+                    Swal.fire({
+                        title: 'Sesi Berakhir',
+                        text: 'Silakan login kembali untuk melanjutkan.',
+                        icon: 'warning',
+                        confirmButtonText: 'Login',
+                        preConfirm: () => {
+                            window.location.href = "{{ route('login') }}";
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Terjadi Kesalahan',
+                        text: 'Gagal memeriksa riwayat latihan. Silakan coba lagi.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        });
+    }
+    
+ 
+});
 </script>
 @endpush

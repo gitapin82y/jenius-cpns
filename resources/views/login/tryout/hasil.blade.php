@@ -428,22 +428,13 @@
                     <p class="mb-2">Untuk melengkapi penelitian, kami mengundang Anda mengisi kuesioner User Acceptance Testing (UAT) mengenai pengalaman menggunakan sistem ini.</p>
                     
                     <button type="button" class="btn btn-primary" id="openUATForm">
-                        <i class="fas fa-external-link-alt"></i> Isi Kuesioner UAT
+                        <i class="fas fa-external-link-alt"></i> Isi Kuesioner
                     </button>
                     
-                    <button type="button" class="btn btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#cbfEvaluationModal">
-                        <i class="fas fa-eye"></i> Lihat Riwayat Penilaian
+                    <button type="button" class="btn btn-outline-secondary mt-2" data-bs-toggle="modal" data-bs-target="#cbfEvaluationModal">
+                        <i class="fas fa-eye"></i> Riwayat Penilaian
                     </button>
                 </div>
-                
-                @if($lastEvaluation)
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <i class="fas fa-calendar"></i> 
-                        Terakhir dievaluasi: {{ $lastEvaluation->created_at->format('d M Y, H:i') }}
-                    </small>
-                </div>
-                @endif
             </div>
         </div>
     </div>

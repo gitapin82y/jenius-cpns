@@ -172,16 +172,65 @@
                     },
                 });
             } else {
-                window.location.href = `{{ url('/tryout/result/${setSoalId}') }}`;
+            checkLatihanHistory(setSoalId, setName);
             }
         } catch (error) {
             console.error('Error dalam click handler btn-riwayat:', error);
         }
     });
+      // Fungsi untuk cek riwayat latihan
+    function checkLatihanHistory(setSoalId, setTitle) {
+        
+        // Ajax request untuk cek apakah user sudah pernah mengerjakan
+        $.ajax({
+            url: '{{ route("tryout.check-history") }}',
+            method: 'POST',
+            data: {
+                set_soal_id: setSoalId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                Swal.close();
+                
+                if (response.hasHistory) {
+                    // Ada riwayat, arahkan ke halaman result
+                    window.location.href = `{{ url('/tryout/result/') }}/${setSoalId}`;
+                } else {
+                    // Belum ada riwayat, tampilkan pesan
+                    Swal.fire({
+                        title: 'Belum Ada Riwayat',
+                        html: `Anda belum mengerjakan <b>${setTitle}</b>. Silakan kerjakan terlebih dahulu.`,
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.close();
+                console.error('Ajax error:', {xhr, status, error});
+                
+                if (xhr.status === 401) {
+                    Swal.fire({
+                        title: 'Sesi Berakhir',
+                        text: 'Silakan login kembali untuk melanjutkan.',
+                        icon: 'warning',
+                        confirmButtonText: 'Login',
+                        preConfirm: () => {
+                            window.location.href = "{{ route('login') }}";
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Terjadi Kesalahan',
+                        text: 'Gagal memeriksa riwayat latihan. Silakan coba lagi.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        });
+    }
     
-    // Tambahkan log tombol yang ada
-    console.log('Jumlah tombol kerjakan:', $('.btn-kerjakan').length);
-    console.log('Jumlah tombol riwayat:', $('.btn-riwayat').length);
 });
 </script>
 @endpush

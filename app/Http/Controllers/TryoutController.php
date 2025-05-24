@@ -359,6 +359,39 @@ if ($setSoal->kategori == 'Latihan') {
     }
 }
 
+// Tambahkan method ini ke controller yang menangani tryout/result
+
+public function checkHistory(Request $request)
+{
+    try {
+        $request->validate([
+            'set_soal_id' => 'required|exists:set_soals,id'
+        ]);
+        
+        $userId = Auth::id();
+        $setSoalId = $request->set_soal_id;
+        
+        // Cek apakah user sudah pernah mengerjakan tryout/latihan ini
+        $hasilTryout = HasilTryout::where('user_id', $userId)
+            ->where('set_soal_id', $setSoalId)
+            ->first();
+        
+        return response()->json([
+            'hasHistory' => $hasilTryout ? true : false,
+            'message' => $hasilTryout 
+                ? 'Riwayat ditemukan' 
+                : 'Belum ada riwayat untuk latihan ini'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'hasHistory' => false,
+            'message' => 'Terjadi kesalahan saat memeriksa riwayat',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
       public function pembahasan($set_soal)
     {
         try {
