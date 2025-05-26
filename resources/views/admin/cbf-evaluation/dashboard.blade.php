@@ -261,13 +261,13 @@
     </div>
 </div>
 
-<!-- Modal Detail Evaluasi -->
+<!-- Modal Selengkapnya Evaluasi -->
 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="detailModalLabel">
-                    <i class="fas fa-info-circle"></i> Detail Evaluasi Pengguna
+                    <i class="fas fa-info-circle"></i> Selengkapnya Evaluasi Pengguna
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -567,7 +567,7 @@ function showEvaluationDetail(evaluationId) {
                
                html += `
                    <div class="mb-3">
-                       <h6 class="fw-bold">Detail Evaluasi Materi</h6>
+                       <h6 class="fw-bold">Selengkapnya Evaluasi Materi</h6>
                        <div class="table-responsive">
                            <table class="table table-bordered table-sm">
                                <thead>

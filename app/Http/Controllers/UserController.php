@@ -28,7 +28,7 @@ class UserController extends Controller
             ->latest())
                 ->addColumn('action', function ($user) {
                     return '
-                        <button type="button" class="btn btn-primary btn-sm" onclick="editUser(' . htmlspecialchars(json_encode($user), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Edit</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="editUser(' . htmlspecialchars(json_encode($user), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>
                         <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(' . $user->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
                     ';
                 })

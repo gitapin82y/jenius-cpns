@@ -154,7 +154,7 @@
                                         </div>
                                         
                                         <button type="submit" class="btn btn-success btn-sm w-100">
-                                            <i class="fas fa-check"></i> Submit Evaluation
+                                            <i class="fas fa-check"></i> Kirim Evaluation
                                         </button>
                                     </form>
                                 </div>
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
             
-            // Submit evaluation
+            // Kirim evaluation
             fetch('{{ route("admin.cbf-evaluation.submit") }}', {
                 method: 'POST',
                 headers: {
@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Re-enable submit button
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-check"></i> Submit Evaluation';
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Kirim Evaluation';
                 
                 Swal.fire({
                     icon: 'error',

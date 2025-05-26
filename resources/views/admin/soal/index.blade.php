@@ -169,7 +169,7 @@
                 $('#jawaban_benar').prop('disabled', false); 
             }
 
-        $('.modal-title').html('Edit Soal');
+        $('.modal-title').html('Ubah Soal');
         $('#kategori').val(soal.kategori);
         $('#kategori').trigger('change');
             $('#tipe').val(soal.tipe);
@@ -257,7 +257,7 @@
     $('#modalPoinJawabanE').text('');
     }
 
-    $('.modal-title').html('Detail Soal');
+    $('.modal-title').html('Selengkapnya Soal');
 
     if (soal.foto) {
         $('#modalFoto').html(`<img src="/storage/${soal.foto}" alt="Soal Foto" class="img-fluid">`);

@@ -292,9 +292,9 @@ $('#btn-reset-filter').click(function() {
     $('#filter-tipe').val('');
     table.draw();
 });
-    // Edit material function to fill the form in the modal
+    // Ubah material function to fill the form in the modal
     function editMaterial(material) {
-        $('.modal-title').html('Edit Materi');
+        $('.modal-title').html('Ubah Materi');
         $('#materialId').val(material.id);
         $('#title').val(material.title);
         $('#tipe').val(material.tipe);

@@ -80,7 +80,7 @@ class MaterialController extends Controller
                     return '
                         <button type="button" class="btn btn-info btn-sm" onclick="showDetailMaterial(' . htmlspecialchars(json_encode($material), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-eye fa-sm text-white-50"></i> Detail</button> '
                         .$statusButton.'
-                        <button type="button" class="btn btn-primary btn-sm" onclick="editMaterial(' . htmlspecialchars(json_encode($material), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Edit</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="editMaterial(' . htmlspecialchars(json_encode($material), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>
                         <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(' . $material->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
                     ';
                 })

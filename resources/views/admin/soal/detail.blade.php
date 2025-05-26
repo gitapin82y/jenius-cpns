@@ -1,9 +1,9 @@
-<!-- Detail Soal Modal -->
+<!-- Selengkapnya Soal Modal -->
 <div class="modal fade" id="detailSoalModal" tabindex="-1" aria-labelledby="detailSoalModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Detail Soal</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Selengkapnya Soal</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
         <i class="fas fa-times"></i>
     </button>

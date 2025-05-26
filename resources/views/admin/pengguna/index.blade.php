@@ -60,9 +60,9 @@
 });
 
 
-    // Edit user function to fill the form in the modal
+    // Ubah user function to fill the form in the modal
     function editUser(user) {
-        $('.modal-title').html('Edit Pengguna');
+        $('.modal-title').html('Ubah Pengguna');
         $('#userId').val(user.id);
         $('#name').val(user.name);
         $('#email').val(user.email);

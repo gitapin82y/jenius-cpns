@@ -20,7 +20,7 @@
     <div class="row">
     <div class="col-12 col-md-6 align-self-center">
                 <h1 class="h4 text-gray-900">Daftar Platform Tryout & Belajar CPNS</h1>
-                <p>Gabung bersama kami untuk lulus bersama CPNS dengan sistem adaptif strategi belajar yang efektif</p>
+                <p>Gabung bersama Jenius CPNS untuk merasakan manfaat sistem tryout dilengkapi dengan rekomendasi materi pembelajaran</p>
             <form action="{{ url('register') }}" method="POST" class="user">
                 @csrf
 

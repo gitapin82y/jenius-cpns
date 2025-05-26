@@ -109,7 +109,7 @@
                     @endforeach
                 </div>
                     
-            <button type="button" class="btn btn-success mt-3" id="submitTryoutBtn">Submit Tryout</button>
+            <button type="button" class="btn btn-success mt-3" id="submitTryoutBtn">Kirim Tryout</button>
         </div>
     </div>
   

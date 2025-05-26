@@ -88,9 +88,9 @@
 
 
 
-    // Edit setSoal function to fill the form in the modal
+    // Ubah setSoal function to fill the form in the modal
     function editSetSoal(setSoal) {
-        $('.modal-title').html('Edit Set Soal');
+        $('.modal-title').html('Ubah Set Soal');
         $('#setSoalId').val(setSoal.id);
         $('#title').val(setSoal.title);
 
