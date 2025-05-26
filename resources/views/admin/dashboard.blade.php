@@ -221,7 +221,7 @@ const myLineChart = new Chart(ctx, {
 // Pie Chart - Penyelesaian Tryout dengan persentase tampil langsung
 const tryoutCompletionPieChart = document.getElementById("tryoutCompletionPieChart");
 const completionData = {!! json_encode(array_map(function($item) { return $item['count']; }, $completedTryoutData)) !!};
-const completionLabels = {!! json_encode(array_map(function($item) { return $item['title'] . ' (' . $item['percentage'] . '%)'; }, $completedTryoutData)) !!};
+const completionLabels = {!! json_encode(array_map(function($item) { return $item['title']; }, $completedTryoutData)) !!};
 const completionPercentages = {!! json_encode(array_map(function($item) { return $item['percentage']; }, $completedTryoutData)) !!};
 
 const tryoutCompletionChart = new Chart(tryoutCompletionPieChart, {
@@ -231,7 +231,7 @@ const tryoutCompletionChart = new Chart(tryoutCompletionPieChart, {
         datasets: [{
             data: completionData,
             backgroundColor: [
-                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#5a5c69',
+                '#8DD14F', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#5a5c69',
                 '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#e02d1b'
             ],
             hoverBackgroundColor: [
@@ -257,7 +257,7 @@ const tryoutCompletionChart = new Chart(tryoutCompletionPieChart, {
                     const dataset = data.datasets[tooltipItem.datasetIndex];
                     const currentValue = dataset.data[tooltipItem.index];
                     const percentage = completionPercentages[tooltipItem.index];
-                    return data.labels[tooltipItem.index] + ': ' + currentValue + ' pengguna (' + percentage + '%)';
+                    return data.labels[tooltipItem.index] + ': ' + currentValue + ' pengguna ';
                 }
             }
         },

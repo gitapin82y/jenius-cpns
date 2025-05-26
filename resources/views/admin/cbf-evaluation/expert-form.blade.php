@@ -182,8 +182,8 @@
 }
 
 .rating-buttons .rating-btn.active {
-    background-color: #4e73df !important;
-    border-color: #4e73df !important;
+    background-color: #8DD14F!important;
+    border-color: #8DD14F!important;
     color: white !important;
 }
 
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon: 'warning',
                     title: 'Rating Required',
                     text: 'Please select a relevance rating before submitting.',
-                    confirmButtonColor: '#4e73df'
+                    confirmButtonColor: '#8DD14F'
                 });
                 return;
             }
@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon: 'error',
                     title: 'Submission Failed',
                     text: 'There was an error submitting your evaluation. Please try again.',
-                    confirmButtonColor: '#4e73df'
+                    confirmButtonColor: '#8DD14F'
                 });
             });
         });

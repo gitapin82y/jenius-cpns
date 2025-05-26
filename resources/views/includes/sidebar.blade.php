@@ -2,7 +2,7 @@
 
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{url('/')}}">
-        <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo jenius CPNS" width="60px">
+        <img src="{{asset('assets/img/logo-jenius-cpns.png')}}" alt="logo jenius CPNS" width="60px">
     </a>
 
     <!-- Divider -->

@@ -25,7 +25,7 @@
         width: auto !important;
     }
     .nav-dashboard .active{
-        color: rgb(50, 70, 201) !important;
+        color: rgb(141, 209, 79) !important;
     }
     .table td, .table th{
         vertical-align: middle;

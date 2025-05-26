@@ -6,7 +6,7 @@
     </button>
 
     <a class="navbar-nav d-none d-md-flex" href="{{url('/')}}">
-            <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo jenius CPNS" width="60px">
+            <img src="{{asset('assets/img/logo-jenius-cpns.png')}}" alt="logo jenius CPNS" width="80px">
     </a>
 
     <div class="navbar-nav ml-auto d-none d-md-flex nav-dashboard">

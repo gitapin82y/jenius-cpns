@@ -10,7 +10,7 @@
           <div class="container px-0">
               <nav class="navbar navbar-expand-lg navbar-dark bg-white py-3 px-4">
                   <a href="{{url('/')}}" class="navbar-brand p-0">
-                      <img src="{{asset('assets/img/lulus-bersama-logo.png')}}" alt="logo jenius CPNS" width="60px">
+                      <img src="{{asset('assets/img/logo-jenius-cpns.png')}}" alt="logo jenius CPNS" width="80px">
                   </a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                       <span class="fa fa-bars"></span>

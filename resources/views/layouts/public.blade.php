@@ -7,7 +7,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="{{asset('assets/img/lulus-bersama-logo.png')}}" />
+  <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="{{asset('assets/img/logo-jenius-cpns.png')}}" />
   <meta name="description"
   content="Ikuti jenius CPNS tryout CPNS secara gratis atau berbayar untuk mempersiapkan dirimu menghadapi TES SKD CASN dengan percaya diri." />
 <meta name="keywords" 
@@ -16,12 +16,12 @@
 
 <meta property="og:title" content="Tryout CPNS TES SKD CASN Gratis - Jenius CPNS">
 <meta property="og:description" content="Ikuti jenius CPNS tryout CPNS secara gratis atau berbayar untuk mempersiapkan dirimu menghadapi TES SKD CASN dengan percaya diri.">
-<meta property="og:image" content="{{asset('assets/img/lulus-bersama-logo.png')}}">
+<meta property="og:image" content="{{asset('assets/img/logo-jenius-cpns.png')}}">
 <meta property="og:url" content="https://jeniuscpns.com">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Tryout CPNS TES SKD CASN Gratis - Jenius CPNS">
 <meta name="twitter:description" content="Ikuti jenius CPNS tryout CPNS secara gratis atau berbayar untuk mempersiapkan dirimu menghadapi TES SKD CASN dengan percaya diri.">
-<meta name="twitter:image" content="{{asset('assets/img/lulus-bersama-logo.png')}}">
+<meta name="twitter:image" content="{{asset('assets/img/logo-jenius-cpns.png')}}">
 <link rel="canonical" href="https://jeniuscpns.com">
 
 

@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="{{asset('assets/img/lulus-bersama-logo.png')}}" />
+    <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="{{asset('assets/img/logo-jenius-cpns.png')}}" />
     <meta name="description" content="">
     <meta name="author" content="">
 

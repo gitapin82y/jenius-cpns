@@ -30,7 +30,7 @@
         }
         
         .materi-card h4 {
-            color: #4e73df;
+            color: #8DD14F;
             margin-bottom: 15px;
             font-weight: 600;
         }
@@ -42,7 +42,7 @@
         }
         
         .materi-card .progress-bar {
-            background-color: #4e73df;
+            background-color: #8DD14F;
         }
         
         .materi-card .progress-text {

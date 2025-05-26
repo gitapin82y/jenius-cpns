@@ -90,7 +90,7 @@
                 Sudah Punya Akun? <a href="{{ url('/login') }}">Masuk</a>
             </div>
     </div>
-   <div class="col-12 col-md-6 align-self-center">
+   <div class="col-12 col-md-6 align-self-center text-end">
             <img src="{{asset('assets/img/customer-img-1.jpg')}}" alt="img belom di generate">
         </div>
     </div>

@@ -8,7 +8,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 .scrollable {
-    max-height: 200px;
+    max-height: 345px;
     overflow-y: auto;
 }
 .badge-category {
@@ -101,7 +101,7 @@
            <!-- Header Score Section -->
 <div class="card mb-3 p-0" style="border: none">
     <div class="card-body row bg-score mx-0 text-white">
-       <div class="pt-md-0 pt-4 col-12 col-md-6 align-self-center">
+       <div class="pt-md-0 col-12 col-md-6 align-self-center">
         <h5 class="fw-bold text-white">
             Total Poin Hasil {{ $tryoutInfo['is_tryout_resmi'] ? 'Tryout CPNS' : 'Latihan ' . implode(', ', $tryoutInfo['kategori_focus']) }}
         </h5>
@@ -131,10 +131,10 @@
                 <span class="badge rounded-pill mt-2 py-2 px-4 bg-secondary">Kosong: {{ $hasilTryout->total_kosong }}</span>
             </div>
         </div>
-        <a href="{{ route('tryout.pembahasan', $skbSetSoal->id) }}" class="btn btn-primary mt-2">Lihat Pembahasan {{ $tryoutInfo['is_tryout_resmi'] ? 'Tryout' : 'Latihan' }}</a>
+        <a href="{{ route('tryout.pembahasan', $skbSetSoal->id) }}" class="btn bg-white text-primary mt-2">Lihat Pembahasan {{ $tryoutInfo['is_tryout_resmi'] ? 'Tryout' : 'Latihan' }}</a>
     </div>
-      <div class="pt-md-0 pt-4 col-12 col-md-6 text-md-end text-center">
-        <img src="{{asset('assets/img/people-score.png')}}" alt="Score Image">
+      <div class="pt-md-0 pt-4 col-12 col-md-6 text-md-end text-start d-none d-md-block">
+        <img src="{{asset('assets/img/banner-logo.png')}}" alt="Score Image">
     </div>
     </div>
 </div>
@@ -343,7 +343,13 @@
         @endif
     </div>
 </div>
-<!-- Card Evaluasi Sistem Rekomendasi Materi -->
+
+
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Card Evaluasi Sistem Rekomendasi Materi -->
 @php
     $hasRecommendations = collect($recommendations['recommendations'] ?? [])->flatten(1)->isNotEmpty();
     $userHasReviewed = Auth::user()->is_review; // Cek dari kolom is_review di tabel users
@@ -706,8 +712,6 @@
         </div>
     </div>
 </div>
-
-        </div>
     </div>
 
     <!-- Debug Info CBF (untuk development dan sidang) -->
