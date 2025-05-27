@@ -8,6 +8,17 @@
     background-color: #28a745;
     color: white;
 }
+.btn.btn-primary:hover{
+    background-color: rgb(96, 217, 247);
+}
+.btn.btn-primary{
+    background-color: rgb(96, 217, 247) !important;
+}
+.btn-doubt {
+    background-color: #ffc107;
+    color: #212529;
+    border-color: #ffc107;
+}
 
 .badge-category {
     background-color: #0dcaf01d;
@@ -95,6 +106,7 @@
         
                 <div class="d-flex justify-content-start">
                     <button type="button" id="prevBtn" class="btn btn-secondary me-2">Sebelumnya</button>
+                    <button type="button" id="doubtBtn" class="btn btn-warning me-2">Ragu-ragu</button>
                     <button type="button" id="nextBtn" class="btn btn-primary">Selanjutnya</button>
                 </div>
             </form>
@@ -162,6 +174,15 @@
         }
     });
 
+    // Tombol Ragu-ragu
+    document.getElementById('doubtBtn').addEventListener('click', () => {
+        markAsDoubt(currentSoal);
+        if (currentSoal < totalSoals - 1) {
+            currentSoal++;
+            showSoal(currentSoal);
+        }
+    });
+
     navSoalButtons.forEach(button => {
         button.addEventListener('click', () => {
             const key = parseInt(button.getAttribute('data-key'));
@@ -188,11 +209,26 @@
 
     function markAnswered(soalId) {
         const soalKey = parseInt(soalId.split('-')[1]);
-        navSoalButtons[soalKey].classList.add('btn-success');
+        navSoalButtons[soalKey].classList.add('btn-success','text-white');
+    }
+
+
+    function markAsDoubt(soalIndex) {
+        const button = navSoalButtons[soalIndex];
+        button.classList.remove('btn-outline-primary', 'btn-success','text-white');
+        button.classList.add('btn-doubt');
+        
+        // Simpan status ragu-ragu ke localStorage
+        const doubtStatus = JSON.parse(localStorage.getItem('doubt_status') || '{}');
+        doubtStatus[soalIndex] = true;
+        localStorage.setItem('doubt_status', JSON.stringify(doubtStatus));
     }
 
     // Load answers and timer from local storage
     loadAnswersFromLocalStorage();
+    loadDoubtStatusFromLocalStorage();
+
+
     function loadAnswersFromLocalStorage() {
         const answers = JSON.parse(localStorage.getItem('jawaban_users') || '{}');
         Object.keys(answers).forEach(soalId => {
@@ -201,6 +237,20 @@
             if (input) {
                 input.checked = true;
                 markAnswered(input.closest('.soal-item').id);
+            }
+        });
+    }
+
+      function loadDoubtStatusFromLocalStorage() {
+        const doubtStatus = JSON.parse(localStorage.getItem('doubt_status') || '{}');
+        Object.keys(doubtStatus).forEach(soalIndex => {
+            if (doubtStatus[soalIndex]) {
+                const button = navSoalButtons[parseInt(soalIndex)];
+                // Hanya mark sebagai doubt jika belum dijawab
+                if (!button.classList.contains('btn-success')) {
+                    button.classList.remove('btn-outline-primary');
+                    button.classList.add('btn-doubt');
+                }
             }
         });
     }
@@ -215,13 +265,6 @@
     });
 
     showSoal(currentSoal);
-
-    // document.getElementById('submitTryoutBtn').addEventListener('click', () => {
-    //     clearInterval(timerInterval);
-    //     localStorage.removeItem('jawaban_users');
-    //     localStorage.removeItem('timeRemaining');
-    //     document.getElementById('tryoutForm').submit();
-    // });
 
      document.getElementById('submitTryoutBtn').addEventListener('click', () => {
         Swal.fire({
