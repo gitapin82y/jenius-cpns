@@ -16,7 +16,7 @@
 }
 .btn-doubt {
     background-color: #ffc107;
-    color: #212529;
+    color: #ffffff;
     border-color: #ffc107;
 }
 
@@ -106,7 +106,7 @@
         
                 <div class="d-flex justify-content-start">
                     <button type="button" id="prevBtn" class="btn btn-secondary me-2">Sebelumnya</button>
-                    <button type="button" id="doubtBtn" class="btn btn-warning me-2">Ragu-ragu</button>
+                    <button type="button" id="doubtBtn" class="btn btn-warning text-white me-2">Ragu-ragu</button>
                     <button type="button" id="nextBtn" class="btn btn-primary">Selanjutnya</button>
                 </div>
             </form>
