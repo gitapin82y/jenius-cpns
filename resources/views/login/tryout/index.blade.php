@@ -279,6 +279,7 @@
                 isFormSubmitting = true;
                 clearInterval(timerInterval);
                 localStorage.removeItem('jawaban_users');
+                localStorage.removeItem('doubt_status');
                 localStorage.removeItem('timeRemaining');
                 document.getElementById('tryoutForm').submit();
             }

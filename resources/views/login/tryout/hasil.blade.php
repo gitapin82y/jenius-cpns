@@ -13,7 +13,7 @@
 }
 .badge-category {
     background-color: #0dcaf01d;
-    color: #1eafcc;
+    color: #8DD14F;
     padding: 10px;
     border-radius: 10px;
 }
@@ -40,11 +40,14 @@
     border-radius: 10px;
 }
 .recommendation-item {
-    border-left: 4px solid #007bff;
+    border-left: 4px solid #8DD14F;
     padding: 10px;
     margin-bottom: 10px;
     background: #f8f9fa;
     border-radius: 5px;
+}
+.recommendation-item a{
+    color: #8DD14F;
 }
 .similarity-score {
     font-size: 12px;
@@ -56,6 +59,9 @@
     padding: 10px;
     margin-bottom: 10px;
     transition: transform 0.2s;
+}
+.video-item a{
+    color: #8DD14F;
 }
 .video-item:hover {
     transform: translateY(-2px);
@@ -82,7 +88,7 @@
     background-color: #f8d7da;
 }
 .step-indicator {
-    background: linear-gradient(45deg, #007bff, #0056b3);
+    background: linear-gradient(45deg, #8DD14F, #5B902B);
     color: white;
     padding: 8px 16px;
     border-radius: 20px;
@@ -238,7 +244,7 @@
                     <div class="tab-pane fade show active scrollable" id="semua-materi">
                         @foreach($availableCategories as $kategori)
                             @if(!empty($recommendations['recommendations'][$kategori]))
-                                <h6 class="fw-bold text-{{ $kategori == 'TWK' ? 'primary' : ($kategori == 'TIU' ? 'success' : 'info') }} mt-3">{{ $kategori }}</h6>
+                                <h6 class="fw-bold text-secondary mt-3">{{ $kategori }}</h6>
                                 @foreach(array_slice($recommendations['recommendations'][$kategori], 0, 3) as $item)
                                     <div class="recommendation-item">
                                         <h6 class="mb-1">
@@ -323,7 +329,7 @@
                     <h6 class="fw-bold text-{{ $kategori == 'TWK' ? 'primary' : ($kategori == 'TIU' ? 'success' : 'info') }} mt-3">{{ $kategori }}</h6>
                     @foreach(array_slice($videoRecommendations[$kategori], 0, 2) as $video)
                         <div class="video-item">
-                            <div class="d-flex">
+                            <div class="d-flex align-items-center">
                                 <img src="{{ $video['thumbnail'] }}" alt="Thumbnail" class="video-thumbnail me-3">
                                 <div class="flex-grow-1">
                                     <h6 class="mb-1">

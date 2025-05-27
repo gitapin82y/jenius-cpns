@@ -170,27 +170,27 @@ class TryoutController extends Controller
                 'total_benar' => 0,
                 'total_salah' => 0,
                 'total_kosong' => 0,
-                'nasionalisme' => 0,
-                'integritas' => 0,
-                'bela_negara' => 0,
-                'pilar_negara' => 0,
-                'bahasa_indonesia' => 0,
-                'verbal_analogi' => 0,
-                'verbal_silogisme' => 0,
-                'verbal_analisis' => 0,
-                'numerik_hitung_cepat' => 0,
-                'numerik_deret_angka' => 0,
-                'numerik_perbandingan_kuantitatif' => 0,
-                'numerik_soal_cerita' => 0,
-                'figural_analogi' => 0,
-                'figural_ketidaksamaan' => 0,
-                'figural_serial' => 0,
-                'pelayanan_publik' => 0,
-                'jejaring_kerja' => 0,
-                'sosial_budaya' => 0,
-                'teknologi_informasi_dan_komunikasi_tik' => 0,
-                'profesionalisme' => 0,
-                'anti_radikalisme' => 0,
+                // 'nasionalisme' => 0,
+                // 'integritas' => 0,
+                // 'bela_negara' => 0,
+                // 'pilar_negara' => 0,
+                // 'bahasa_indonesia' => 0,
+                // 'verbal_analogi' => 0,
+                // 'verbal_silogisme' => 0,
+                // 'verbal_analisis' => 0,
+                // 'numerik_hitung_cepat' => 0,
+                // 'numerik_deret_angka' => 0,
+                // 'numerik_perbandingan_kuantitatif' => 0,
+                // 'numerik_soal_cerita' => 0,
+                // 'figural_analogi' => 0,
+                // 'figural_ketidaksamaan' => 0,
+                // 'figural_serial' => 0,
+                // 'pelayanan_publik' => 0,
+                // 'jejaring_kerja' => 0,
+                // 'sosial_budaya' => 0,
+                // 'teknologi_informasi_dan_komunikasi_tik' => 0,
+                // 'profesionalisme' => 0,
+                // 'anti_radikalisme' => 0,
             ];
             
             foreach ($soals as $soal) {
@@ -198,7 +198,7 @@ class TryoutController extends Controller
                 $jawaban_user = $jawabanUsers[$soal_id] ?? null; // Get user answer or null if not set
                 $status = 'kosong'; // Default status for unanswered questions
         
-                $tipe_key = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '_', $soal->tipe), '_'));
+                // $tipe_key = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '_', $soal->tipe), '_'));
 
                 if($soal->kategori == "TKP"){
                     if ($jawaban_user !== null) {
@@ -209,9 +209,9 @@ class TryoutController extends Controller
                         $scores['total_kosong']++;
                     }
 
-                    if (array_key_exists($tipe_key, $scores) && $status == 'benar') {
-                        $scores[$tipe_key] += $soal['score_'.strtolower($jawaban_user)];
-                    }
+                    // if (array_key_exists($tipe_key, $scores) && $status == 'benar') {
+                    //     $scores[$tipe_key] += $soal['score_'.strtolower($jawaban_user)];
+                    // }
                 } else {
                     if ($jawaban_user === $soal->jawaban_benar) {
                         $status = 'benar';
@@ -224,9 +224,9 @@ class TryoutController extends Controller
                         $scores['total_kosong']++;
                     }
 
-                    if (array_key_exists($tipe_key, $scores) && $status == 'benar') {
-                        $scores[$tipe_key] += $soal->poin;
-                    }
+                    // if (array_key_exists($tipe_key, $scores) && $status == 'benar') {
+                    //     $scores[$tipe_key] += $soal->poin;
+                    // }
                 }
         
                 JawabanUser::updateOrCreate(
