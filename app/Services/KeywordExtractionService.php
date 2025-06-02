@@ -74,7 +74,7 @@ class KeywordExtractionService
         'pertanyaan', 'jawaban', 'pembahasan', 'penjelasan', 'uraian',
 
         //
-        'strong','pergerakan','termasuk','dibawah','sebagai', 
+        'strong','pergerakan','termasuk','dibawah','sebagai', 'semangat', 'sejak','ikan',
         
         // Stop words English - BUANG SEMUA
         'the', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from',

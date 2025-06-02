@@ -101,7 +101,7 @@ use App\Models\Material;
                             <span><i class="fas fa-tag me-2"></i>{{ $material->tipe }}</span>
                         </div>
                     </div>
-                    <div class="materi-content">
+                    <div class="materi-content py-4">
                         {!! $material->content !!}
                     </div>
                     
