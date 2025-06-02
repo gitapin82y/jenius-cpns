@@ -151,6 +151,7 @@ class TryoutController extends Controller
     public function submit(Request $request)
     {
         try {
+
             $jawabanUsers = $request->input('jawaban_users');
             $set_soal_id = $request->input('set_soal_id');
             $user = Auth::user();
@@ -266,7 +267,6 @@ if ($setSoal->kategori == 'Latihan') {
     // Periksa jika semua latihan sudah selesai
     $this->checkAllLatihanCompleted($user->id);
 }
-        
             return redirect()->route('tryout.result', $set_soal_id);
             
         } catch (\Exception $e) {
@@ -351,8 +351,7 @@ if ($setSoal->kategori == 'Latihan') {
             $e->getCode() ?: '500', 
             'Server Error', 
             $e->getMessage()
-        );
-        
+        );        
         // Notify user
         toast()->error('Terjadi kesalahan saat menampilkan hasil.');
         return redirect()->back();

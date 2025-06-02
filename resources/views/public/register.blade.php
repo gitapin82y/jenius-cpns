@@ -17,7 +17,7 @@
 
 @section('content')
  <div class="container">
-    <div class="row">
+    <div class="row mt-5">
     <div class="col-12 col-md-6 align-self-center">
                 <h1 class="h4 text-gray-900">Daftar Platform Tryout & Belajar CPNS</h1>
                 <p>Gabung bersama Jenius CPNS untuk merasakan manfaat sistem tryout dilengkapi dengan rekomendasi materi pembelajaran</p>
@@ -91,7 +91,7 @@
             </div>
     </div>
    <div class="col-12 col-md-6 align-self-center text-end">
-            <img src="{{asset('assets/img/customer-img-1.jpg')}}" alt="img belom di generate">
+            <img src="{{asset('assets/img/tryout-jenius-cpns.png')}}" alt="tryout jenius cpns" width="100%">
         </div>
     </div>
  </div>

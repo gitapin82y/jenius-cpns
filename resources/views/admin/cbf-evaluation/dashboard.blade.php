@@ -218,7 +218,7 @@
                 <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display: none;">
                     <i class="fas fa-trash"></i> Hapus Terpilih
                 </button>
-                <button type="button" class="btn btn-info btn-sm" onclick="refreshTable()">
+                <button type="button" class="btn btn-info btn-sm mt-1" onclick="refreshTable()">
                     <i class="fas fa-sync"></i> Refresh
                 </button>
             </div>

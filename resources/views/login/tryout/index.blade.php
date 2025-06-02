@@ -269,10 +269,10 @@
      document.getElementById('submitTryoutBtn').addEventListener('click', () => {
         Swal.fire({
             title: 'Konfirmasi',
-            text: 'Apakah Anda yakin ingin submit soal tryout?',
+            text: 'Apakah Anda yakin ingin mengirim soal tryout?',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Ya, submit',
+            confirmButtonText: 'Ya, kirim',
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {

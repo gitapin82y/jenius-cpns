@@ -58,7 +58,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                            Jumlah Materi</div>
+                            Total Materi</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalMaterials }}</div>
                     </div>
                     <div class="col-auto">
@@ -76,7 +76,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                            Jumlah Soal Tryout</div>
+                            Total Soal Tryout</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalQuestions }}</div>
                     </div>
                     <div class="col-auto">

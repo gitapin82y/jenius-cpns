@@ -107,7 +107,6 @@ class ContentBasedFilteringService
                 $keywords = $this->keywordExtractionService->extractKeywords(
                     $material->title, 
                     $material->tipe, 
-                    $material->content
                 );
                 
                 // Simpan ke database untuk cache

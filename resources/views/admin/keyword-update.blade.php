@@ -103,7 +103,6 @@
                     <h4 class="m-0 font-weight-bold text-primary">
                         <i class="fas fa-key"></i> Update Keywords System
                     </h4>
-                    <small class="text-muted">Sistem untuk memperbarui kata kunci menggunakan algoritma yang telah diperbaiki</small>
                 </div>
             </div>
         </div>
@@ -153,7 +152,7 @@
                     <div>
                         <h3 class="mb-1">{{ $stats['materials_without_keywords'] }}</h3>
                         <p class="mb-2">Materi Tanpa Keywords</p>
-                        <small>Perlu diupdate</small>
+                        <small>Perlu diubah</small>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
@@ -168,7 +167,7 @@
                     <div>
                         <h3 class="mb-1">{{ $stats['soals_without_keywords'] }}</h3>
                         <p class="mb-2">Soal Tanpa Keywords</p>
-                        <small>Perlu diupdate</small>
+                        <small>Perlu diubah</small>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
@@ -313,15 +312,15 @@ function displayPreview(preview) {
                     <h6>${item.title} <span class="badge badge-info">${item.tipe}</span></h6>
                     <div class="row">
                         <div class="col-md-6">
-                            <strong>Old Keywords (${item.improvement.old_count}):</strong><br>
+                            <strong>Old Keywords:</strong><br>
                             ${item.old_keywords.map(k => `<span class="keyword-badge">${k}</span>`).join('')}
                         </div>
                         <div class="col-md-6">
-                            <strong>New Keywords (${item.improvement.new_count}):</strong><br>
+                            <strong>New Keywords:</strong><br>
                             ${item.new_keywords.map(k => `<span class="keyword-badge new">${k}</span>`).join('')}
                         </div>
                     </div>
-                    <small class="text-success">Reduced by ${item.improvement.reduced_by} keywords</small>
+                    <small class="text-success">Reduced by keywords</small>
                 </div>
             `;
         });
@@ -335,15 +334,15 @@ function displayPreview(preview) {
                     <h6>${item.pertanyaan} <span class="badge badge-secondary">${item.tipe}</span></h6>
                     <div class="row">
                         <div class="col-md-6">
-                            <strong>Old Keywords (${item.improvement.old_count}):</strong><br>
+                            <strong>Old Keywords :</strong><br>
                             ${item.old_keywords.map(k => `<span class="keyword-badge">${k}</span>`).join('')}
                         </div>
                         <div class="col-md-6">
-                            <strong>New Keywords (${item.improvement.new_count}):</strong><br>
+                            <strong>New Keywords :</strong><br>
                             ${item.new_keywords.map(k => `<span class="keyword-badge new">${k}</span>`).join('')}
                         </div>
                     </div>
-                    <small class="text-success">Reduced by ${item.improvement.reduced_by} keywords</small>
+                    <small class="text-success">Reduced by keywords</small>
                 </div>
             `;
         });
@@ -409,8 +408,13 @@ function performUpdate(type) {
                 Swal.fire('Error', response.message, 'error');
             }
         },
-        error: function() {
+         error: function(xhr, status, error) {
             hideLoading();
+            console.log("AJAX Error:", {
+                status: status,
+                error: error,
+                responseText: xhr.responseText
+            });
             Swal.fire('Error', 'Terjadi kesalahan saat update keywords', 'error');
         }
     });
@@ -422,7 +426,7 @@ function displayResults(data) {
             <div class="col-md-6">
                 <div class="alert alert-success">
                     <h6><i class="fas fa-check-circle"></i> Update Completed</h6>
-                    <p>Keywords berhasil diupdate pada: ${data.timestamp}</p>
+                    <p>Keywords berhasil diubah pada: ${data.timestamp}</p>
                 </div>
             </div>
         </div>

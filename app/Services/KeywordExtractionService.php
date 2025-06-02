@@ -97,7 +97,7 @@ class KeywordExtractionService
     /**
      * Extract keywords dengan prioritas: Sub Kategori + Title saja
      */
-    public function extractKeywords(string $title, string $tipe, string $content = null): array
+    public function extractKeywords(string $title, string $tipe): array
     {
         $keywords = [];
         
@@ -109,12 +109,6 @@ class KeywordExtractionService
         // PRIORITAS 2: Extract dari title (maksimal 3 kata penting)
         $titleKeywords = $this->extractFromTitle($title);
         $keywords = array_merge($keywords, $titleKeywords);
-        
-        // PRIORITAS 3: Extract dari content (hanya jika perlu, maksimal 2 kata)
-        if ($content && strlen($content) > 100) {
-            $contentKeywords = $this->extractFromContent($content);
-            $keywords = array_merge($keywords, $contentKeywords);
-        }
         
         // Bersihkan dan filter
         $keywords = $this->cleanKeywords($keywords);
@@ -128,16 +122,15 @@ class KeywordExtractionService
      */
     private function extractFromTitle(string $title): array
     {
-        // Bersihkan title
-        $title = strtolower($title);
-        $title = preg_replace('/[^\w\s]/', ' ', $title);
-        $title = preg_replace('/\s+/', ' ', $title);
+        $title = strtolower($title); // Tahap 1: Case Folding
+        $title = preg_replace('/[^\w\s]/', ' ', $title); // Bersihkan simbol
+        $title = preg_replace('/\s+/', ' ', $title); // Normalisasi spasi
         
         // Split dan filter
         $words = array_filter(
             preg_split('/\s+/', trim($title)),
             [$this, 'isImportantWord']
-        );
+        );  // Tahap 2: Tokenisasi
         
         // Prioritaskan kata penting
         $prioritized = [];
@@ -157,28 +150,6 @@ class KeywordExtractionService
     }
 
     /**
-     * Extract keywords dari content (sangat terbatas)
-     */
-    private function extractFromContent(string $content): array
-    {
-        // Bersihkan content
-        $content = strtolower($content);
-        $content = preg_replace('/[^\w\s]/', ' ', $content);
-        
-        // Ambil kata-kata penting saja
-        $words = array_filter(
-            preg_split('/\s+/', $content),
-            [$this, 'isImportantWord']
-        );
-        
-        // Hitung frekuensi dan ambil 2 teratas
-        $wordCount = array_count_values($words);
-        arsort($wordCount);
-        
-        return array_slice(array_keys($wordCount), 0, 2);
-    }
-
-    /**
      * Cek apakah kata penting
      */
     private function isImportantWord(string $word): bool
@@ -190,7 +161,7 @@ class KeywordExtractionService
             return false;
         }
         
-        // Skip stop words
+        // Tahap 3: Stopword Removal dan validasi panjang
         if (in_array(strtolower($word), $this->stopWords)) {
             return false;
         }
@@ -203,9 +174,8 @@ class KeywordExtractionService
         return true;
     }
 
-    /**
-     * Bersihkan keywords final
-     */
+
+    // Filtering
     private function cleanKeywords(array $keywords): array
     {
         // Normalisasi

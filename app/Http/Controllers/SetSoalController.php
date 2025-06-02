@@ -25,14 +25,14 @@ class SetSoalController extends Controller
                 })
                 ->addColumn('action', function ($setSoal) {
                     $statusButton = $setSoal->status == 'Draf' ?
-                    '<button type="button" class="btn btn-success btn-sm" onclick="changeStatus(' . $setSoal->id . ', \'Publish\')"><i class="fas fa-check-circle fa-sm text-white-50"></i> Publish</button>' :
-                    '<button type="button" class="btn btn-warning btn-sm" onclick="changeStatus(' . $setSoal->id . ', \'Draf\')"><i class="fas fa-times-circle fa-sm text-white-50"></i> Draf</button>';
+                    '<button type="button" class="btn btn-success btn-sm mt-1" onclick="changeStatus(' . $setSoal->id . ', \'Publish\')"><i class="fas fa-check-circle fa-sm text-white-50"></i> Publish</button>' :
+                    '<button type="button" class="btn btn-warning btn-sm mt-1" onclick="changeStatus(' . $setSoal->id . ', \'Draf\')"><i class="fas fa-times-circle fa-sm text-white-50"></i> Draf</button>';
 
                 return '
                     <a href="/soal/'.$setSoal->id.'" class="btn btn-info btn-sm"><i class="fas fa-eye fa-sm text-white-50"></i> Manajemen Soal</a> '
                     .$statusButton.'
-                    <button type="button" class="btn btn-primary btn-sm" onclick="editSetSoal(' . htmlspecialchars(json_encode($setSoal), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(' . $setSoal->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
+                    <button type="button" class="btn btn-primary btn-sm mt-1" onclick="editSetSoal(' . htmlspecialchars(json_encode($setSoal), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>
+                    <button type="button" class="btn btn-danger btn-sm mt-1" onclick="confirmDelete(' . $setSoal->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
                     ';
                 })
                 ->make(true);
@@ -96,7 +96,7 @@ class SetSoalController extends Controller
         $setSoal = SetSoal::findOrFail($id);
         $setSoal->update($validatedData);
 
-        return response()->json(['message' => 'Data Berhasil Diupdate!']);
+        return response()->json(['message' => 'Data Berhasil diubah!']);
     }
 
     public function destroy($id)

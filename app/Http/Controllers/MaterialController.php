@@ -74,14 +74,14 @@ class MaterialController extends Controller
                     })
                 ->addColumn('action', function ($material) {
                     $statusButton = $material->status == 'Draf' ?
-                    '<button type="button" class="btn btn-success btn-sm" onclick="changeStatus(' . $material->id . ', \'Publish\')"><i class="fas fa-check-circle fa-sm text-white-50"></i> Publish</button>' :
-                    '<button type="button" class="btn btn-warning btn-sm" onclick="changeStatus(' . $material->id . ', \'Draf\')"><i class="fas fa-times-circle fa-sm text-white-50"></i> Draf</button>';
+                    '<button type="button" class="btn btn-success btn-sm mt-1" onclick="changeStatus(' . $material->id . ', \'Publish\')"><i class="fas fa-check-circle fa-sm text-white-50"></i> Publish</button>' :
+                    '<button type="button" class="btn btn-warning btn-sm mt-1" onclick="changeStatus(' . $material->id . ', \'Draf\')"><i class="fas fa-times-circle fa-sm text-white-50"></i> Draf</button>';
 
                     return '
-                        <button type="button" class="btn btn-info btn-sm" onclick="showDetailMaterial(' . htmlspecialchars(json_encode($material), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-eye fa-sm text-white-50"></i> Selengkapnya</button> '
+                        <button type="button" class="btn btn-info btn-sm mt-1" onclick="showDetailMaterial(' . htmlspecialchars(json_encode($material), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-eye fa-sm text-white-50"></i> Selengkapnya</button> '
                         .$statusButton.'
-                        <button type="button" class="btn btn-primary btn-sm" onclick="editMaterial(' . htmlspecialchars(json_encode($material), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(' . $material->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
+                        <button type="button" class="btn btn-primary btn-sm mt-1" onclick="editMaterial(' . htmlspecialchars(json_encode($material), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>
+                        <button type="button" class="btn btn-danger btn-sm mt-1" onclick="confirmDelete(' . $material->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
                     ';
                 })
             ->rawColumns(['action', 'kata_kunci_display'])
@@ -206,7 +206,7 @@ class MaterialController extends Controller
         
         $material->update($validatedData);
     
-        return response()->json(['message' => 'Materi Berhasil Diupdate!']);
+        return response()->json(['message' => 'Materi Berhasil diubah!']);
     }
 
     public function destroy($id)

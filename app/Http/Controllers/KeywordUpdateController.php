@@ -52,7 +52,7 @@ class KeywordUpdateController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Keywords berhasil diupdate!',
+                'message' => 'Keywords berhasil diubah!',
                 'data' => $results
             ]);
 
@@ -90,7 +90,6 @@ class KeywordUpdateController extends Controller
                 $newKeywords = $this->keywordService->extractKeywords(
                     $material->title,
                     $material->tipe,
-                    $material->content
                 );
 
                 // Update ke database
@@ -100,8 +99,6 @@ class KeywordUpdateController extends Controller
                     'id' => $material->id,
                     'title' => $material->title,
                     'tipe' => $material->tipe,
-                    'old_keywords_count' => count($oldKeywords),
-                    'new_keywords_count' => count($newKeywords),
                     'old_keywords' => $oldKeywords,
                     'new_keywords' => $newKeywords
                 ];
@@ -154,8 +151,6 @@ class KeywordUpdateController extends Controller
                     'pertanyaan' => substr($soal->pertanyaan, 0, 50) . '...',
                     'tipe' => $soal->tipe,
                     'kategori' => $soal->kategori,
-                    'old_keywords_count' => count($oldKeywords),
-                    'new_keywords_count' => count($newKeywords),
                     'old_keywords' => $oldKeywords,
                     'new_keywords' => $newKeywords
                 ];
@@ -196,14 +191,13 @@ class KeywordUpdateController extends Controller
             $newKeywords = $this->keywordService->extractKeywords(
                 $material->title,
                 $material->tipe,
-                $material->content
             );
 
             $material->update(['kata_kunci' => json_encode($newKeywords)]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Keywords material berhasil diupdate!',
+                'message' => 'Keywords material berhasil diubah!',
                 'data' => [
                     'material_id' => $id,
                     'old_keywords' => $oldKeywords,
@@ -242,7 +236,7 @@ class KeywordUpdateController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Keywords soal berhasil diupdate!',
+                'message' => 'Keywords soal berhasil diubah!',
                 'data' => [
                     'soal_id' => $id,
                     'old_keywords' => $oldKeywords,
@@ -281,7 +275,7 @@ class KeywordUpdateController extends Controller
     }
 
     /**
-     * Preview keywords yang akan diupdate
+     * Preview keywords yang akan diubah
      */
     public function previewKeywords(Request $request)
     {
@@ -301,7 +295,6 @@ class KeywordUpdateController extends Controller
                 $newKeywords = $this->keywordService->extractKeywords(
                     $material->title,
                     $material->tipe,
-                    $material->content
                 );
 
                 $preview['materials'][] = [
@@ -310,11 +303,6 @@ class KeywordUpdateController extends Controller
                     'tipe' => $material->tipe,
                     'old_keywords' => $oldKeywords,
                     'new_keywords' => $newKeywords,
-                    'improvement' => [
-                        'old_count' => count($oldKeywords),
-                        'new_count' => count($newKeywords),
-                        'reduced_by' => count($oldKeywords) - count($newKeywords)
-                    ]
                 ];
             }
         }

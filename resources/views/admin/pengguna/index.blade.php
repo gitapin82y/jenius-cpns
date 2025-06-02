@@ -133,7 +133,7 @@
     function confirmDelete(id) {
         Swal.fire({
             title: 'Apakah Anda yakin?',
-            text: "Pengguna akan terhapus beserta transaksi pembelian",
+            text: "Pengguna akan terhapus beserta data yang ada",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',

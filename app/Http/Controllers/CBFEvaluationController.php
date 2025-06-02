@@ -108,7 +108,7 @@ public function dashboard()
                         <i class="fas fa-eye"></i> Selengkapnya
                     </button>';
                     
-                    $deleteBtn = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteEvaluation(' . $evaluation->id . ', \'' . ($evaluation->user ? $evaluation->user->name : 'Unknown') . '\')">
+                    $deleteBtn = '<button type="button" class="btn btn-danger btn-sm mt-1" onclick="deleteEvaluation(' . $evaluation->id . ', \'' . ($evaluation->user ? $evaluation->user->name : 'Unknown') . '\')">
                         <i class="fas fa-trash"></i> Hapus
                     </button>';
                     

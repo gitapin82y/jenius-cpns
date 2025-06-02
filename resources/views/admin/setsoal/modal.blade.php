@@ -11,12 +11,13 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="title">Title</label>
+                        <label for="title">Judul</label>
                         <input type="text" required class="form-control" id="title" name="title" value="{{ old('title') }}">
                     </div>
                     <div class="form-group mt-3">
                         <label for="kategori">Kategori</label>
                         <select name="kategori" id="kategori" class="form-control" required>
+                            <option>Pilih Kategori</option>
                             <option value="Tryout">Tryout</option>
                             <option value="Latihan">Latihan</option>
                         </select>

@@ -58,8 +58,8 @@ class SoalController extends Controller
             })
             ->addColumn('action', function ($soal) {
                     return '
-                    <button type="button" class="btn btn-info btn-sm" onclick="showDetailSoalModal(' . htmlspecialchars(json_encode($soal), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-eye fa-sm text-white-50"></i> Selengkapnya</button>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="editSoal(' . htmlspecialchars(json_encode($soal), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>
+                    <button type="button" class="btn btn-info btn-sm mt-1" onclick="showDetailSoalModal(' . htmlspecialchars(json_encode($soal), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-eye fa-sm text-white-50"></i> Selengkapnya</button>
+                        <button type="button" class="btn btn-primary btn-sm mt-1" onclick="editSoal(' . htmlspecialchars(json_encode($soal), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>
                         <form action="' . route('soal.destroy', $soal->id) . '" method="POST" class="d-inline">
                             ' . csrf_field() . method_field('DELETE') . '
                             <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
@@ -276,7 +276,7 @@ class SoalController extends Controller
     
         $soal->update($validatedData);
     
-        return response()->json(['message' => 'Data Berhasil Diupdate!']);
+        return response()->json(['message' => 'Data Berhasil diubah!']);
     }
 
         public function getKeywordSuggestions(Request $request)

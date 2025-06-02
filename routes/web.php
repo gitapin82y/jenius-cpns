@@ -112,7 +112,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/keyword-update/soal/{id}', [KeywordUpdateController::class, 'updateSingleSoal'])
         ->name('admin.keyword-update.single-soal');
     
-    // Preview keywords yang akan diupdate
+    // Preview keywords yang akan diubah
     Route::post('/admin/keyword-update/preview', [KeywordUpdateController::class, 'previewKeywords'])
         ->name('admin.keyword-update.preview');
 Route::post('/tryout/check-history', [TryoutController::class, 'checkHistory'])

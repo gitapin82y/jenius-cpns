@@ -50,7 +50,7 @@ return new class extends Migration
             $table->integer('score_d')->nullable();
             $table->text('jawaban_e');
             $table->integer('score_e')->nullable();
-            $table->integer('poin')->default(0);
+            $table->integer('poin')->default(5);
             $table->text('kata_kunci')->nullable();
             $table->enum('jawaban_benar', ['A', 'B', 'C', 'D', 'E'])->nullable();
             $table->text('pembahasan');
