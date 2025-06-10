@@ -19,7 +19,3 @@
 
 <!-- Template Stylesheet -->
 <link href="{{asset('assets/css/style.css')}}" rel="stylesheet">
-    
-
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-@include('sweetalert::alert')

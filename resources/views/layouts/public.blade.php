@@ -43,6 +43,7 @@
   <!-- end body -->
 
   @include('includes.public.script')
+  @include('sweetalert::alert')
   @stack('after-script')
 </body>
 

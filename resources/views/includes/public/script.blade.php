@@ -7,6 +7,6 @@
     <script src="{{asset('assets/lib/counterup/counterup.min.js')}}"></script>
     <script src="{{asset('assets/lib/owlcarousel/owl.carousel.min.js')}}"></script>
     <script src="{{asset('assets/lib/lightbox/js/lightbox.min.js')}}"></script>
-
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Template Javascript -->
     <script src="{{asset('assets/js/main.js')}}"></script>

@@ -30,7 +30,7 @@ class RequestUserStatusMail extends Mailable
      */
     public function build()
     {
-        $subject = 'Request Pendaftaran Akun '. $user->name;
+        $subject = 'Request Pendaftaran Akun '. $this->user->name;
             
         return $this->subject($subject)
                     ->view('emails.request-user-status')

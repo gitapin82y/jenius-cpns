@@ -1,4 +1,3 @@
-<!-- resources/views/emails/user-status.blade.php -->
 <!DOCTYPE html>
 <html>
 <head>

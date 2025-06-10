@@ -62,6 +62,7 @@
     </a>
 
     @include('includes.script')
+    @include('sweetalert::alert')
     @stack('after-script')
 </body>
 

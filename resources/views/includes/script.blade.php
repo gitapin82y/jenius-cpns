@@ -23,9 +23,6 @@
 <!-- Chart.js (versi terbaru) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-<!-- SweetAlert2 (versi terbaru) -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
 <!-- jQuery Easing (versi terbaru) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-
- @include('sweetalert::alert')
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>

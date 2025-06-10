@@ -38,7 +38,7 @@ Route::get('/tryout', [SetSoalController::class, 'public']);
 Route::get('/materi-belajar', [MaterialController::class, 'public'])->name('public.materi.index');
 Route::get('/materi-belajar/{id}', [MaterialController::class, 'show'])->name('materi-belajar.show');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','active'])->group(function () {
 
     Route::get('/dashboard', [UserController::class, 'dashboard']);
 
@@ -84,10 +84,6 @@ Route::middleware(['auth'])->group(function () {
     // Route untuk admin - laporan sistem
     Route::get('/system-error', [SystemErrorController::class, 'index'])->name('system-error.index');
 
-
-
-
-
        // === KEYWORD UPDATE ROUTES ===
     
     // Halaman update keywords
@@ -117,7 +113,7 @@ Route::middleware(['auth'])->group(function () {
     // Preview keywords yang akan diubah
     Route::post('/admin/keyword-update/preview', [KeywordUpdateController::class, 'previewKeywords'])
         ->name('admin.keyword-update.preview');
-Route::post('/tryout/check-history', [TryoutController::class, 'checkHistory'])
+    Route::post('/tryout/check-history', [TryoutController::class, 'checkHistory'])
     ->name('tryout.check-history');
 
       Route::get('/admin/cbf-evaluation', [CBFEvaluationController::class, 'dashboard'])
@@ -132,8 +128,6 @@ Route::post('/tryout/check-history', [TryoutController::class, 'checkHistory'])
         ->name('admin.cbf-evaluation.bulk-delete');
     Route::post('/admin/cbf-evaluation/reset-user', [CBFEvaluationController::class, 'resetUserReview'])
         ->name('admin.cbf-evaluation.reset-user');
-
-
 
     Route::post('/user/cbf-evaluation/submit', [UserCBFEvaluationController::class, 'submitEvaluation'])
         ->name('user.cbf.evaluation.submit');

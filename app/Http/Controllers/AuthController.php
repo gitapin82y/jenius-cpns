@@ -40,17 +40,10 @@ class AuthController extends Controller
             'status' => 'pending',
         ]);
 
-        Auth::login($user);
-
         Mail::to('apinai82y@gmail.com')->send(new RequestUserStatusMail($user));
 
-        toast()->success('Berhasil Masuk. Selamat datang!');
-        if(Auth::user()->is_admin){
-            return redirect('/dashboard');
-        }else{
-            return redirect('/tryout');
-        }
         Alert::success('Registrasi Berhasil', 'Silakan menunggu konfirmasi dari admin sebelum login.');
+
         return redirect('/login');
     }
         
