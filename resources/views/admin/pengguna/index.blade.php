@@ -31,6 +31,7 @@
                             <th>Nama Lengkap</th>
                             <th>Email</th>
                             <th>Phone</th>
+                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -54,7 +55,8 @@
     columns: [
         { data: 'name', name: 'name' },
         { data: 'email', name: 'email' },
-        { data: 'phone', name: 'phone' }, // New
+        { data: 'phone', name: 'phone' },
+        { data: 'status', name: 'status' },
         { data: 'action', name: 'action', orderable: false, searchable: false },
     ]
 });
@@ -129,6 +131,32 @@
             }
         });
     });
+
+    function acceptUser(id) {
+        fetch('/pengguna/' + id + '/accept', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            }
+        }).then(res => {
+            $('#dataTable').DataTable().ajax.reload();
+            Swal.fire({toast:true, icon:'success', text:'User diterima', position:'top-end', showConfirmButton:false, timer:3000, timerProgressBar:true});
+        });
+    }
+
+    function rejectUser(id) {
+        fetch('/pengguna/' + id + '/reject', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            }
+        }).then(res => {
+            $('#dataTable').DataTable().ajax.reload();
+            Swal.fire({toast:true, icon:'success', text:'User ditolak', position:'top-end', showConfirmButton:false, timer:3000, timerProgressBar:true});
+        });
+    }
 
     function confirmDelete(id) {
         Swal.fire({

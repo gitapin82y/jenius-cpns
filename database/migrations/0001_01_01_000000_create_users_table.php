@@ -21,6 +21,7 @@ return new class extends Migration
             $table->boolean('is_review')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('status', ['pending', 'active', 'rejected'])->default('pending');
             $table->rememberToken();
             $table->timestamps();
         });

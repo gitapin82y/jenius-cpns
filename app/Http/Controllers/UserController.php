@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserStatusMail;
 
 class UserController extends Controller
 {
@@ -24,13 +26,18 @@ class UserController extends Controller
             return redirect('/');
         }
         if ($request->ajax()) {
-            return DataTables::of(User::where('is_admin', false)
-            ->latest())
+            return DataTables::of(User::where('is_admin', false)->latest())
+                ->addColumn('status', function ($user) {
+                    return ucfirst($user->status);
+                })
                 ->addColumn('action', function ($user) {
-                    return '
-                        <button type="button" class="btn btn-primary btn-sm mt-1" onclick="editUser(' . htmlspecialchars(json_encode($user), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>
-                        <button type="button" class="btn btn-danger btn-sm mt-1" onclick="confirmDelete(' . $user->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>
-                    ';
+                    $buttons = '<button type="button" class="btn btn-primary btn-sm mt-1" onclick="editUser(' . htmlspecialchars(json_encode($user), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-pen fa-sm text-white-50"></i> Ubah</button>';
+                    if($user->status === 'pending') {
+                        $buttons .= ' <button type="button" class="btn btn-success btn-sm mt-1" onclick="acceptUser(' . $user->id . ')"><i class="fas fa-check"></i></button>';
+                        $buttons .= ' <button type="button" class="btn btn-warning btn-sm mt-1" onclick="rejectUser(' . $user->id . ')"><i class="fas fa-times"></i></button>';
+                    }
+                    $buttons .= ' <button type="button" class="btn btn-danger btn-sm mt-1" onclick="confirmDelete(' . $user->id . ')"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>';
+                    return $buttons;
                 })
                 ->make(true);
         }
@@ -42,6 +49,30 @@ class UserController extends Controller
     public function public(){
         return view('public.index');
     }
+
+     public function accept($id)
+    {
+        $user = User::findOrFail($id);
+        $user->status = 'active';
+        $user->save();
+
+        Mail::to($user->email)->send(new UserStatusMail($user, $request->status));
+
+        return response()->json(['message' => 'Pengguna diterima']);
+    }
+
+    public function reject($id)
+    {
+        $user = User::findOrFail($id);
+        $user->status = 'rejected';
+        $user->save();
+
+        Mail::to($user->email)->send(new UserStatusMail($user, $request->status));
+
+        return response()->json(['message' => 'Pengguna ditolak']);
+    }
+
+
 
   
     public function dashboard()

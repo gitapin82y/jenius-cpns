@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RequestUserStatusMail;
 
 class AuthController extends Controller
 {
@@ -35,9 +37,12 @@ class AuthController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
+            'status' => 'pending',
         ]);
 
         Auth::login($user);
+
+        Mail::to('apinai82y@gmail.com')->send(new RequestUserStatusMail($user));
 
         toast()->success('Berhasil Masuk. Selamat datang!');
         if(Auth::user()->is_admin){
@@ -45,6 +50,8 @@ class AuthController extends Controller
         }else{
             return redirect('/tryout');
         }
+        Alert::success('Registrasi Berhasil', 'Silakan menunggu konfirmasi dari admin sebelum login.');
+        return redirect('/login');
     }
         
     // Login
@@ -64,6 +71,12 @@ class AuthController extends Controller
         if (!Auth::attempt($request->only('email', 'password'))) {
             toast()->error('Email atau password salah.');
             return redirect()->back()->withInput();
+        }
+
+        if (Auth::user()->status !== 'active') {
+            Auth::logout();
+            Alert::warning('Akun belum aktif', 'Silakan menunggu konfirmasi admin.');
+            return redirect('/login');
         }
     
         $request->session()->regenerate();

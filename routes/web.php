@@ -50,6 +50,8 @@ Route::middleware(['auth'])->group(function () {
     
     Route::resource('/pengguna', UserController::class);
     Route::post('/pengguna/{id}', [UserController::class, 'update']);
+    Route::post('/pengguna/{id}/accept', [UserController::class, 'accept']);
+    Route::post('/pengguna/{id}/reject', [UserController::class, 'reject']);
 
     Route::get('/setsoal/counts', [SetSoalController::class, 'getCounts'])->name('setsoal.counts');
     Route::resource('/setsoal', SetSoalController::class);
