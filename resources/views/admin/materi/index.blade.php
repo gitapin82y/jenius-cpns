@@ -3,6 +3,7 @@
 @section('title', 'Manajemen Materi')
 
 @push('after-style')
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
 @endpush
 
 @include('admin.materi.modal')
@@ -143,6 +144,8 @@
 
 @push('after-script')
 <script>
+    let keywordTimeout;
+
 $(document).ready(function() {
     // Generate keywords otomatis
     $('#generateKeywords').click(function() {
@@ -157,8 +160,7 @@ $(document).ready(function() {
     });
 
     // Auto generate ketika title atau content berubah (dengan debounce)
-    let keywordTimeout;
-    $('#title, #content').on('input', function() {
+    $('#title').on('input', function() {
         clearTimeout(keywordTimeout);
         keywordTimeout = setTimeout(function() {
             if ($('#kata_kunci').val() === '') {
@@ -170,7 +172,7 @@ $(document).ready(function() {
     function generateKeywordSuggestions() {
         const tipe = $('#tipe').val();
         const title = $('#title').val();
-        const content = $('#content').val();
+        const content = $('#content').summernote('code');
 
         if (!tipe || tipe === 'Pilih Kategori & Tipe') {
             return;
@@ -299,7 +301,7 @@ $('#btn-reset-filter').click(function() {
         $('#title').val(material.title);
         $('#tipe').val(material.tipe);
         $('#tipe').trigger('change');
-        $('#content').val(material.content);
+        $('#content').summernote('code', material.content);
 
         const baseUrl = window.location.origin;
         const updateUrl = `${baseUrl}/materi/${material.id}`;
@@ -342,6 +344,7 @@ $('#btn-reset-filter').click(function() {
 
         // Get the form action (POST or PUT)
         let formAction = $(this).attr('action');
+        $('#content').val($('#content').summernote('code'));
         let formData = $(this).serialize();
 
         $.ajax({
@@ -486,6 +489,8 @@ $('#btn-reset-filter').click(function() {
             $(this).val('');
         });
 
+        $('#content').summernote('code', '');
+
         $('.modal-title').html('Tambah Materi');
 
         $('.text-danger').remove();
@@ -507,5 +512,22 @@ $('#btn-reset-filter').click(function() {
         $('#materiModal').modal('show');
     });
     @endif
+</script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#content').summernote({
+            height: 200,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+        });
+    });
 </script>
 @endpush

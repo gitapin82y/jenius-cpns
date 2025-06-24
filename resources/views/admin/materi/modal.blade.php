@@ -73,7 +73,7 @@
                     
                     <div class="form-group">
                         <label for="content">Isi Materi</label>
-                        <textarea name="content" id="content" class="form-control" rows="10" required>{{ old('content') }}</textarea>
+                         <textarea name="content" id="content" class="form-control summernote" rows="10" required>{{ old('content') }}</textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

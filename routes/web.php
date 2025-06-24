@@ -47,6 +47,7 @@ Route::middleware(['auth','active'])->group(function () {
      // Route untuk keyword suggestions
     Route::post('/materi/keyword-suggestions', [MaterialController::class, 'getKeywordSuggestions']);
     Route::post('/soal/keyword-suggestions', [SoalController::class, 'getKeywordSuggestions']);
+    //  Route::post('/image-upload', [MaterialController::class, 'uploadImage'])->name('image.upload');
     
     Route::resource('/pengguna', UserController::class);
     Route::post('/pengguna/{id}', [UserController::class, 'update']);

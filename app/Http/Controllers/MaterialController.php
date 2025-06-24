@@ -345,6 +345,19 @@ class MaterialController extends Controller
         return redirect()->back();
     }
 }
+
+//   public function uploadImage(Request $request)
+//     {
+//         $request->validate([
+//             'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+//         ]);
+
+//         $path = $request->file('file')->store('materi-images', 'public');
+
+//         return response()->json([
+//             'location' => asset('storage/' . $path)
+//         ]);
+//     }
     
    public function show($id)
 {
