@@ -277,21 +277,24 @@ class MaterialController extends Controller
             ->groupBy('tipe');
             
         // Latihan soal (set soal dengan kategori latihan)
-        $twkLatihan = SetSoal::where('status', 'Publish')
+        $twkLatihan = SetSoal::withCount('soal')
+            ->where('status', 'Publish')
             ->where('kategori', 'Latihan')
             ->whereHas('soal', function($query) {
                 $query->where('kategori', 'TWK');
             })
             ->get();
             
-        $tiuLatihan = SetSoal::where('status', 'Publish')
+        $tiuLatihan = SetSoal::withCount('soal')
+            ->where('status', 'Publish')
             ->where('kategori', 'Latihan')
             ->whereHas('soal', function($query) {
                 $query->where('kategori', 'TIU');
             })
             ->get();
             
-        $tkpLatihan = SetSoal::where('status', 'Publish')
+       $tkpLatihan = SetSoal::withCount('soal')
+            ->where('status', 'Publish')
             ->where('kategori', 'Latihan')
             ->whereHas('soal', function($query) {
                 $query->where('kategori', 'TKP');
@@ -345,6 +348,41 @@ class MaterialController extends Controller
         return redirect()->back();
     }
 }
+
+ public function markAllCompleted(Request $request, $kategori)
+    {
+        try {
+            $userId = Auth::id();
+
+            $materials = Material::where('kategori', $kategori)
+                ->where('status', 'Publish')
+                ->pluck('id');
+
+            foreach ($materials as $materialId) {
+                UserMaterialProgress::updateOrCreate(
+                    ['user_id' => $userId, 'material_id' => $materialId],
+                    ['is_completed' => true]
+                );
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Semua materi berhasil ditandai selesai!'
+            ]);
+        } catch (\Exception $e) {
+            SystemErrorController::logError(
+                Auth::id(),
+                $e->getCode() ?: '500',
+                'Server Error',
+                $e->getMessage()
+            );
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Terjadi kesalahan, silakan coba lagi nanti.'
+            ], 500);
+        }
+    }
 
 //   public function uploadImage(Request $request)
 //     {

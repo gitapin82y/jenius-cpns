@@ -1018,7 +1018,7 @@ if (tryoutInfo.is_tryout_resmi || tryoutInfo.kategori_focus.includes('TKP')) {
 </script>
 <script>
 // Variable untuk menyimpan URL Google Form UAT
-const UAT_FORM_URL = '{{ config("app.uat_form_url", "https://forms.gle/your-google-form-id") }}';
+const UAT_FORM_URL = '{{ config("app.uat_form_url", "https://forms.gle/9EUnpP3fDQrKyut79") }}';
 
 // Handle UAT Form opening
 function openUATForm() {

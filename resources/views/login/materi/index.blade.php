@@ -298,7 +298,7 @@
                             <span>{{ $twkLatihanCompleted ? '100' : '0' }}%</span>
                         </div>
                         <div class="d-flex justify-content-between mt-3">
-                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ count($twkLatihan) }} Soal</span></p>
+                           <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ $twkLatihan->first()->soal_count ?? 0 }} Soal</span></p>
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $twkLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
                         </div>
                     </div>
@@ -376,7 +376,7 @@
                             <span>{{ $tiuLatihanCompleted ? '100' : '0' }}%</span>
                         </div>
                         <div class="d-flex justify-content-between mt-3">
-                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ count($tiuLatihan) }} Soal</span></p>
+                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ $tiuLatihan->first()->soal_count ?? 0 }} Soal</span></p>
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tiuLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
                         </div>
                     </div>
@@ -453,7 +453,7 @@
                             <span>{{ $tkpLatihanCompleted ? '100' : '0' }}%</span>
                         </div>
                         <div class="d-flex justify-content-between mt-3">
-                            <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ count($tkpLatihan) }} Soal</span></p>
+                           <p class="mb-0">Jumlah<span class="text-dark fw-bold"> {{ $tkpLatihan->first()->soal_count ?? 0 }} Soal</span></p>
                             <p class="mb-0">Status<span class="text-dark fw-bold"> {{ $tkpLatihanCompleted ? 'Selesai' : 'Belum Selesai' }}</span></p>
                         </div>
                     </div>

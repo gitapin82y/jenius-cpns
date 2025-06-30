@@ -160,6 +160,8 @@ use App\Models\Material;
                 // Jika semua materi selesai, tandai sub-kategori sebagai selesai
                 $subCategoryStatus[$subCategory] = ($totalMaterials > 0 && $completedCount == $totalMaterials);
             }
+
+             $allCategoryCompleted = !in_array(false, $subCategoryStatus, true);
         @endphp
         
         <div class="accordion" id="accordionMateri">
@@ -204,6 +206,15 @@ use App\Models\Material;
             <a href="{{ route('public.materi.index') }}" class="btn btn-primary w-100">
                 <i class="fas fa-arrow-left me-2"></i> Kembali ke Daftar Materi
             </a>
+            @if(!$allCategoryCompleted)
+                <button id="markAllCompletedBtn" class="btn btn-success w-100 mt-2">
+                    <i class="fas fa-check-circle me-2"></i> Tandai Semua Selesai
+                </button>
+            @else
+                <div class="alert alert-success mt-2">
+                    <i class="fas fa-check-circle me-2"></i> Semua materi pada kategori ini telah selesai
+                </div>
+            @endif
         </div>
     </div>
 </div>
@@ -247,6 +258,25 @@ use App\Models\Material;
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Terjadi kesalahan saat menandai materi selesai. Silakan coba lagi nanti.',
+                    });
+                }
+            });
+        });
+         $('#markAllCompletedBtn').click(function() {
+            $.ajax({
+                url: '{{ route("materi.mark-all-completed", $material->kategori) }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function() {
+                    location.reload();
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Terjadi kesalahan saat menandai semua materi. Silakan coba lagi nanti.',
                     });
                 }
             });

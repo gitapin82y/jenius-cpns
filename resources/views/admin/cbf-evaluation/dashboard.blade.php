@@ -25,30 +25,7 @@
 
     <!-- CBF Metrics Cards -->
     <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Accuracy
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $stats['accuracy'] }}%
-                            </div>
-                            @if(!$stats['has_data'])
-                                <small class="text-muted">No data available</small>
-                            @endif
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-bullseye fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -71,16 +48,16 @@
             </div>
         </div>
         
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-md-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Recall
+                                Total Evaluasi
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $stats['recall'] }}%
+                                {{ $stats['total_evaluations'] }}
                             </div>
                             @if(!$stats['has_data'])
                                 <small class="text-muted">No data available</small>
@@ -93,122 +70,9 @@
                 </div>
             </div>
         </div>
-        
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                F1-Score
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $stats['f1_score'] }}%
-                            </div>
-                            @if(!$stats['has_data'])
-                                <small class="text-muted">No data available</small>
-                            @endif
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-balance-scale fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+   
     </div>
-    
-    <!-- Statistics Summary -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Statistics Summary</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h3 class="text-primary">{{ $stats['total_evaluations'] }}</h3>
-                                <p class="text-muted">Total Evaluations</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h3 class="text-success">{{ $stats['user_evaluations'] }}</h3>
-                                <p class="text-muted">User Evaluations</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h3 class="text-info">{{ $stats['total_users_reviewed'] }}</h3>
-                                <p class="text-muted">Users Participated</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h3 class="text-warning">{{ $stats['pending_evaluations'] }}</h3>
-                                <p class="text-muted">Pending Expert Review</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    @if($stats['has_data'])
-    <!-- Confusion Matrix -->
-    <div class="row mb-4">
-        <div class="col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Confusion Matrix</h6>
-                </div>
-                <div class="card-body">
-                    <table class="table table-bordered text-center">
-                        <thead>
-                            <tr>
-                                <th rowspan="2" class="align-middle"></th>
-                                <th colspan="2">Predicted</th>
-                            </tr>
-                            <tr>
-                                <th>Relevant</th>
-                                <th>Not Relevant</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th rowspan="2" class="align-middle" style="writing-mode: vertical-rl; text-orientation: mixed;">Actual</th>
-                            </tr>
-                            <tr>
-                                <td><strong>Relevant</strong></td>
-                                <td class="bg-success text-white"><strong>{{ $stats['tp'] }}</strong><br><small>True Positive</small></td>
-                                <td class="bg-warning"><strong>{{ $stats['fn'] }}</strong><br><small>False Negative</small></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Not Relevant</strong></td>
-                                <td class="bg-danger text-white"><strong>{{ $stats['fp'] }}</strong><br><small>False Positive</small></td>
-                                <td class="bg-success text-white"><strong>{{ $stats['tn'] }}</strong><br><small>True Negative</small></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">CBF Performance Chart</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="cbfMetricsChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
+
     
     <!-- Evaluations Management Table -->
     <div class="card shadow mb-4">
@@ -240,12 +104,10 @@
                                 </th>
                                 <th width="15%">Pengguna</th>
                                 <th width="15%">Email</th>
-                                <th width="15%">Tryout</th>
-                                <th width="20%">Materi</th>
-                                <th width="8%">Kategori</th>
-                                <th width="8%">Penilaian</th>
-                                <th width="8%">Similarity</th>
-                                <th width="10%">Tanggal</th>
+                               <th width="15%">Total Materi Direkomendasikan</th>
+                                <th width="10%">Total Relevan</th>
+                                <th width="12%">Total Tidak Relevan</th>
+                               <th width="15%">Hasil Precision</th>
                                 <th width="8%">Aksi</th>
                             </tr>
                         </thead>
@@ -284,49 +146,6 @@
     </div>
 </div>
 
-@if($stats['has_data'])
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-// Chart untuk CBF Metrics
-const ctx = document.getElementById('cbfMetricsChart');
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
-        datasets: [{
-            label: 'CBF Performance (%)',
-            data: [{{ $stats['accuracy'] }}, {{ $stats['precision'] }}, {{ $stats['recall'] }}, {{ $stats['f1_score'] }}],
-            backgroundColor: [
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(255, 205, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)'
-            ],
-            borderColor: [
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 99, 132, 1)',
-                'rgba(255, 205, 86, 1)',
-                'rgba(75, 192, 192, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true,
-                max: 100
-            }
-        },
-        plugins: {
-            legend: {
-                display: false
-            }
-        }
-    }
-});
-</script>
-@endif
 @endsection
 @push('after-script')
 <script>
@@ -348,15 +167,13 @@ $(document).ready(function() {
             },
             { data: 'user_name', name: 'user.name' },
             { data: 'user_email', name: 'user.email' },
-            { data: 'tryout_title', name: 'setSoal.title' },
-            { data: 'material_title', name: 'material.title' },
-            { data: 'material_category', name: 'material.kategori' },
-            { data: 'feedback_badge', name: 'user_feedback', orderable: false },
-            { data: 'similarity_score', name: 'similarity_score' },
-            { data: 'evaluation_date', name: 'created_at' },
+            { data: 'total_recommended', name: 'total_recommended' },
+            { data: 'total_relevant', name: 'total_relevant' },
+            { data: 'total_not_relevant', name: 'total_not_relevant' },
+            { data: 'precision', name: 'precision' },
             { data: 'action', name: 'action', orderable: false, searchable: false }
         ],
-        order: [[8, 'desc']],
+        order: [[6, 'desc']],
         pageLength: 25,
         language: {
             processing: "Memproses...",

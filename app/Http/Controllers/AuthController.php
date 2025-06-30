@@ -37,12 +37,13 @@ class AuthController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
-            'status' => 'pending',
+            'status' => 'active',
+            'is_review' => 0,
         ]);
 
-        Mail::to('apinai82y@gmail.com')->send(new RequestUserStatusMail($user));
+        // Mail::to('apinai82y@gmail.com')->send(new RequestUserStatusMail($user));
 
-        Alert::success('Registrasi Berhasil', 'Silakan menunggu konfirmasi dari admin sebelum login.');
+        Alert::success('Registrasi Berhasil', 'Silakan login.');
 
         return redirect('/login');
     }

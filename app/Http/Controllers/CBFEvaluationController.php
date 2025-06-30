@@ -24,9 +24,8 @@ public function dashboard()
         
         // Pastikan semua key yang dibutuhkan ada
         $requiredKeys = [
-            'tp', 'fp', 'tn', 'fn', 'accuracy', 'precision', 'recall', 'f1_score',
-            'total_evaluations', 'pending_evaluations', 'user_evaluations', 
-            'expert_evaluations', 'total_users_reviewed', 'has_data'
+            'precision', 
+            'total_evaluations', 
         ];
         
         foreach ($requiredKeys as $key) {
@@ -45,14 +44,9 @@ public function dashboard()
     } catch (\Exception $e) {
         // Default stats jika terjadi error
         $stats = [
-            'tp' => 0, 'fp' => 0, 'tn' => 0, 'fn' => 0,
-            'accuracy' => 0, 'precision' => 0, 'recall' => 0, 'f1_score' => 0,
+ 'precision' => 0, 
             'total_evaluations' => 0,
-            'pending_evaluations' => 0,
-            'user_evaluations' => 0,
-            'expert_evaluations' => 0,
-            'total_users_reviewed' => User::where('is_review', true)->count(),
-            'has_data' => false,
+           
             'error_message' => $e->getMessage()
         ];
         
@@ -67,10 +61,18 @@ public function dashboard()
         }
 
         if ($request->ajax()) {
-            $evaluations = CBFEvaluation::with(['user', 'material', 'setSoal'])
+            $evaluations = CBFEvaluation::select(
+                    'user_id',
+                    DB::raw('MIN(id) as id'),
+                    DB::raw('COUNT(*) as total_recommended'),
+                    DB::raw('SUM(CASE WHEN user_feedback = 1 THEN 1 ELSE 0 END) as total_relevant'),
+                    DB::raw('SUM(CASE WHEN user_feedback = 0 THEN 1 ELSE 0 END) as total_not_relevant'),
+                    DB::raw('MAX(created_at) as latest_date')
+                )
                 ->where('evaluation_source', 'user')
                 ->whereNotNull('user_feedback')
-                ->latest();
+                 ->groupBy('user_id')
+                ->with('user');
 
             return DataTables::of($evaluations)
                 ->addColumn('user_name', function ($evaluation) {
@@ -79,29 +81,19 @@ public function dashboard()
                 ->addColumn('user_email', function ($evaluation) {
                     return $evaluation->user ? $evaluation->user->email : 'N/A';
                 })
-                ->addColumn('tryout_title', function ($evaluation) {
-                    return $evaluation->setSoal ? $evaluation->setSoal->title : 'N/A';
+                ->addColumn('total_recommended', function ($evaluation) {
+                    return $evaluation->total_recommended;
                 })
-                ->addColumn('material_title', function ($evaluation) {
-                    return $evaluation->material ? \Str::limit($evaluation->material->title, 30) : 'N/A';
+                 ->addColumn('total_relevant', function ($evaluation) {
+                    return $evaluation->total_relevant;
                 })
-                ->addColumn('material_category', function ($evaluation) {
-                    return $evaluation->material ? $evaluation->material->kategori : 'N/A';
+               ->addColumn('total_not_relevant', function ($evaluation) {
+                    return $evaluation->total_not_relevant;
                 })
-                ->addColumn('feedback_badge', function ($evaluation) {
-                    if ($evaluation->user_feedback === true) {
-                        return '<span class="badge bg-success"><i class="fas fa-thumbs-up"></i> Relevan</span>';
-                    } elseif ($evaluation->user_feedback === false) {
-                        return '<span class="badge bg-danger"><i class="fas fa-thumbs-down"></i> Tidak Relevan</span>';
-                    } else {
-                        return '<span class="badge bg-secondary">Belum dinilai</span>';
-                    }
-                })
-                ->addColumn('similarity_score', function ($evaluation) {
-                    return $evaluation->similarity_score ? number_format($evaluation->similarity_score * 100, 1) . '%' : 'N/A';
-                })
-                ->addColumn('evaluation_date', function ($evaluation) {
-                    return $evaluation->created_at->format('d M Y, H:i');
+                ->addColumn('precision', function ($evaluation) {
+                    $total = $evaluation->total_recommended;
+                    $precision = $total > 0 ? ($evaluation->total_relevant / $total) * 100 : 0;
+                    return number_format($precision, 2) . '%';
                 })
                 ->addColumn('action', function ($evaluation) {
                     $detailBtn = '<button type="button" class="btn btn-info btn-sm me-1" onclick="showEvaluationDetail(' . $evaluation->id . ')">
@@ -114,7 +106,7 @@ public function dashboard()
                     
                     return $detailBtn . $deleteBtn;
                 })
-                ->rawColumns(['feedback_badge', 'action'])
+                  ->rawColumns(['action'])
                 ->make(true);
         }
     }

@@ -81,6 +81,7 @@ Route::middleware(['auth','active'])->group(function () {
         ->name('tryout.recommendations');
 
     Route::post('/materi-belajar/mark-completed/{id}', [MaterialController::class, 'markCompleted'])->name('materi.mark-completed');
+    Route::post('/materi-belajar/mark-all-completed/{kategori}', [MaterialController::class, 'markAllCompleted'])->name('materi.mark-all-completed');
     
     // Route untuk admin - laporan sistem
     Route::get('/system-error', [SystemErrorController::class, 'index'])->name('system-error.index');
