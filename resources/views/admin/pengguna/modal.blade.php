@@ -20,8 +20,15 @@
                         <input type="email" required class="form-control" id="email" name="email" value="{{ old('email') }}">
                     </div>
                     <div class="form-group">
-                        <label for="phone">Nomor Telepon</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone') }}">
+                          <label class="d-block mb-2">Pernah mengikuti CPNS?</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="is_cpns" id="is_cpns_yes_admin" value="1" {{ old('is_cpns')=='1' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="is_cpns_yes_admin">Ya</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="is_cpns" id="is_cpns_no_admin" value="0" {{ old('is_cpns','0')=='0' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="is_cpns_no_admin">Tidak</label>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>

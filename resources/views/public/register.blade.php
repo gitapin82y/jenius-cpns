@@ -46,15 +46,7 @@
                             @enderror
                         </div>
 
-                        <!-- No Telepon -->
-                        <div class="form-group">
-                            <input name="phone" type="text" value="{{ old('phone') }}"
-                                class="form-control @error('phone') is-invalid @enderror form-control-user"
-                                id="exampleInputPhone" placeholder="Masukkan Nomor Telepon">
-                            @error('phone')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
+                      
 
                         <!-- Password -->
                         <div class="form-group position-relative">
@@ -75,6 +67,22 @@
                                 id="password_confirmation" placeholder="Masukkan Konfirmasi Password">
                             <i class="fa fa-eye styleEyePassword" id="togglePasswordConfirmation"></i>
                             @error('password_confirmation')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                          <!-- No Telepon -->
+                        <div class="form-group">
+                             <label class="d-block mb-2">Pernah mengikuti CPNS?</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="is_cpns" id="is_cpns_yes" value="1" >
+                                <label class="form-check-label" for="is_cpns_yes">Ya</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="is_cpns" id="is_cpns_no" value="0" >
+                                <label class="form-check-label" for="is_cpns_no">Tidak</label>
+                            </div>
+                            @error('is_cpns')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>

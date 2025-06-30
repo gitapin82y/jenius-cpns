@@ -27,6 +27,9 @@ class UserController extends Controller
         }
         if ($request->ajax()) {
             return DataTables::of(User::where('is_admin', false)->latest())
+               ->addColumn('is_cpns', function ($user) {
+                    return $user->is_cpns ? 'Ya' : 'Tidak';
+                })
                 ->addColumn('status', function ($user) {
                     return ucfirst($user->status);
                 })
@@ -173,11 +176,11 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $request->id,
-            'phone' => 'required|numeric',
+                   'is_cpns' => 'required|boolean',
             'password' => 'required|min:6',
         ],[
             'name.required' => 'Nama lengkap wajib diisi.',
-            'phone.required' => 'Nomor telepon wajib diisi.',
+             'is_cpns.required' => 'Pernyataan wajib diisi.',
         ]);
 
         $validatedData['is_akses'] = 1;
@@ -193,10 +196,10 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $id,
-            'phone' => 'required|numeric',
+             'is_cpns' => 'required|boolean',
         ],[
             'name.required' => 'Nama lengkap wajib diisi.',
-            'phone.required' => 'Nomor telepon wajib diisi.',
+           'is_cpns.required' => 'Pernyataan wajib diisi.',
         ]);
 
         $user = User::findOrFail($id);

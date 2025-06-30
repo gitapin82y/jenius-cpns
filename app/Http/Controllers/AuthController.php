@@ -25,17 +25,17 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'required',
+            'is_cpns' => 'required|boolean',
             'password' => 'required|string|min:6|confirmed',
         ],[
             'name.required' => 'Nama lengkap wajib diisi.',
-            'phone.required' => 'Nomor telepon wajib diisi.',
+            'is_cpns.required' => 'Pernyataan wajib diisi.',
         ]);
     
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'phone' => $request->phone,
+            'is_cpns' => $request->is_cpns,
             'password' => Hash::make($request->password),
             'status' => 'active',
             'is_review' => 0,

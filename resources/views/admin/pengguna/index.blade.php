@@ -30,7 +30,7 @@
                         <tr>
                             <th>Nama Lengkap</th>
                             <th>Email</th>
-                            <th>Phone</th>
+                                <th>Pernah Ikut CPNS?</th>
                              <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -55,7 +55,7 @@
     columns: [
         { data: 'name', name: 'name' },
         { data: 'email', name: 'email' },
-        { data: 'phone', name: 'phone' },
+        { data: 'is_cpns', name: 'is_cpns' },
         { data: 'status', name: 'status' },
         { data: 'action', name: 'action', orderable: false, searchable: false },
     ]
@@ -68,7 +68,11 @@
         $('#userId').val(user.id);
         $('#name').val(user.name);
         $('#email').val(user.email);
-        $('#phone').val(user.phone);
+          if(user.is_cpns){
+            $('#is_cpns_yes_admin').prop('checked', true);
+        }else{
+            $('#is_cpns_no_admin').prop('checked', true);
+        }
         $('#password').val(user.password);
 
         const baseUrl = window.location.origin;
@@ -225,6 +229,9 @@
         $('#userForm').find('input, textarea, select').each(function() {
             $(this).val('');
         });
+
+          $('input[name="is_cpns"]').prop('checked', false);
+        $('#is_cpns_no_admin').prop('checked', true);
 
         $('.modal-title').html('Tambah Pengguna');
 

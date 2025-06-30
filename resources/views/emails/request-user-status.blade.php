@@ -67,7 +67,7 @@
                 
                 <div class="details">
                     <p><strong>Email:</strong> {{ $user->email }}</p>
-                    <p><strong>Telepon:</strong> {{ $user->phone }}</p>
+                     <p><strong>Pernah ikut CPNS:</strong> {{ $user->is_cpns ? 'Ya' : 'Tidak' }}</p>
                 </div>
                 
                 <div style="text-align: center;">
