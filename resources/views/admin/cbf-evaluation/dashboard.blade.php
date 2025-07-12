@@ -490,7 +490,7 @@ function showEvaluationDetail(evaluationId) {
                $('#detailModalBody').html(html);
                 $('#deleteFromDetailBtn').data('user-id', evaluation.user_id);
                 $('#deleteFromDetailBtn').data('user-name', evaluation.user.name);
-                $('#editDateForm').data('id', evaluation.id);
+                $('#editDateForm').data('id', evaluation.user_id);
                 $('#toggleEditDateBtn').off('click').on('click', function() {
                     $('#editDateForm').toggleClass('d-none');
                 });

@@ -127,9 +127,9 @@ public function dashboard()
         ]);
 
         try {
-            $evaluation = CBFEvaluation::findOrFail($id);
-            $evaluation->created_at = $request->created_at;
-            $evaluation->save();
+           CBFEvaluation::where('user_id', $id)
+    ->update(['created_at' => $request->created_at]);
+
 
             return response()->json([
                 'success' => true,
