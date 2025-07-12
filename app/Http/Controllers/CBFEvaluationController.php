@@ -71,8 +71,13 @@ public function dashboard()
                 )
                 ->where('evaluation_source', 'user')
                 ->whereNotNull('user_feedback')
+                ->whereHas('user', function ($query) {
+        $query->where('is_cpns', true);
+    })
                  ->groupBy('user_id')
-                ->with('user');
+                ->with('user')
+    ->orderByRaw('MIN(created_at)')
+    ->get();
 
             return DataTables::of($evaluations)
                 ->addColumn('user_name', function ($evaluation) {
@@ -108,6 +113,33 @@ public function dashboard()
                 })
                   ->rawColumns(['action'])
                 ->make(true);
+        }
+    }
+
+    public function updateEvaluationDate(Request $request, $id)
+    {
+        if (!Auth::user()->is_admin) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'created_at' => 'required|date'
+        ]);
+
+        try {
+            $evaluation = CBFEvaluation::findOrFail($id);
+            $evaluation->created_at = $request->created_at;
+            $evaluation->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tanggal evaluasi berhasil diperbarui.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui tanggal evaluasi: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -292,6 +324,37 @@ public function calculateCBFMetrics()
     ->with(['user', 'material', 'setSoal'])
     ->get();
 
+    $totalRelevant = CBFEvaluation::whereNotNull('user_feedback')
+        ->where('user_feedback', true)
+         ->whereHas('user', function ($query) {
+        $query->where('is_cpns', true);
+    })
+        ->count();
+    $totalNotRelevant = CBFEvaluation::whereNotNull('user_feedback')
+        ->where('user_feedback', false)
+         ->whereHas('user', function ($query) {
+        $query->where('is_cpns', true);
+    })
+        ->count();
+
+    // Hitung precision per pengguna untuk mendapatkan rata-rata precision
+    $userPrecisions = CBFEvaluation::select(
+            'user_id',
+            DB::raw('SUM(CASE WHEN user_feedback = 1 THEN 1 ELSE 0 END) as relevant'),
+            DB::raw('COUNT(*) as total')
+        )
+        ->whereNotNull('user_feedback')
+        ->where('evaluation_source', 'user')
+        ->whereHas('user', function ($query) {
+        $query->where('is_cpns', true);
+    })
+        ->groupBy('user_id')
+        ->get();
+
+    $averagePrecision = $userPrecisions->map(function ($row) {
+        return $row->total > 0 ? $row->relevant / $row->total : 0;
+    })->avg() * 100;
+
     $totalUsersReviewed = User::where('is_review', true)->count();
     
     if ($evaluations->isEmpty()) {
@@ -303,6 +366,8 @@ public function calculateCBFMetrics()
             'user_evaluations' => CBFEvaluation::whereNotNull('user_feedback')->count(),
             'expert_evaluations' => CBFEvaluation::whereNotNull('expert_validation')->count(),
             'total_users_reviewed' => $totalUsersReviewed,
+            'total_relevant_materials' => 0,
+            'total_not_relevant_materials' => 0,
             'has_data' => false
         ];
     }
@@ -331,13 +396,15 @@ public function calculateCBFMetrics()
     return [
         'tp' => $tp, 'fp' => $fp, 'tn' => $tn, 'fn' => $fn,
         'accuracy' => round($accuracy * 100, 2),
-        'precision' => round($precision * 100, 2),
+        'precision' => round($averagePrecision, 2),
         'recall' => round($recall * 100, 2),
         'f1_score' => round($f1Score * 100, 2),
         'total_evaluations' => $evaluations->count(),
         'pending_evaluations' => CBFEvaluation::whereNull('user_feedback')->whereNull('expert_validation')->count(),
         'user_evaluations' => CBFEvaluation::whereNotNull('user_feedback')->count(),
         'expert_evaluations' => CBFEvaluation::whereNotNull('expert_validation')->count(),
+        'total_relevant_materials' => $totalRelevant,
+        'total_not_relevant_materials' => $totalNotRelevant,
         'has_data' => true
     ];
 }

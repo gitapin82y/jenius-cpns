@@ -130,6 +130,8 @@ Route::middleware(['auth','active'])->group(function () {
         ->name('admin.cbf-evaluation.bulk-delete');
     Route::post('/admin/cbf-evaluation/reset-user', [CBFEvaluationController::class, 'resetUserReview'])
         ->name('admin.cbf-evaluation.reset-user');
+          Route::put('/admin/cbf-evaluation/{id}/update-date', [CBFEvaluationController::class, 'updateEvaluationDate'])
+        ->name('admin.cbf-evaluation.update-date');
 
     Route::post('/user/cbf-evaluation/submit', [UserCBFEvaluationController::class, 'submitEvaluation'])
         ->name('user.cbf.evaluation.submit');

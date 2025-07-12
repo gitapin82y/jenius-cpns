@@ -227,13 +227,10 @@ class ContentBasedFilteringService
         $wrongAnswers = $this->collectWrongAnswers($userId, $setSoalId);
         
         if ($wrongAnswers->isEmpty()) {
+            $this->logRecommendations($userId, $setSoalId, []);
             return [
                 'recommendations' => [],
-                'tryout_info' => $tryoutInfo,
-                'debug_info' => [
-                    'message' => 'Tidak ada jawaban salah atau TKP poin 1 ditemukan',
-                    'steps' => []
-                ]
+                'tryout_info' => $tryoutInfo
             ];
         }
 
@@ -319,56 +316,23 @@ class ContentBasedFilteringService
                 $recommendations[$kategori][] = $item;
             }
         }
-        
-        // Hitung statistik untuk debugging
-        $wrongAnswersRegular = $wrongAnswers->where('status', 'salah');
-        $tkpPoin1 = $wrongAnswers->filter(function($jawaban) {
-            return $jawaban->soal->kategori === 'TKP' && $jawaban->status === 'benar';
-        });
-        
-        // Debugging info
-        $debugInfo = [
-            'total_wrong_answers' => $wrongAnswers->count(),
-            'regular_wrong_answers' => $wrongAnswersRegular->count(),
-            'tkp_poin_1_count' => $tkpPoin1->count(),
-            'soal_keywords' => $soalKeywords,
-            'total_material_keywords' => count($allMaterialKeywords),
-            'unique_keywords_count' => count($uniqueKeywords),
-            'unique_keywords' => $uniqueKeywords,
-            'soal_vector' => $soalVector,
-            'total_similarities_calculated' => count($similarities),
-            'filtered_categories' => $allowedCategories,
-            'steps' => [
-                'step_0' => 'Deteksi jenis: ' . ($tryoutInfo['is_tryout_resmi'] ? 'Tryout Resmi' : 'Latihan ' . implode(', ', $tryoutInfo['kategori_focus'])),
-                'step_1' => 'Mengumpulkan ' . $wrongAnswers->count() . ' soal bermasalah (' . $wrongAnswersRegular->count() . ' salah + ' . $tkpPoin1->count() . ' TKP poin 1)',
-                'step_2a' => 'Extract ' . count($soalKeywords) . ' kata kunci dari soal bermasalah',
-                'step_2b' => 'Extract ' . count($allMaterialKeywords) . ' kata kunci dari materi' . ($allowedCategories ? ' (filter: ' . implode(', ', $allowedCategories) . ')' : ' (semua kategori)'),
-                'step_3' => 'Gabung dan hapus duplikat, hasil: ' . count($uniqueKeywords) . ' kata kunci unik',
-                'step_4' => 'Konversi ke vektor biner (panjang: ' . count($soalVector) . ')',
-                'step_5' => 'Hitung cosine similarity untuk ' . $materials->count() . ' materi',
-                'step_6' => 'Urutkan dan kelompokkan hasil rekomendasi berdasarkan kategori yang relevan'
-            ]
+      
+
+      $this->logRecommendations($userId, $setSoalId, $recommendations);
+
+      return [
+            'recommendations' => $recommendations,
+            'tryout_info' => $tryoutInfo
         ];
-
-          $result = [
-        'recommendations' => $recommendations, // Ini akan menghasilkan struktur yang diharapkan blade
-        'tryout_info' => $tryoutInfo,
-        'debug_info' => $debugInfo
-    ];
-
-    // Log recommendations dengan struktur yang benar
-    $this->logRecommendations($userId, $setSoalId, $result);
-    
-    return $result;
     }
 
-private function logRecommendations($userId, $setSoalId, $fullResult)
+private function logRecommendations($userId, $setSoalId, array $recommendations)
 {
     RecommendationLog::create([
         'user_id' => $userId,
         'set_soal_id' => $setSoalId,
-        'recommendations' => $fullResult['recommendations'],
-        'debug_info' => $fullResult['debug_info']
+        'recommendations' => $recommendations,
+        'debug_info' => []
     ]);
     
 }
@@ -382,8 +346,7 @@ private function logRecommendations($userId, $setSoalId, $fullResult)
         
         return [
             'recommendations' => $allRecommendations['recommendations'][$kategori] ?? [],
-            'tryout_info' => $allRecommendations['tryout_info'],
-            'debug_info' => $allRecommendations['debug_info']
+            'tryout_info' => $allRecommendations['tryout_info']
         ];
     }
 

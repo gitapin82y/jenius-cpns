@@ -162,7 +162,6 @@ class UserController extends Controller
             'labels',
             'userData',
             'tryoutTitles',
-            'completedTryoutData',
             'totalEligibleUsers'
         ));
     }

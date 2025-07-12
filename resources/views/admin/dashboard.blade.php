@@ -91,7 +91,7 @@
 <!-- Content Row -->
 <div class="row">
     <!-- Area Chart - Pengguna Tryout -->
-    <div class="col-xl-8 col-lg-7">
+    <div class="col-12">
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -101,25 +101,6 @@
             <div class="card-body">
                 <div class="chart-area">
                     <canvas id="myAreaChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pie Chart - Penyelesaian Tryout -->
-    <div class="col-xl-4 col-lg-5">
-        <div class="card shadow mb-4">
-            <!-- Card Header - Dropdown -->
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Penyelesaian Tryout Resmi</h6>
-            </div>
-            <!-- Card Body -->
-            <div class="card-body">
-                <div class="chart-pie pt-4 pb-2">
-                    <canvas id="tryoutCompletionPieChart"></canvas>
-                </div>
-                <div class="mt-5 text-center small">
-                    {{-- <p>Dari total {{ $totalEligibleUsers }} pengguna dengan akses tryout</p> --}}
                 </div>
             </div>
         </div>
@@ -218,79 +199,5 @@ const myLineChart = new Chart(ctx, {
     }
 });
 
-// Pie Chart - Penyelesaian Tryout dengan persentase tampil langsung
-const tryoutCompletionPieChart = document.getElementById("tryoutCompletionPieChart");
-const completionData = {!! json_encode(array_map(function($item) { return $item['count']; }, $completedTryoutData)) !!};
-const completionLabels = {!! json_encode(array_map(function($item) { return $item['title']; }, $completedTryoutData)) !!};
-const completionPercentages = {!! json_encode(array_map(function($item) { return $item['percentage']; }, $completedTryoutData)) !!};
-
-const tryoutCompletionChart = new Chart(tryoutCompletionPieChart, {
-    type: 'doughnut',
-    data: {
-        labels: completionLabels,
-        datasets: [{
-            data: completionData,
-            backgroundColor: [
-                '#8DD14F', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#5a5c69',
-                '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#e02d1b'
-            ],
-            hoverBackgroundColor: [
-                '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#e02d1b', '#3a3b45',
-                '#224aba', '#13875c', '#24818c', '#c4910a', '#c81f12'
-            ],
-            hoverBorderColor: "rgba(234, 236, 244, 1)",
-        }],
-    },
-    options: {
-        maintainAspectRatio: false,
-        tooltips: {
-            backgroundColor: "rgb(255,255,255)",
-            bodyFontColor: "#858796",
-            borderColor: '#dddfeb',
-            borderWidth: 1,
-            xPadding: 15,
-            yPadding: 15,
-            displayColors: false,
-            caretPadding: 10,
-            callbacks: {
-                label: function(tooltipItem, data) {
-                    const dataset = data.datasets[tooltipItem.datasetIndex];
-                    const currentValue = dataset.data[tooltipItem.index];
-                    const percentage = completionPercentages[tooltipItem.index];
-                    return data.labels[tooltipItem.index] + ': ' + currentValue + ' pengguna ';
-                }
-            }
-        },
-        legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-                usePointStyle: true,
-                padding: 20
-            }
-        },
-        cutoutPercentage: 80,
-        // Plugin untuk menampilkan persentase di dalam donut chart
-        plugins: [{
-            beforeDraw: function(chart) {
-                const width = chart.chart.width;
-                const height = chart.chart.height;
-                const ctx = chart.chart.ctx;
-                
-                ctx.restore();
-                const fontSize = (height / 114).toFixed(2);
-                ctx.font = fontSize + "em sans-serif";
-                ctx.textBaseline = "middle";
-                
-                const text = chart.config.data.datasets[0].data.reduce((a, b) => a + b, 0) + " Pengguna";
-                const textX = Math.round((width - ctx.measureText(text).width) / 2);
-                const textY = height / 2;
-                
-                ctx.fillText(text, textX, textY);
-                ctx.save();
-            }
-        }]
-    },
-});
 </script>
 @endpush

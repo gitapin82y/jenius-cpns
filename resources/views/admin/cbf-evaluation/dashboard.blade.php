@@ -25,7 +25,7 @@
 
     <!-- CBF Metrics Cards -->
     <div class="row">
-        <div class="col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -48,7 +48,7 @@
             </div>
         </div>
         
-        <div class="col-md-6 mb-4">
+         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -65,6 +65,52 @@
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-search fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+         <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Relevan
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ $stats['total_relevant_materials'] }}
+                            </div>
+                            @if(!$stats['has_data'])
+                                <small class="text-muted">No data available</small>
+                            @endif
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-thumbs-up fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Total Tidak Relevan
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ $stats['total_not_relevant_materials'] }}
+                            </div>
+                            @if(!$stats['has_data'])
+                                <small class="text-muted">No data available</small>
+                            @endif
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-thumbs-down fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -369,6 +415,25 @@ function showEvaluationDetail(evaluationId) {
                            hour: '2-digit', minute: '2-digit'
                        })}</small>
                    </div>
+
+                   <div class="mb-3">
+                        <h6 class="fw-bold">Tryout: ${evaluation.set_soal.title}</h6>
+                        <small class="text-muted" id="evaluationDate">Tanggal evaluasi: ${new Date(evaluation.created_at).toLocaleDateString('id-ID', {
+                            year: 'numeric', month: 'long', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        })}</small>
+                        <button type="button" class="btn btn-sm btn-primary ms-2" id="toggleEditDateBtn">
+                            <i class="fas fa-edit"></i> Ubah Tanggal
+                        </button>
+                        <form id="editDateForm" class="mt-2 d-none">
+                            <div class="input-group input-group-sm">
+                                <input type="datetime-local" class="form-control" id="editDateInput" value="${new Date(evaluation.created_at).toISOString().slice(0,16)}" required>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                `;
                
                if (evaluation.user_comment) {
@@ -423,9 +488,47 @@ function showEvaluationDetail(evaluationId) {
                `;
                
                $('#detailModalBody').html(html);
-               $('#deleteFromDetailBtn').data('user-id', evaluation.user_id);
-               $('#deleteFromDetailBtn').data('user-name', evaluation.user.name);
-           }
+                $('#deleteFromDetailBtn').data('user-id', evaluation.user_id);
+                $('#deleteFromDetailBtn').data('user-name', evaluation.user.name);
+                $('#editDateForm').data('id', evaluation.id);
+                $('#toggleEditDateBtn').off('click').on('click', function() {
+                    $('#editDateForm').toggleClass('d-none');
+                });
+                $('#editDateForm').off('submit').on('submit', function(e) {
+                    e.preventDefault();
+                    const newDate = $('#editDateInput').val();
+                    $.ajax({
+                        url: `/admin/cbf-evaluation/${$(this).data('id')}/update-date`,
+                        method: 'PUT',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            created_at: newDate
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                $('#evaluationDate').text('Tanggal evaluasi: ' + new Date(newDate).toLocaleDateString('id-ID', {
+                                    year: 'numeric', month: 'long', day: 'numeric',
+                                    hour: '2-digit', minute: '2-digit'
+                                }));
+                                Swal.fire('Berhasil!', res.message, 'success');
+                                @if($stats['has_data'])
+                                $('#evaluationTable').DataTable().ajax.reload(null, false);
+                                @endif
+                                $('#editDateForm').addClass('d-none');
+                            } else {
+                                Swal.fire('Error', res.message, 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMessage = 'Terjadi kesalahan saat memperbarui tanggal evaluasi';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            Swal.fire('Error', errorMessage, 'error');
+                        }
+                    });
+                });
+            }
        },
        error: function(xhr) {
            $('#detailModalBody').html(`

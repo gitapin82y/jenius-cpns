@@ -50,12 +50,12 @@
     <hr class="sidebar-divider my-0">
 
       <!-- Nav Item - System Error -->
-    <li class="nav-item {{Request::is('/admin/keyword-update') ? 'active' : ''}}">
+    {{-- <li class="nav-item {{Request::is('/admin/keyword-update') ? 'active' : ''}}">
         <a class="nav-link" href="{{ route('admin.keyword-update') }}">
             <i class="fas fa-fw fa-exclamation-triangle"></i>
             <span>Kata Kunci</span></a>
     </li>
-    <hr class="sidebar-divider my-0">
+    <hr class="sidebar-divider my-0"> --}}
 
       <!-- Nav Item - System Error -->
     <li class="nav-item {{Request::is('/admin/cbf-evaluation') ? 'active' : ''}}">

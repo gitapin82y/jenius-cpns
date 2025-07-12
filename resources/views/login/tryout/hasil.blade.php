@@ -680,16 +680,16 @@
                             <!-- Komentar Tambahan -->
                             <div class="mb-3">
                                 <label for="user_comment" class="form-label">
-                                    <strong>Komentar Tambahan (Opsional)</strong>
+                                    <strong>Kritik atau Saran (Opsional)</strong>
                                 </label>
                                 <textarea 
                                     class="form-control" 
                                     id="user_comment" 
                                     name="user_comment" 
                                     rows="3" 
-                                    placeholder="Berikan komentar atau saran untuk perbaikan sistem rekomendasi..."
+                                    placeholder="Berikan komentar berupa kritik, saran atau laporan jika ada bug pada sistem..."
                                 ></textarea>
-                                <small class="text-muted">Komentar Anda akan membantu penelitian untuk meningkatkan kualitas rekomendasi.</small>
+                                <small class="text-muted">Komentar Anda akan membantu penelitian untuk meningkatkan kualitas sistem.</small>
                             </div>
                             
                         @else
@@ -720,176 +720,6 @@
 </div>
     </div>
 
-    <!-- Debug Info CBF (untuk development dan sidang) -->
-@if(!empty($recommendations['debug_info']))
-    <div class="card mt-4">
-        <div class="card-header">
-            <strong>Analisis Content Based Filtering - Proses Rekomendasi</strong>
-            <small class="text-muted d-block">
-                Informasi teknis untuk memahami cara kerja algoritma CBF
-                @if(!empty($recommendations['tryout_info']))
-                    - {{ $recommendations['tryout_info']['is_tryout_resmi'] ? 'Mode: Tryout Resmi' : 'Mode: Latihan' }}
-                @endif
-            </small>
-        </div>
-        <div class="card-body">
-            <!-- Tryout Type Info -->
-            @if(!empty($recommendations['tryout_info']))
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="alert alert-{{ $recommendations['tryout_info']['is_tryout_resmi'] ? 'primary' : 'warning' }}">
-                            <h6><i class="fas fa-info-circle"></i> Jenis Tryout:</h6>
-                            <p class="mb-2">
-                                <strong>{{ $recommendations['tryout_info']['is_tryout_resmi'] ? 'Tryout Resmi' : 'Latihan' }}</strong>
-                                @if(!$recommendations['tryout_info']['is_tryout_resmi'])
-                                    - Fokus Kategori: {{ implode(', ', $recommendations['tryout_info']['kategori_focus']) }}
-                                @endif
-                            </p>
-                            <small>
-                                {{ $recommendations['tryout_info']['is_tryout_resmi'] 
-                                    ? 'Rekomendasi mencakup semua kategori (TWK, TIU, TKP) untuk persiapan komprehensif.' 
-                                    : 'Rekomendasi difokuskan pada kategori latihan yang dikerjakan untuk pembelajaran yang lebih terarah.' }}
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            @endif
-            
-            <!-- Step Process -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="fw-bold mb-3">Langkah-langkah Proses CBF:</h6>
-                    @if(!empty($recommendations['debug_info']['steps']))
-                        @foreach($recommendations['debug_info']['steps'] as $step => $description)
-                            <div class="step-indicator">
-                                <strong>{{ str_replace('_', ' ', strtoupper($step)) }}:</strong> {{ $description }}
-                            </div>
-                        @endforeach
-                    @endif
-                </div>
-            </div>
-
-            <!-- Statistics -->
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <h6 class="fw-bold">Statistik Proses:</h6>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-times-circle text-danger"></i> Total soal bermasalah: <strong>{{ $recommendations['debug_info']['total_wrong_answers'] ?? 0 }}</strong></li>
-                        <li><i class="fas fa-exclamation-triangle text-warning"></i> TWK/TIU salah: <strong>{{ $recommendations['debug_info']['regular_wrong_answers'] ?? 0 }}</strong></li>
-                        <li><i class="fas fa-star text-info"></i> TKP poin 1: <strong>{{ $recommendations['debug_info']['tkp_poin_1_count'] ?? 0 }}</strong></li>
-                        <li><i class="fas fa-key text-primary"></i> Kata kunci dari soal: <strong>{{ count($recommendations['debug_info']['soal_keywords'] ?? []) }}</strong></li>
-                        <li><i class="fas fa-book text-info"></i> Total kata kunci materi: <strong>{{ $recommendations['debug_info']['total_material_keywords'] ?? 0 }}</strong></li>
-                        <li><i class="fas fa-layer-group text-success"></i> Kata kunci unik: <strong>{{ $recommendations['debug_info']['unique_keywords_count'] ?? 0 }}</strong></li>
-                        <li><i class="fas fa-calculator text-warning"></i> Similarity dihitung: <strong>{{ $recommendations['debug_info']['total_similarities_calculated'] ?? 0 }}</strong></li>
-                        @if(!empty($recommendations['debug_info']['filtered_categories']))
-                            <li><i class="fas fa-filter text-primary"></i> Filter kategori: <strong>{{ implode(', ', $recommendations['debug_info']['filtered_categories']) }}</strong></li>
-                        @endif
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <h6 class="fw-bold">Breakdown Soal Bermasalah:</h6>
-                    <div class="d-flex flex-wrap mb-3">
-                        @if(!empty($recommendations['debug_info']['regular_wrong_answers']) && $recommendations['debug_info']['regular_wrong_answers'] > 0)
-                            <span class="badge bg-danger me-2 mb-2">
-                                <i class="fas fa-times"></i> {{ $recommendations['debug_info']['regular_wrong_answers'] }} Jawaban Salah
-                            </span>
-                        @endif
-                        @if(!empty($recommendations['debug_info']['tkp_poin_1_count']) && $recommendations['debug_info']['tkp_poin_1_count'] > 0)
-                            <span class="badge bg-warning text-dark me-2 mb-2">
-                                <i class="fas fa-star"></i> {{ $recommendations['debug_info']['tkp_poin_1_count'] }} TKP Poin 1
-                            </span>
-                        @endif
-                    </div>
-                    
-                    <h6 class="fw-bold">Kata Kunci dari Soal Bermasalah:</h6>
-                    <div class="d-flex flex-wrap">
-                        @if(!empty($recommendations['debug_info']['soal_keywords']))
-                            @foreach(array_slice($recommendations['debug_info']['soal_keywords'], 0, 15) as $keyword)
-                                <span class="badge bg-danger me-1 mb-1">{{ $keyword }}</span>
-                            @endforeach
-                            @if(count($recommendations['debug_info']['soal_keywords']) > 15)
-                                <span class="badge bg-secondary me-1 mb-1">+{{ count($recommendations['debug_info']['soal_keywords']) - 15 }} lainnya</span>
-                            @endif
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Penjelasan Metode -->
-            <div class="row mb-3">
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        <h6><i class="fas fa-info-circle"></i> Metodologi CBF:</h6>
-                        <p class="mb-2">
-                            <strong>Untuk Tryout Resmi:</strong> Sistem memberikan rekomendasi dari semua kategori (TWK, TIU, TKP) berdasarkan analisis soal yang dijawab salah untuk persiapan komprehensif.
-                        </p>
-                        <p class="mb-2">
-                            <strong>Untuk Latihan:</strong> Sistem fokus memberikan rekomendasi materi hanya pada kategori yang sedang dipelajari untuk pembelajaran yang lebih terarah dan efektif.
-                        </p>
-                        <p class="mb-0">
-                            <strong>Penanganan TKP:</strong> Jawaban TKP dengan poin 1 dianggap sebagai "jawaban bermasalah" karena menunjukkan pemahaman yang sangat rendah tentang nilai-nilai ASN.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabel Bobot Vektor (Sample) -->
-            @if(!empty($recommendations['debug_info']['soal_vector']) && !empty($recommendations['debug_info']['unique_keywords']))
-                <div class="row">
-                    <div class="col-12">
-                        <h6 class="fw-bold">Sample Tabel Bobot Vektor Biner:</h6>
-                        <small class="text-muted">Contoh representasi vektor untuk 10 kata kunci pertama (1 = ada, 0 = tidak ada)</small>
-                        <div class="table-responsive mt-2">
-                            <table class="table table-sm cbf-table table-bordered">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Kata Kunci</th>
-                                        <th>Soal Vector</th>
-                                        @if(!empty($recommendations['recommendations']))
-                                            @foreach(array_slice(collect($recommendations['recommendations'])->flatten(1)->take(3)->toArray(), 0, 3) as $index => $item)
-                                                <th>{{ Str::limit($item['material']->title, 15) }}</th>
-                                            @endforeach
-                                        @endif
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(array_slice($recommendations['debug_info']['unique_keywords'], 0, 10) as $index => $keyword)
-                                        <tr>
-                                            <td class="text-start"><strong>{{ $keyword }}</strong></td>
-                                            <td class="vector-{{ $recommendations['debug_info']['soal_vector'][$index] ?? 0 }}">
-                                                {{ $recommendations['debug_info']['soal_vector'][$index] ?? 0 }}
-                                            </td>
-                                            @if(!empty($recommendations['recommendations']))
-                                                @foreach(array_slice(collect($recommendations['recommendations'])->flatten(1)->take(3)->toArray(), 0, 3) as $item)
-                                                    @php
-                                                        $vectorValue = $item['vector'][$index] ?? 0;
-                                                    @endphp
-                                                    <td class="vector-{{ $vectorValue }}">{{ $vectorValue }}</td>
-                                                @endforeach
-                                            @endif
-                                        </tr>
-                                    @endforeach
-                                    @if(count($recommendations['debug_info']['unique_keywords']) > 10)
-                                        <tr>
-                                            <td colspan="100%" class="text-center text-muted">
-                                                ... dan {{ count($recommendations['debug_info']['unique_keywords']) - 10 }} kata kunci lainnya
-                                            </td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle"></i> 
-                            Cosine Similarity dihitung berdasarkan dot product dan magnitude dari vektor-vektor ini.
-                            Semakin banyak kata kunci yang sama (nilai 1), semakin tinggi similarity score.
-                        </small>
-                    </div>
-                </div>
-            @endif
-        </div>
-    </div>
-@endif
 
 
 </div>

@@ -322,16 +322,6 @@ if ($setSoal->kategori == 'Latihan') {
         // Generate video recommendations
         $videoRecommendations = $this->generateVideoRecommendations($recommendations['recommendations']);
         
-        // Generate weight table untuk debugging (optional - hanya jika method ada)
-        $weightTable = null;
-        if (config('app.debug') && method_exists($this->cbfService, 'generateWeightTable')) {
-            try {
-                $weightTable = $this->cbfService->generateWeightTable($userId, $set_soal);
-            } catch (\Exception $e) {
-                // Ignore jika ada error di weight table
-                $weightTable = null;
-            }
-        }
         
         return view('login.tryout.hasil', compact(
             'soals', 
@@ -340,7 +330,6 @@ if ($setSoal->kategori == 'Latihan') {
             'jawabanUsers',
             'recommendations',
             'videoRecommendations',
-            'weightTable',
             'tryoutInfo'  // Tambahan data tryout info
         ));
         
