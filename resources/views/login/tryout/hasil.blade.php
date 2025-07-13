@@ -253,9 +253,9 @@
                                             </a>
                                         </h6>
                                         <small class="text-muted">{{ $item['material']->tipe }}</small>
-                                        <div class="similarity-score">
+                                        {{-- <div class="similarity-score">
                                             Relevansi: {{ number_format($item['similarity'] * 100, 1) }}%
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 @endforeach
                             @endif
@@ -274,9 +274,9 @@
                                             </a>
                                         </h6>
                                         <small class="text-muted">{{ $item['material']->tipe }}</small>
-                                        <div class="similarity-score">
+                                        {{-- <div class="similarity-score">
                                             Relevansi: {{ number_format($item['similarity'] * 100, 1) }}%
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 @endforeach
                             @else
@@ -301,9 +301,9 @@
                                         </a>
                                     </h6>
                                     <small class="text-muted">{{ $item['material']->tipe }}</small>
-                                    <div class="similarity-score">
+                                    {{-- <div class="similarity-score">
                                         Relevansi: {{ number_format($item['similarity'] * 100, 1) }}%
-                                    </div>
+                                    </div> --}}
                                 </div>
                             @endforeach
                         </div>
@@ -623,7 +623,7 @@
                                                     <tr>
                                                         <th>Materi</th>
                                                         <th>Tipe</th>
-                                                        <th>Relevansi</th>
+                                                        {{-- <th>Relevansi</th> --}}
                                                         <th class="text-center">Penilaian</th>
                                                     </tr>
                                                 </thead>
@@ -636,9 +636,9 @@
                                                             <td>
                                                                 <small class="text-muted">{{ $item['material']->tipe }}</small>
                                                             </td>
-                                                            <td>
+                                                            {{-- <td>
                                                                 <small class="text-info">{{ number_format($item['similarity'] * 100, 1) }}%</small>
-                                                            </td>
+                                                            </td> --}}
                                                             <td class="text-center">
                                                                 <div class="btn-group" role="group" aria-label="Penilaian {{ $item['material']->title }}">
                                                                     <input 

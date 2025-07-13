@@ -219,7 +219,6 @@ $(document).ready(function() {
             { data: 'precision', name: 'precision' },
             { data: 'action', name: 'action', orderable: false, searchable: false }
         ],
-        order: [[6, 'desc']],
         pageLength: 25,
         language: {
             processing: "Memproses...",
@@ -407,21 +406,10 @@ function showEvaluationDetail(evaluationId) {
                            </table>
                        </div>
                    </div>
-                   
-                   <div class="mb-3">
-                       <h6 class="fw-bold">Tryout: ${evaluation.set_soal.title}</h6>
-                       <small class="text-muted">Tanggal evaluasi: ${new Date(evaluation.created_at).toLocaleDateString('id-ID', {
-                           year: 'numeric', month: 'long', day: 'numeric',
-                           hour: '2-digit', minute: '2-digit'
-                       })}</small>
-                   </div>
-
+             
                    <div class="mb-3">
                         <h6 class="fw-bold">Tryout: ${evaluation.set_soal.title}</h6>
-                        <small class="text-muted" id="evaluationDate">Tanggal evaluasi: ${new Date(evaluation.created_at).toLocaleDateString('id-ID', {
-                            year: 'numeric', month: 'long', day: 'numeric',
-                            hour: '2-digit', minute: '2-digit'
-                        })}</small>
+                        <small class="text-muted" id="evaluationDate">Tanggal evaluasi: ${new Date(evaluation.created_at).toISOString().slice(0,16)}</small>
                         <button type="button" class="btn btn-sm btn-primary ms-2" id="toggleEditDateBtn">
                             <i class="fas fa-edit"></i> Ubah Tanggal
                         </button>
