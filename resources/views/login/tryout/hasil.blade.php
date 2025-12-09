@@ -567,7 +567,6 @@
                                                                 </span>
                                                             @endif
                                                         </div>
-                                                        <small class="text-muted">{{ number_format($evaluation->similarity_score * 100, 1) }}%</small>
                                                     </div>
                                                 </div>
                                             </div>

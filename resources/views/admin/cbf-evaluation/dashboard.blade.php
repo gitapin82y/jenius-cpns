@@ -406,22 +406,7 @@ function showEvaluationDetail(evaluationId) {
                            </table>
                        </div>
                    </div>
-             
-                   <div class="mb-3">
-                        <h6 class="fw-bold">Tryout: ${evaluation.set_soal.title}</h6>
-                        <small class="text-muted" id="evaluationDate">Tanggal evaluasi: ${new Date(evaluation.created_at).toISOString().slice(0,16)}</small>
-                        <button type="button" class="btn btn-sm btn-primary ms-2" id="toggleEditDateBtn">
-                            <i class="fas fa-edit"></i> Ubah Tanggal
-                        </button>
-                        <form id="editDateForm" class="mt-2 d-none">
-                            <div class="input-group input-group-sm">
-                                <input type="datetime-local" class="form-control" id="editDateInput" value="${new Date(evaluation.created_at).toISOString().slice(0,16)}" required>
-                                <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-save"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+            
                `;
                
                if (evaluation.user_comment) {
@@ -437,7 +422,7 @@ function showEvaluationDetail(evaluationId) {
                
                html += `
                    <div class="mb-3">
-                       <h6 class="fw-bold">Selengkapnya Evaluasi Materi</h6>
+                       <h6 class="fw-bold">List Evaluasi</h6>
                        <div class="table-responsive">
                            <table class="table table-bordered table-sm">
                                <thead>
@@ -445,7 +430,6 @@ function showEvaluationDetail(evaluationId) {
                                        <th>Materi</th>
                                        <th>Kategori</th>
                                        <th>Tipe</th>
-                                       <th>Similarity</th>
                                        <th>Penilaian</th>
                                    </tr>
                                </thead>
@@ -462,7 +446,6 @@ function showEvaluationDetail(evaluationId) {
                            <td>${eval.material.title.substring(0, 40)}${eval.material.title.length > 40 ? '...' : ''}</td>
                            <td><span class="badge bg-secondary">${eval.material.kategori}</span></td>
                            <td><small>${eval.material.tipe}</small></td>
-                           <td>${(eval.similarity_score * 100).toFixed(1)}%</td>
                            <td>${feedbackBadge}</td>
                        </tr>
                    `;
