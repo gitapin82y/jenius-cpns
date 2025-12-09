@@ -18,4 +18,15 @@ class HasilTryout extends Model
     {
         return $this->belongsTo(SetSoal::class, 'set_soal_id');
     }
+
+    public function posttests()
+{
+    return $this->hasMany(HasilTryout::class, 'pretest_id');
+}
+
+public function pretest()
+{
+    return $this->belongsTo(HasilTryout::class, 'pretest_id');
+}
+
 }

@@ -110,7 +110,7 @@ class ExportController extends Controller
         
         // Max score
         $setSoal = $post->setSoal;
-        $maxScore = $setSoal ? ($setSoal->soals()->count() * 5) : 500;
+        $maxScore = $setSoal ? ($setSoal->soal()->count() * 5) : 500;
         
         // Category
         $nGain = $post->normalized_gain;

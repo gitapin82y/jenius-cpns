@@ -75,6 +75,16 @@
             <form id="tryoutForm" action="{{ route('tryout.submit') }}" method="POST">
                 @csrf
                 <input type="hidden" name="set_soal_id" value="{{ $set_soal_id }}">
+
+                    @if(isset($test_type) && $test_type === 'posttest')
+        <input type="hidden" name="test_type" value="posttest">
+        <input type="hidden" name="pretest_id" value="{{ $pretest_id }}">
+        
+        <div class="alert alert-warning mb-3">
+            <i class="fas fa-info-circle"></i> <strong>MODE POSTTEST</strong> - 
+            Hasil akan dibandingkan dengan pretest Anda
+        </div>
+    @endif
                 
                 @foreach($soals as $key => $soal)
                     <div class="soal-item mb-4" id="soal-{{ $key }}" style="display: {{ $key === 0 ? 'block' : 'none' }};">

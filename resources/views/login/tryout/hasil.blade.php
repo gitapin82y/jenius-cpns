@@ -245,7 +245,7 @@
                         @foreach($availableCategories as $kategori)
                             @if(!empty($recommendations['recommendations'][$kategori]))
                                 <h6 class="fw-bold text-secondary mt-3">{{ $kategori }}</h6>
-                                @foreach(array_slice($recommendations['recommendations'][$kategori], 0, 3) as $item)
+                                @foreach($recommendations['recommendations'][$kategori] as $item)
                                     <div class="recommendation-item">
                                         <h6 class="mb-1">
                                             <a href="{{ route('materi-belajar.show', $item['material']->id) }}" class="text-decoration-none">

@@ -35,6 +35,16 @@ public function __construct(
     public function index($set_soal_id)
     {
         try {
+              $test_type = request('test_type', 'regular');
+    $pretest_id = request('pretest_id', null);
+
+        if ($test_type === 'posttest' && $pretest_id) {
+        session([
+            'posttest_mode' => true,
+            'test_type' => $test_type,
+            'pretest_id' => $pretest_id
+        ]);
+    }
             $setSoal = SetSoal::findOrFail($set_soal_id);
             $user = Auth::user();
             
@@ -136,7 +146,7 @@ public function __construct(
                 ->orderByRaw("FIELD(kategori, 'TWK', 'TIU', 'TKP')")
                 ->get();
             
-            return view('login.tryout.index', compact('soals', 'user', 'set_soal_id'));
+            return view('login.tryout.index', compact('soals', 'user', 'set_soal_id','test_type','pretest_id'));
         } catch (\Exception $e) {
             // Log error
             SystemErrorController::logError(
@@ -240,23 +250,40 @@ public function __construct(
                 );
             }
             
-         $testType = $request->input('test_type', 'regular');
-    $pretestId = $request->input('pretest_id', null);
-            
-$hasilTryout = HasilTryout::updateOrCreate(
-        [
-            'user_id' => $user->id,
-            'set_soal_id' => $set_soal_id
-        ],
-        array_merge($scores, [
-            'test_type' => $testType,
-            'pretest_id' => $pretestId
-        ])
-    );
+    $testType = $request->input('test_type', session('test_type', 'regular'));
+    $pretestId = $request->input('pretest_id', session('pretest_id', null));
     
-    // ✅ TAMBAHKAN: Hitung gain jika posttest
+    // Clear session
+    session()->forget(['posttest_mode', 'test_type', 'pretest_id']);
+            
+             // ✅ PERBAIKAN: Logic berbeda untuk posttest
     if ($testType === 'posttest' && $pretestId) {
+        // POSTTEST: BUAT RECORD BARU atau update existing posttest
+        $hasilTryout = HasilTryout::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'set_soal_id' => $set_soal_id,
+                'test_type' => 'posttest',           // ✅ TAMBAHKAN INI
+                'pretest_id' => $pretestId           // ✅ TAMBAHKAN INI
+            ],
+            $scores
+        );
+        
+        // Hitung gain
         $this->calculateGain($hasilTryout);
+        
+    } else {
+        // REGULAR atau PRETEST: Update/create seperti biasa
+        $hasilTryout = HasilTryout::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'set_soal_id' => $set_soal_id
+            ],
+            array_merge($scores, [
+                'test_type' => $testType,
+                'pretest_id' => null  // pretest tidak punya pretest_id
+            ])
+        );
     }
     
 
@@ -309,7 +336,7 @@ $hasilTryout = HasilTryout::updateOrCreate(
 {
     try {
         $userId = Auth::user()->id;
-        $hasilTryout = HasilTryout::where('user_id', $userId)->where('set_soal_id', $set_soal)->first();
+        $hasilTryout = HasilTryout::where('user_id', $userId)->where('set_soal_id', $set_soal)->orderBy('created_at', 'desc')->first();
         
         if(!$hasilTryout){
             toast()->error('Anda belum mengerjakan tryout!');
@@ -343,10 +370,10 @@ $hasilTryout = HasilTryout::updateOrCreate(
         // Generate video recommendations
         $videoRecommendations = $this->generateVideoRecommendations($recommendations['recommendations']);
             
-        $gainData = null;
-    if ($hasilTryout->test_type === 'posttest' && $hasilTryout->pretest_id) {
-        $gainData = $this->pretestPosttestService->calculateGain($hasilTryout->id);
-    }
+    $gainData = null;
+        if ($hasilTryout->test_type === 'posttest' && $hasilTryout->pretest_id) {
+            $gainData = $this->pretestPosttestService->calculateGain($hasilTryout->id);
+        }
         
         return view('login.tryout.hasil', compact(
             'soals', 
@@ -385,7 +412,7 @@ private function calculateGain(HasilTryout $posttest)
     
     // Max score
     $setSoal = SetSoal::find($posttest->set_soal_id);
-    $maxScore = $setSoal ? ($setSoal->soals()->count() * 5) : 500;
+    $maxScore = $setSoal ? ($setSoal->soal()->count() * 5) : 500;
     
     // Gain Score
     $gainScore = $posttestScore - $pretestScore;

@@ -27,7 +27,7 @@ class PretestPosttestService
         
         // Max score
         $setSoal = SetSoal::findOrFail($posttest->set_soal_id);
-        $maxScore = $setSoal->soals()->count() * 5;
+        $maxScore = $setSoal->soal()->count() * 5;
         
         // Gain Score
         $gainScore = $posttestScore - $pretestScore;
@@ -83,7 +83,7 @@ class PretestPosttestService
             $posttestScore = $post->twk_score + $post->tiu_score + $post->tkp_score;
             
             $setSoal = SetSoal::find($post->set_soal_id);
-            $maxScore = $setSoal ? $setSoal->soals()->count() * 5 : 0;
+            $maxScore = $setSoal ? $setSoal->soal()->count() * 5 : 0;
             
             $category = $this->categorizeNGain($post->normalized_gain);
             
