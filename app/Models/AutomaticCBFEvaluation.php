@@ -19,6 +19,9 @@ class AutomaticCBFEvaluation extends Model
         'intersection_keywords',
         'intersection_count',
         'similarity_score',
+            'threshold',              // ✅ TAMBAHKAN
+    'meets_threshold',        // ✅ TAMBAHKAN
+
         'is_relevant',
         'is_recommended',
         'classification'
@@ -30,6 +33,7 @@ class AutomaticCBFEvaluation extends Model
         'intersection_keywords' => 'array',
         'is_relevant' => 'boolean',
         'is_recommended' => 'boolean',
+         'meets_threshold' => 'boolean', 
     ];
 
     // Relationships

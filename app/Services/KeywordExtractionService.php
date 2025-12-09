@@ -5,17 +5,26 @@ namespace App\Services;
 class KeywordExtractionService
 {
     /**
-     * Core Keywords = Sub Kategori itu sendiri (sederhana dan tepat)
+     * ✅ BARU: Kategori keywords (TWK/TIU/TKP)
+     */
+    private $categoryKeywords = [
+        'TWK' => ['twk'],
+        'TIU' => ['tiu'],
+        'TKP' => ['tkp']
+    ];
+
+    /**
+     * Core Keywords = Sub Kategori (existing - TIDAK BERUBAH)
      */
     private $coreKeywords = [
-        // TWK - Sub Kategori sebagai Keywords
+        // TWK
         'Nasionalisme' => ['nasionalisme'],
         'Integritas' => ['integritas'],
         'Bela Negara' => ['bela negara'],
         'Pilar Negara' => ['pilar negara'],
         'Bahasa Indonesia' => ['bahasa indonesia'],
         
-        // TIU - Sub Kategori sebagai Keywords
+        // TIU
         'Verbal (Analogi)' => ['verbal analogi'],
         'Verbal (Silogisme)' => ['verbal silogisme'],
         'Verbal (Analisis)' => ['verbal analisis'],
@@ -27,7 +36,7 @@ class KeywordExtractionService
         'Figural (Ketidaksamaan)' => ['figural ketidaksamaan'],
         'Figural (Serial)' => ['figural serial'],
         
-        // TKP - Sub Kategori sebagai Keywords
+        // TKP
         'Pelayanan Publik' => ['pelayanan publik'],
         'Jejaring Kerja' => ['jejaring kerja'],
         'Sosial Budaya' => ['sosial budaya'],
@@ -37,46 +46,27 @@ class KeywordExtractionService
     ];
 
     /**
-     * Stop words yang sangat lengkap - buang semua noise
+     * Stop words (existing - TIDAK BERUBAH)
      */
     private $stopWords = [
-        // Kata tanya - BUANG SEMUA
         'apa', 'siapa', 'kapan', 'dimana', 'di mana', 'mengapa', 'bagaimana', 'mana', 'berapa',
         'kenapa', 'gimana', 'seberapa', 'bilamana',
-        
-        // Kata hubung - BUANG SEMUA
         'dan', 'atau', 'serta', 'dengan', 'tanpa', 'untuk', 'dari', 'ke', 'di', 'pada', 'dalam',
         'oleh', 'bagi', 'tentang', 'mengenai', 'terhadap', 'atas', 'bawah', 'antara', 'hingga',
-        
-        // Kata kerja bantu - BUANG SEMUA
         'adalah', 'ialah', 'merupakan', 'yaitu', 'yakni', 'akan', 'telah', 'sudah', 'sedang',
         'pernah', 'belum', 'tidak', 'bukan', 'jangan', 'dapat', 'bisa', 'mampu', 'harus',
-        
-        // Kata ganti - BUANG SEMUA
         'ini', 'itu', 'tersebut', 'berikut', 'dia', 'ia', 'mereka', 'kita', 'kami', 'saya',
         'anda', 'beliau', 'yang', 'masing', 'setiap', 'semua', 'seluruh', 'sebagian',
-        
-        // Kata keterangan - BUANG SEMUA
         'sangat', 'amat', 'sekali', 'terlalu', 'cukup', 'agak', 'rada', 'lumayan',
         'hampir', 'nyaris', 'kurang', 'lebih', 'paling', 'ter', 'se', 'begitu',
-        
-        // Kata sambung - BUANG SEMUA
         'tetapi', 'namun', 'akan', 'meski', 'walaupun', 'meskipun', 'jika', 'kalau',
         'bila', 'apabila', 'ketika', 'saat', 'sewaktu', 'karena', 'sebab', 'sehingga',
         'supaya', 'agar', 'demi',
-        
-        // Kata bantu tempat - BUANG SEMUA
         'ada', 'adanya', 'berada', 'terdapat', 'terletak', 'memiliki', 'mempunyai',
         'berupa', 'bersifat', 'berwujud', 'hal', 'cara', 'jenis', 'macam', 'bentuk',
-        
-        // Kata noise soal/materi - BUANG SEMUA
         'soal', 'materi', 'belajar', 'contoh', 'latihan', 'ujian', 'test', 'quiz',
         'pertanyaan', 'jawaban', 'pembahasan', 'penjelasan', 'uraian',
-
-        //
         'strong','pergerakan','termasuk','dibawah','sebagai', 'semangat', 'sejak','ikan',
-        
-        // Stop words English - BUANG SEMUA
         'the', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from',
         'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does',
         'did', 'will', 'would', 'could', 'should', 'may', 'might', 'can', 'must',
@@ -85,7 +75,7 @@ class KeywordExtractionService
     ];
 
     /**
-     * Kata penting yang harus dipertahankan
+     * Kata penting (existing - TIDAK BERUBAH)
      */
     private $importantWords = [
         'pancasila', 'indonesia', 'negara', 'bangsa', 'konstitusi', 'UUD',
@@ -95,44 +85,51 @@ class KeywordExtractionService
     ];
 
     /**
-     * Extract keywords dengan prioritas: Sub Kategori + Title saja
+     * ✅ UPDATE: Extract keywords dengan kategori
+     * 
+     * @param string $title - Judul/pertanyaan
+     * @param string $tipe - Sub-kategori (Nasionalisme, Verbal Analogi, dll)
+     * @param string|null $kategori - Kategori utama (TWK/TIU/TKP) ← BARU
      */
-    public function extractKeywords(string $title, string $tipe): array
+    public function extractKeywords(string $title, string $tipe, ?string $kategori = null): array
     {
         $keywords = [];
         
-        // PRIORITAS 1: Sub kategori sebagai keyword utama (selalu ada)
-        if (isset($this->coreKeywords[$tipe])) {
-            $keywords = $this->coreKeywords[$tipe];
+        // ✅ PRIORITAS 0: Kategori (TWK/TIU/TKP) - BARU
+        if ($kategori && isset($this->categoryKeywords[$kategori])) {
+            $keywords = array_merge($keywords, $this->categoryKeywords[$kategori]);
         }
         
-        // PRIORITAS 2: Extract dari title (maksimal 3 kata penting)
+        // PRIORITAS 1: Sub kategori (existing)
+        if (isset($this->coreKeywords[$tipe])) {
+            $keywords = array_merge($keywords, $this->coreKeywords[$tipe]);
+        }
+        
+        // PRIORITAS 2: Extract dari title (existing)
         $titleKeywords = $this->extractFromTitle($title);
         $keywords = array_merge($keywords, $titleKeywords);
         
-        // Bersihkan dan filter
+        // Bersihkan dan filter (existing)
         $keywords = $this->cleanKeywords($keywords);
         
-        // LIMIT: Maksimal 5-6 kata kunci total
-        return array_slice($keywords, 0, 6);
+        // ✅ UPDATE: Limit maksimal 7-8 kata (naik dari 5-6)
+        return array_slice($keywords, 0, 8);
     }
 
     /**
-     * Extract keywords dari title dengan filter ketat
+     * Extract dari title (existing - TIDAK BERUBAH)
      */
     private function extractFromTitle(string $title): array
     {
-        $title = strtolower($title); // Tahap 1: Case Folding
-        $title = preg_replace('/[^\w\s]/', ' ', $title); // Bersihkan simbol
-        $title = preg_replace('/\s+/', ' ', $title); // Normalisasi spasi
+        $title = strtolower($title);
+        $title = preg_replace('/[^\w\s]/', ' ', $title);
+        $title = preg_replace('/\s+/', ' ', $title);
         
-        // Split dan filter
         $words = array_filter(
             preg_split('/\s+/', trim($title)),
             [$this, 'isImportantWord']
-        );  // Tahap 2: Tokenisasi
+        );
         
-        // Prioritaskan kata penting
         $prioritized = [];
         $normal = [];
         
@@ -144,29 +141,25 @@ class KeywordExtractionService
             }
         }
         
-        // Gabung dengan prioritas, maksimal 3 kata
         $result = array_merge($prioritized, $normal);
         return array_slice($result, 0, 3);
     }
 
     /**
-     * Cek apakah kata penting
+     * Cek kata penting (existing - TIDAK BERUBAH)
      */
     private function isImportantWord(string $word): bool
     {
         $word = trim($word);
         
-        // Minimal 3 karakter
         if (strlen($word) < 3) {
             return false;
         }
         
-        // Tahap 3: Stopword Removal dan validasi panjang
         if (in_array(strtolower($word), $this->stopWords)) {
             return false;
         }
         
-        // Skip pure numbers
         if (is_numeric($word)) {
             return false;
         }
@@ -174,18 +167,15 @@ class KeywordExtractionService
         return true;
     }
 
-
-    // Filtering
+    /**
+     * Clean keywords (existing - TIDAK BERUBAH)
+     */
     private function cleanKeywords(array $keywords): array
     {
-        // Normalisasi
         $keywords = array_map('strtolower', $keywords);
         $keywords = array_map('trim', $keywords);
-        
-        // Hapus duplikat
         $keywords = array_unique($keywords);
         
-        // Filter final
         $keywords = array_filter($keywords, function($keyword) {
             return strlen($keyword) > 2 && !in_array($keyword, $this->stopWords);
         });
@@ -194,7 +184,7 @@ class KeywordExtractionService
     }
 
     /**
-     * Generate kata kunci suggestion (sub kategori saja)
+     * Generate suggestions (existing - TIDAK BERUBAH)
      */
     public function generateKeywordSuggestions(string $tipe): array
     {

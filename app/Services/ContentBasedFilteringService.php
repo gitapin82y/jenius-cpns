@@ -72,7 +72,8 @@ class ContentBasedFilteringService
                 // Generate kata kunci jika belum ada
                 $keywords = $this->keywordExtractionService->extractKeywords(
                     $soal->pertanyaan, 
-                    $soal->tipe
+                    $soal->tipe,
+                     $soal->kategori 
                 );
                 
                 // Simpan ke database untuk cache
@@ -97,7 +98,8 @@ private function extractSingleSoalKeywords(Soal $soal): array
     // Generate jika belum ada
     $keywords = $this->keywordExtractionService->extractKeywords(
         $soal->pertanyaan, 
-        $soal->tipe
+        $soal->tipe,
+         $soal->kategori 
     );
     
     // Simpan untuk cache
@@ -162,6 +164,7 @@ private function collectAllUniqueKeywords(Collection $wrongAnswers, Collection $
                 $keywords = $this->keywordExtractionService->extractKeywords(
                     $material->title, 
                     $material->tipe, 
+                     $soal->kategori 
                 );
                 
                 // Simpan ke database untuk cache

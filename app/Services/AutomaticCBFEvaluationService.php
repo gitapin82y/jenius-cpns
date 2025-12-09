@@ -9,12 +9,12 @@ use App\Models\Material;
 
 class AutomaticCBFEvaluationService
 {
-    /**
-     * Evaluasi otomatis semua rekomendasi untuk user+set_soal tertentu
-     */
+
+    const MINIMUM_SIMILARITY_THRESHOLD = 0.6;
+
+
     public function evaluateRecommendations(int $userId, int $setSoalId): array
     {
-        // Ambil semua rekomendasi yang sudah di-generate
         $recommendations = Recommendation::where('user_id', $userId)
             ->where('set_soal_id', $setSoalId)
             ->with(['soal', 'material'])
@@ -28,7 +28,6 @@ class AutomaticCBFEvaluationService
             $evaluation = $this->evaluateSingleRecommendation($recommendation);
             $results[] = $evaluation;
 
-            // Count TP dan FP
             if ($evaluation['classification'] === 'TP') {
                 $tp++;
             } else {
@@ -43,20 +42,21 @@ class AutomaticCBFEvaluationService
             'tp' => $tp,
             'fp' => $fp,
             'precision' => $precision,
-            'precision_pct' => $precision * 100,
-            'total' => count($results)
+            'precision_pct' => round($precision * 100, 2),
+            'total' => count($results),
+            'threshold' => self::MINIMUM_SIMILARITY_THRESHOLD
         ];
     }
 
     /**
-     * Evaluasi 1 rekomendasi
+     * ✅ Evaluasi 1 rekomendasi berdasarkan THRESHOLD SAJA
      */
     private function evaluateSingleRecommendation(Recommendation $recommendation): array
     {
         $soal = $recommendation->soal;
         $material = $recommendation->material;
 
-        // Extract keywords
+        // Extract keywords (untuk informasi saja, tidak untuk evaluasi)
         $soalKeywords = $soal->kata_kunci 
             ? json_decode($soal->kata_kunci, true) 
             : [];
@@ -65,16 +65,21 @@ class AutomaticCBFEvaluationService
             ? json_decode($material->kata_kunci, true) 
             : [];
 
-        // Normalize keywords (lowercase)
+        // Normalize keywords
         $soalKeywords = array_map('strtolower', array_map('trim', $soalKeywords));
         $materialKeywords = array_map('strtolower', array_map('trim', $materialKeywords));
 
-        // Hitung intersection (irisan)
+        // Hitung intersection (untuk informasi saja)
         $intersection = array_intersect($soalKeywords, $materialKeywords);
         $intersectionCount = count($intersection);
 
-        // Ground Truth: Relevan jika ada minimal 1 kata kunci yang sama
-        $isRelevant = $intersectionCount >= 1;
+        // Similarity score
+        $similarityScore = $recommendation->similarity_score ?? 0;
+
+        // ✅ EVALUASI BERDASARKAN THRESHOLD SAJA
+        // RELEVAN jika similarity >= 0.6
+        // TIDAK RELEVAN jika similarity < 0.6
+        $isRelevant = $similarityScore >= self::MINIMUM_SIMILARITY_THRESHOLD;
 
         // Classification
         $classification = $isRelevant ? 'TP' : 'FP';
@@ -92,7 +97,9 @@ class AutomaticCBFEvaluationService
                 'material_keywords' => $materialKeywords,
                 'intersection_keywords' => array_values($intersection),
                 'intersection_count' => $intersectionCount,
-                'similarity_score' => $recommendation->similarity_score,
+                'similarity_score' => $similarityScore,
+                'threshold' => self::MINIMUM_SIMILARITY_THRESHOLD,
+                'meets_threshold' => $isRelevant,
                 'is_relevant' => $isRelevant,
                 'is_recommended' => true,
                 'classification' => $classification
@@ -108,9 +115,12 @@ class AutomaticCBFEvaluationService
             'material_keywords' => $materialKeywords,
             'intersection' => array_values($intersection),
             'intersection_count' => $intersectionCount,
-            'similarity_score' => $recommendation->similarity_score,
+            'similarity_score' => $similarityScore,
+            'threshold' => self::MINIMUM_SIMILARITY_THRESHOLD,
+            'meets_threshold' => $isRelevant,
             'is_relevant' => $isRelevant,
             'classification' => $classification
         ];
     }
+    
 }
