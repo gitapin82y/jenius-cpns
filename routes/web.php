@@ -16,6 +16,7 @@ use App\Http\Controllers\SystemErrorController;
 use App\Http\Controllers\KeywordUpdateController;
 use App\Http\Controllers\CBFEvaluationController;
 use App\Http\Controllers\UserCBFEvaluationController;
+use App\Http\Controllers\ExportController;
 
 Route::get('/', [UserController::class, 'public']);
 Route::get('/kontak', [UserController::class, 'kontak']);
@@ -136,6 +137,26 @@ Route::middleware(['auth','active'])->group(function () {
     Route::post('/user/cbf-evaluation/submit', [UserCBFEvaluationController::class, 'submitEvaluation'])
         ->name('user.cbf.evaluation.submit');
 
-    Route::get('/user/cbf-evaluation/stats', [UserCBFEvaluationController::class, 'getUserEvaluationStats'])
+    Route::get('/user/cbf-evaluation/stats', [UserCBFEvaluationControauthller::class, 'getUserEvaluationStats'])
         ->name('user.cbf.evaluation.stats');
+
+
+         Route::get('/admin/export/precision-per-user', [ExportController::class, 'exportPrecisionPerUser'])
+        ->name('admin.export.precision-per-user');
+    Route::get('/admin/export/cbf-evaluations', [ExportController::class, 'exportCBFEvaluations'])
+        ->name('admin.export.cbf-evaluations');
+
+
+        Route::get('/admin/export/pretest-posttest', [ExportController::class, 'exportPretestPosttest'])
+    ->name('admin.export.pretest-posttest');
+
+
+     Route::post('/tryout/{setsoal}/set-as-pretest', [TryoutController::class, 'setAsPretest'])
+        ->name('tryout.set-as-pretest');
+    
+    Route::get('/tryout/{setsoal}/posttest', [TryoutController::class, 'posttestPage'])
+        ->name('tryout.posttest');
+    
+    Route::get('/pretest-posttest/history', [TryoutController::class, 'pretestPosttestHistory'])
+        ->name('tryout.pretest-posttest-history');
 });

@@ -14,19 +14,23 @@ use App\Models\UserMaterialProgress;
 use App\Services\ContentBasedFilteringService;
 use App\Services\YouTubeService;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Services\PretestPosttestService;
 
 class TryoutController extends Controller
 {
     private $cbfService;
     private $youtubeService;
+    private $pretestPosttestService;
 
-    public function __construct(
-        ContentBasedFilteringService $cbfService,
-        YouTubeService $youtubeService
-    ) {
-        $this->cbfService = $cbfService;
-        $this->youtubeService = $youtubeService;
-    }
+public function __construct(
+    ContentBasedFilteringService $cbfService,
+    YouTubeService $youtubeService,
+    PretestPosttestService $pretestPosttestService
+) {
+    $this->cbfService = $cbfService;
+    $this->youtubeService = $youtubeService;
+    $this->pretestPosttestService = $pretestPosttestService;
+}
 
     public function index($set_soal_id)
     {
@@ -236,37 +240,54 @@ class TryoutController extends Controller
                 );
             }
             
-            HasilTryout::updateOrCreate(
-                ['user_id' => $user->id, 'set_soal_id' => $set_soal_id],
-                $scores
-            );
+         $testType = $request->input('test_type', 'regular');
+    $pretestId = $request->input('pretest_id', null);
             
-            // Periksa kategori soal latihan
-            $setSoal = SetSoal::findOrFail($set_soal_id);
-if ($setSoal->kategori == 'Latihan') {
-    // Dapatkan kategori soal
-    $firstSoal = Soal::where('set_soal_id', $set_soal_id)->first();
-    $kategoriSoal = $firstSoal ? $firstSoal->kategori : null;
+$hasilTryout = HasilTryout::updateOrCreate(
+        [
+            'user_id' => $user->id,
+            'set_soal_id' => $set_soal_id
+        ],
+        array_merge($scores, [
+            'test_type' => $testType,
+            'pretest_id' => $pretestId
+        ])
+    );
     
-    // Tandai bahwa user telah menyelesaikan latihan untuk kategori ini
-    if ($kategoriSoal) {
-        // Opsional: Buat tabel atau kolom baru untuk melacak progress antar kategori
-        // Atau gunakan cache/session untuk menyimpan informasi ini
-        session()->flash('completed_latihan_' . strtolower($kategoriSoal), true);
-        
-        // Tambahkan pesan notifikasi sesuai kategori
-        if ($kategoriSoal == 'TWK') {
-            toast()->success('Latihan TWK selesai! Anda sekarang dapat mengakses materi TIU.');
-        } else if ($kategoriSoal == 'TIU') {
-            toast()->success('Latihan TIU selesai! Anda sekarang dapat mengakses materi TKP.');
-        } else if ($kategoriSoal == 'TKP') {
-            toast()->success('Latihan TKP selesai! Anda sekarang dapat mengakses Tryout CPNS.');
-        }
+    // ✅ TAMBAHKAN: Hitung gain jika posttest
+    if ($testType === 'posttest' && $pretestId) {
+        $this->calculateGain($hasilTryout);
     }
     
-    // Periksa jika semua latihan sudah selesai
-    $this->checkAllLatihanCompleted($user->id);
-}
+
+            // Periksa kategori soal latihan
+            $setSoal = SetSoal::findOrFail($set_soal_id);
+                if ($setSoal->kategori == 'Latihan') {
+                    // Dapatkan kategori soal
+                    $firstSoal = Soal::where('set_soal_id', $set_soal_id)->first();
+                    $kategoriSoal = $firstSoal ? $firstSoal->kategori : null;
+                    
+                    // Tandai bahwa user telah menyelesaikan latihan untuk kategori ini
+                    if ($kategoriSoal) {
+                        // Opsional: Buat tabel atau kolom baru untuk melacak progress antar kategori
+                        // Atau gunakan cache/session untuk menyimpan informasi ini
+                        session()->flash('completed_latihan_' . strtolower($kategoriSoal), true);
+                        
+                        // Tambahkan pesan notifikasi sesuai kategori
+                        if ($kategoriSoal == 'TWK') {
+                            toast()->success('Latihan TWK selesai! Anda sekarang dapat mengakses materi TIU.');
+                        } else if ($kategoriSoal == 'TIU') {
+                            toast()->success('Latihan TIU selesai! Anda sekarang dapat mengakses materi TKP.');
+                        } else if ($kategoriSoal == 'TKP') {
+                            toast()->success('Latihan TKP selesai! Anda sekarang dapat mengakses Tryout CPNS.');
+                        }
+                    }
+                    
+                    // Periksa jika semua latihan sudah selesai
+                    $this->checkAllLatihanCompleted($user->id);
+                }
+
+
             return redirect()->route('tryout.result', $set_soal_id);
             
         } catch (\Exception $e) {
@@ -321,7 +342,11 @@ if ($setSoal->kategori == 'Latihan') {
         
         // Generate video recommendations
         $videoRecommendations = $this->generateVideoRecommendations($recommendations['recommendations']);
-        
+            
+        $gainData = null;
+    if ($hasilTryout->test_type === 'posttest' && $hasilTryout->pretest_id) {
+        $gainData = $this->pretestPosttestService->calculateGain($hasilTryout->id);
+    }
         
         return view('login.tryout.hasil', compact(
             'soals', 
@@ -330,7 +355,8 @@ if ($setSoal->kategori == 'Latihan') {
             'jawabanUsers',
             'recommendations',
             'videoRecommendations',
-            'tryoutInfo'  // Tambahan data tryout info
+            'tryoutInfo',
+            'gainData'
         ));
         
     } catch (\Exception $e) {
@@ -345,6 +371,34 @@ if ($setSoal->kategori == 'Latihan') {
         toast()->error('Terjadi kesalahan saat menampilkan hasil.');
         return redirect()->back();
     }
+}
+
+private function calculateGain(HasilTryout $posttest)
+{
+    $pretest = HasilTryout::find($posttest->pretest_id);
+    
+    if (!$pretest) return;
+    
+    // Total score
+    $pretestScore = $pretest->twk_score + $pretest->tiu_score + $pretest->tkp_score;
+    $posttestScore = $posttest->twk_score + $posttest->tiu_score + $posttest->tkp_score;
+    
+    // Max score
+    $setSoal = SetSoal::find($posttest->set_soal_id);
+    $maxScore = $setSoal ? ($setSoal->soals()->count() * 5) : 500;
+    
+    // Gain Score
+    $gainScore = $posttestScore - $pretestScore;
+    
+    // N-Gain
+    $denominator = $maxScore - $pretestScore;
+    $normalizedGain = $denominator > 0 ? ($gainScore / $denominator) : 0;
+    
+    // Update
+    $posttest->update([
+        'gain_score' => $gainScore,
+        'normalized_gain' => $normalizedGain
+    ]);
 }
 
 // Tambahkan method ini ke controller yang menangani tryout/result
@@ -506,4 +560,78 @@ public function checkHistory(Request $request)
             return false;
         }
     }
+
+
+    /**
+ * Set tryout hasil sebagai PRETEST
+ */
+public function setAsPretest($set_soal)
+{
+    $user = auth()->user();
+    
+    $hasilTryout = HasilTryout::where('user_id', $user->id)
+        ->where('set_soal_id', $set_soal)
+        ->first();
+    
+    if (!$hasilTryout) {
+        return redirect()->back()->with('error', 'Hasil tryout tidak ditemukan');
+    }
+    
+    // Update test_type menjadi pretest
+    $hasilTryout->update(['test_type' => 'pretest']);
+    
+    return redirect()->route('tryout.result', $set_soal)
+        ->with('success', 'Tryout berhasil dijadikan PRETEST. Silakan pelajari materi yang direkomendasikan!');
+}
+
+/**
+ * Halaman untuk mengerjakan POSTTEST
+ */
+public function posttestPage($set_soal)
+{
+    $user = auth()->user();
+    
+    // Cari pretest
+    $pretest = HasilTryout::where('user_id', $user->id)
+        ->where('set_soal_id', $set_soal)
+        ->where('test_type', 'pretest')
+        ->first();
+    
+    if (!$pretest) {
+        return redirect()->route('dashboard')->with('error', 'Pretest tidak ditemukan. Silakan kerjakan pretest terlebih dahulu.');
+    }
+    
+    // Cek apakah sudah pernah posttest
+    $existingPosttest = HasilTryout::where('user_id', $user->id)
+        ->where('pretest_id', $pretest->id)
+        ->where('test_type', 'posttest')
+        ->first();
+    
+    if ($existingPosttest) {
+        return redirect()->route('tryout.result', $set_soal)
+            ->with('info', 'Anda sudah mengerjakan posttest untuk pretest ini.');
+    }
+    
+    // Redirect ke halaman tryout dengan parameter posttest
+    return view('login.tryout.posttest-instruction', [
+        'setsoal' => SetSoal::findOrFail($set_soal),
+        'pretest' => $pretest
+    ]);
+}
+
+/**
+ * Riwayat pretest-posttest user
+ */
+public function pretestPosttestHistory()
+{
+    $user = auth()->user();
+    
+    $pretests = HasilTryout::where('user_id', $user->id)
+        ->where('test_type', 'pretest')
+        ->with(['setSoal', 'posttests'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+    
+    return view('login.tryout.pretest-posttest-history', compact('pretests'));
+}
 }

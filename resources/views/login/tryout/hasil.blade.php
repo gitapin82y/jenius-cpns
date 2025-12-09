@@ -722,6 +722,279 @@
 
 
 </div>
+@if(isset($gainData) && $gainData)
+<div class="card mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5><i class="fas fa-chart-line"></i> Perbandingan Pretest vs Posttest</h5>
+    </div>
+    <div class="card-body">
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h6 class="text-muted">Pretest</h6>
+                        <h2 class="text-primary">{{ $gainData['pretest_score'] }}</h2>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <h6 class="text-muted">Posttest</h6>
+                        <h2 class="text-success">{{ $gainData['posttest_score'] }}</h2>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card {{ $gainData['is_improved'] ? 'border-success' : 'border-danger' }}">
+                    <div class="card-body">
+                        <h6 class="text-muted">Peningkatan</h6>
+                        <h2 class="{{ $gainData['is_improved'] ? 'text-success' : 'text-danger' }}">
+                            {{ $gainData['gain_score'] > 0 ? '+' : '' }}{{ $gainData['gain_score'] }}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6 class="mb-3"><strong>Normalized Gain (N-Gain)</strong></h6>
+                
+                <div class="progress mb-3" style="height: 30px;">
+                    <div class="progress-bar 
+                        @if($gainData['category'] === 'Tinggi') bg-success
+                        @elseif($gainData['category'] === 'Sedang') bg-warning
+                        @else bg-danger
+                        @endif"
+                        style="width: {{ $gainData['normalized_gain_pct'] }}%">
+                        <strong>{{ number_format($gainData['normalized_gain_pct'], 2) }}%</strong>
+                    </div>
+                </div>
+                
+                <p class="mb-2">
+                    <strong>Kategori:</strong> 
+                    <span class="badge 
+                        @if($gainData['category'] === 'Tinggi') badge-success
+                        @elseif($gainData['category'] === 'Sedang') badge-warning
+                        @else badge-danger
+                        @endif">
+                        {{ $gainData['category'] }}
+                    </span>
+                </p>
+                
+                <div class="alert 
+                    @if($gainData['category'] === 'Tinggi') alert-success
+                    @elseif($gainData['category'] === 'Sedang') alert-warning
+                    @else alert-info
+                    @endif mb-0">
+                    @if($gainData['category'] === 'Tinggi')
+                        🎉 <strong>Selamat!</strong> Peningkatan sangat signifikan!
+                    @elseif($gainData['category'] === 'Sedang')
+                        👍 <strong>Bagus!</strong> Ada peningkatan yang baik.
+                    @else
+                        📚 <strong>Tetap semangat!</strong> Pelajari materi lebih dalam.
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+@if(config('app.debug'))
+<div class="alert alert-info mt-3">
+    <h6><i class="fas fa-info-circle"></i> Debug Info</h6>
+    <ul class="mb-0">
+        <li>Soal yang dijawab salah: <strong>{{ $hasilTryout->total_salah }}</strong></li>
+        <li>Rekomendasi yang dihasilkan: <strong>{{ isset($recommendationsPerSoal) ? count($recommendationsPerSoal) : 0 }}</strong></li>
+        <li>Status: 
+            @if($hasilTryout->total_salah == count($recommendationsPerSoal ?? []))
+                <span class="badge bg-success">✓ One-to-One BENAR</span>
+            @else
+                <span class="badge bg-warning">⚠ Jumlah tidak sesuai</span>
+            @endif
+        </li>
+    </ul>
+</div>
+@endif
+
+{{-- SECTION: PRETEST-POSTTEST --}}
+@if($hasilTryout->test_type === 'regular' || $hasilTryout->test_type === 'pretest')
+    {{-- Jika ini tryout regular atau pretest, tampilkan tombol untuk ambil posttest --}}
+    
+    @if($hasilTryout->test_type === 'regular')
+    <div class="card mt-4 border-info">
+        <div class="card-header bg-info text-white">
+            <h5><i class="fas fa-graduation-cap"></i> Ingin Mengukur Peningkatan Kemampuan?</h5>
+        </div>
+        <div class="card-body">
+            <p>Anda bisa mengambil <strong>Pretest-Posttest</strong> untuk mengukur efektivitas pembelajaran!</p>
+            
+            <div class="alert alert-info">
+                <strong>Cara Kerja Pretest-Posttest:</strong>
+                <ol class="mb-0 mt-2">
+                    <li>Jadikan tryout ini sebagai <strong>PRETEST</strong></li>
+                    <li>Pelajari semua materi yang direkomendasikan</li>
+                    <li>Kerjakan <strong>POSTTEST</strong> dengan soal berbeda</li>
+                    <li>Lihat <strong>peningkatan skor</strong> Anda (Gain Score & N-Gain)</li>
+                </ol>
+            </div>
+            
+            <form action="{{ route('tryout.set-as-pretest', $skbSetSoal->id) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-info btn-lg">
+                    <i class="fas fa-check-circle"></i> Jadikan Sebagai PRETEST
+                </button>
+            </form>
+        </div>
+    </div>
+    @endif
+    
+    @if($hasilTryout->test_type === 'pretest')
+    <div class="card mt-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h5><i class="fas fa-check-double"></i> Pretest Berhasil!</h5>
+        </div>
+        <div class="card-body">
+            <p>Anda telah menyelesaikan <strong>PRETEST</strong> dengan skor: <strong>{{ $hasilTryout->twk_score + $hasilTryout->tiu_score + $hasilTryout->tkp_score }}</strong></p>
+            
+            <div class="alert alert-warning">
+                <strong>📚 Langkah Selanjutnya:</strong>
+                <ol class="mb-0 mt-2">
+                    <li>Pelajari <strong>semua materi yang direkomendasikan</strong> di bawah</li>
+                    <li>Luangkan waktu minimal <strong>3-7 hari</strong> untuk belajar</li>
+                    <li>Klik tombol di bawah untuk ambil <strong>POSTTEST</strong></li>
+                </ol>
+            </div>
+            
+            <a href="{{ route('tryout.posttest', $skbSetSoal->id) }}" class="btn btn-success btn-lg">
+                <i class="fas fa-play-circle"></i> Ambil POSTTEST Sekarang
+            </a>
+            
+            <p class="text-muted mt-2 mb-0">
+                <small>
+                    <i class="fas fa-info-circle"></i> Posttest akan menggunakan soal berbeda dengan tingkat kesulitan yang setara
+                </small>
+            </p>
+        </div>
+    </div>
+    @endif
+@endif
+
+@if($hasilTryout->test_type === 'posttest' && $hasilTryout->pretest_id)
+    {{-- Tampilkan hasil perbandingan pretest vs posttest --}}
+    @php
+        $pretest = \App\Models\HasilTryout::find($hasilTryout->pretest_id);
+        $pretestScore = $pretest->twk_score + $pretest->tiu_score + $pretest->tkp_score;
+        $posttestScore = $hasilTryout->twk_score + $hasilTryout->tiu_score + $hasilTryout->tkp_score;
+        $gainScore = $hasilTryout->gain_score;
+        $nGain = $hasilTryout->normalized_gain;
+        $nGainPct = $nGain * 100;
+        
+        if ($nGain < 0.3) {
+            $category = 'Rendah';
+            $categoryColor = 'danger';
+        } elseif ($nGain <= 0.7) {
+            $category = 'Sedang';
+            $categoryColor = 'warning';
+        } else {
+            $category = 'Tinggi';
+            $categoryColor = 'success';
+        }
+    @endphp
+    
+    <div class="card mt-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5><i class="fas fa-chart-line"></i> Hasil Pretest vs Posttest</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center mb-4">
+                <div class="col-md-4">
+                    <div class="card border-secondary">
+                        <div class="card-body">
+                            <h6 class="text-muted">Skor Pretest</h6>
+                            <h2 class="text-secondary">{{ $pretestScore }}</h2>
+                            <small class="text-muted">{{ \Carbon\Carbon::parse($pretest->created_at)->format('d M Y') }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h6 class="text-muted">Skor Posttest</h6>
+                            <h2 class="text-success">{{ $posttestScore }}</h2>
+                            <small class="text-muted">Hari ini</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card border-{{ $gainScore >= 0 ? 'success' : 'danger' }}">
+                        <div class="card-body">
+                            <h6 class="text-muted">Peningkatan</h6>
+                            <h2 class="text-{{ $gainScore >= 0 ? 'success' : 'danger' }}">
+                                {{ $gainScore > 0 ? '+' : '' }}{{ $gainScore }}
+                            </h2>
+                            <small class="text-muted">poin</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="mb-3"><strong>📊 Normalized Gain (N-Gain)</strong></h6>
+                    
+                    <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress-bar bg-{{ $categoryColor }}" 
+                             role="progressbar" 
+                             style="width: {{ min($nGainPct, 100) }}%"
+                             aria-valuenow="{{ $nGainPct }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            <strong>{{ number_format($nGainPct, 2) }}%</strong>
+                        </div>
+                    </div>
+                    
+                    <p class="mb-2">
+                        <strong>Kategori:</strong> 
+                        <span class="badge badge-{{ $categoryColor }} badge-lg">{{ $category }}</span>
+                    </p>
+                    
+                    <p class="mb-2 text-muted">
+                        <small>
+                            <i class="fas fa-info-circle"></i> 
+                            N-Gain mengukur peningkatan relatif terhadap potensi maksimal Anda
+                        </small>
+                    </p>
+                    
+                    <div class="alert alert-{{ $categoryColor }} mb-0 mt-3">
+                        @if($category === 'Tinggi')
+                            <h6><i class="fas fa-trophy"></i> <strong>Selamat!</strong></h6>
+                            <p class="mb-0">Peningkatan Anda sangat signifikan! Sistem rekomendasi sangat efektif membantu pembelajaran Anda.</p>
+                        @elseif($category === 'Sedang')
+                            <h6><i class="fas fa-thumbs-up"></i> <strong>Bagus!</strong></h6>
+                            <p class="mb-0">Ada peningkatan yang baik. Terus pelajari materi yang direkomendasikan untuk hasil lebih optimal.</p>
+                        @else
+                            <h6><i class="fas fa-book-reader"></i> <strong>Tetap Semangat!</strong></h6>
+                            <p class="mb-0">Pelajari materi lebih dalam dan coba latihan soal lebih banyak. Konsistensi adalah kunci!</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-3 text-center">
+                <a href="{{ route('tryout.pretest-posttest-history') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-history"></i> Lihat Riwayat Pretest-Posttest
+                </a>
+            </div>
+        </div>
+    </div>
+@endif
 @endsection
 
 @push('after-script')

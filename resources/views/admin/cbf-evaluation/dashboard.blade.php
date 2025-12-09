@@ -167,6 +167,37 @@
             @endif
         </div>
     </div>
+
+    <div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-file-export"></i> Export Data untuk Analisis Python
+        </h6>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">Export data evaluasi CBF untuk analisis menggunakan Python.</p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <a href="{{ route('admin.export.precision-per-user') }}" class="btn btn-success btn-block mb-2">
+                    <i class="fas fa-chart-line"></i> Export Precision per User
+                </a>
+                <small class="text-muted d-block">
+                    Perhitungan precision untuk setiap user (untuk tabel skripsi)
+                </small>
+            </div>
+            
+            <div class="col-md-6">
+                <a href="{{ route('admin.export.cbf-evaluations') }}" class="btn btn-info btn-block mb-2">
+                    <i class="fas fa-file-csv"></i> Export Evaluasi Lengkap
+                </a>
+                <small class="text-muted d-block">
+                    Data evaluasi dengan detail user, materi, dan feedback
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 
 <!-- Modal Selengkapnya Evaluasi -->

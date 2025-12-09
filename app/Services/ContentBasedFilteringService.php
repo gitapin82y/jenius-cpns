@@ -8,6 +8,7 @@ use App\Models\JawabanUser;
 use App\Models\SetSoal;
 use App\Models\RecommendationLog;
 use App\Models\CBFEvaluation;
+use App\Models\Recommendation;
 
 use Illuminate\Support\Collection;
 
@@ -83,6 +84,60 @@ class ContentBasedFilteringService
         
         return $soalKeywords;
     }
+
+    /**
+ * ✅ BARU: Extract kata kunci dari 1 soal saja (tidak digabung)
+ */
+private function extractSingleSoalKeywords(Soal $soal): array
+{
+    if ($soal->kata_kunci) {
+        return json_decode($soal->kata_kunci, true);
+    }
+    
+    // Generate jika belum ada
+    $keywords = $this->keywordExtractionService->extractKeywords(
+        $soal->pertanyaan, 
+        $soal->tipe
+    );
+    
+    // Simpan untuk cache
+    $soal->update(['kata_kunci' => json_encode($keywords)]);
+    
+    return $keywords;
+}
+
+/**
+ * ✅ BARU: Kumpulkan SEMUA kata kunci unik (untuk basis vektor)
+ */
+private function collectAllUniqueKeywords(Collection $wrongAnswers, Collection $materials): array
+{
+    $allKeywords = [];
+    
+    // Dari soal yang salah
+    foreach ($wrongAnswers as $jawabanUser) {
+        $soal = $jawabanUser->soal;
+        $keywords = $this->extractSingleSoalKeywords($soal);
+        $allKeywords = array_merge($allKeywords, $keywords);
+    }
+    
+    // Dari materi
+    foreach ($materials as $material) {
+        $keywords = $material->kata_kunci 
+            ? json_decode($material->kata_kunci, true) 
+            : [];
+        $allKeywords = array_merge($allKeywords, $keywords);
+    }
+    
+    // Hapus duplikat dan normalisasi
+    $unique = array_unique(array_map('strtolower', array_map('trim', $allKeywords)));
+    
+    // Filter kata terlalu pendek
+    $unique = array_filter($unique, function($keyword) {
+        return strlen(trim($keyword)) > 2;
+    });
+    
+    return array_values($unique);
+}
 
     /**
      * STEP 2: Mengambil Kata Kunci dari Materi Pembelajaran (FILTER BY KATEGORI)
@@ -215,116 +270,136 @@ class ContentBasedFilteringService
         ];
     }
 
-    /**
-     * STEP 6: Method utama dengan penyesuaian untuk latihan vs tryout resmi
-     */
-    public function generateMaterialRecommendations(int $userId, int $setSoalId): array
-    {
-        // Deteksi jenis tryout dan kategori focus
-        $tryoutInfo = $this->detectTryoutTypeAndCategories($setSoalId);
-        
-        // STEP 1: Kumpulkan jawaban yang salah
-        $wrongAnswers = $this->collectWrongAnswers($userId, $setSoalId);
-        
-        if ($wrongAnswers->isEmpty()) {
-            $this->logRecommendations($userId, $setSoalId, []);
-            return [
-                'recommendations' => [],
-                'tryout_info' => $tryoutInfo
-            ];
-        }
+/**
+ * ✅ REVISI: Generate recommendations dengan ONE-TO-ONE mapping
+ */
+public function generateMaterialRecommendations(int $userId, int $setSoalId): array
+{
+    // Deteksi jenis tryout
+    $tryoutInfo = $this->detectTryoutTypeAndCategories($setSoalId);
+    
+    // STEP 1: Kumpulkan jawaban yang salah
+    $wrongAnswers = $this->collectWrongAnswers($userId, $setSoalId);
+    
+    if ($wrongAnswers->isEmpty()) {
+        $this->logRecommendations($userId, $setSoalId, []);
+        return [
+            'recommendations' => [],
+            'tryout_info' => $tryoutInfo,
+            'total_recommendations' => 0,
+            'total_wrong_answers' => 0
+        ];
+    }
 
-        // STEP 2a: Extract kata kunci dari soal yang dijawab salah
-        $soalKeywords = $this->extractWrongAnswerKeywords($wrongAnswers);
-        
-        // STEP 2b: Extract kata kunci dari materi (FILTER BERDASARKAN JENIS TRYOUT)
-        $allowedCategories = null;
-        
-        // Jika ini latihan, fokus hanya pada kategori yang relevan
-        if (!$tryoutInfo['is_tryout_resmi']) {
-            $allowedCategories = $tryoutInfo['kategori_focus'];
+    // STEP 2: Ambil semua materi
+    $allowedCategories = null;
+    if (!$tryoutInfo['is_tryout_resmi']) {
+        $allowedCategories = $tryoutInfo['kategori_focus'];
+    }
+    
+    $materialsQuery = Material::where('status', 'Publish');
+    if ($allowedCategories && !empty($allowedCategories)) {
+        $materialsQuery->whereIn('kategori', $allowedCategories);
+    }
+    $allMaterials = $materialsQuery->get();
+    
+    // STEP 3: Kumpulkan SEMUA kata kunci unik (basis vektor)
+    $allUniqueKeywords = $this->collectAllUniqueKeywords($wrongAnswers, $allMaterials);
+    
+    // ✅ PERUBAHAN UTAMA: Loop SETIAP soal salah
+    $recommendationsPerSoal = [];
+    $recommendationsByCategory = [];
+    
+    // Inisialisasi array berdasarkan kategori
+    if ($tryoutInfo['is_tryout_resmi']) {
+        $recommendationsByCategory = ['TWK' => [], 'TIU' => [], 'TKP' => []];
+    } else {
+        foreach ($tryoutInfo['kategori_focus'] as $kategori) {
+            $recommendationsByCategory[$kategori] = [];
         }
-        // Jika tryout resmi, ambil semua kategori (null = semua)
+    }
+    
+    // ✅ LOOP UNTUK SETIAP SOAL SALAH
+    foreach ($wrongAnswers as $jawabanUser) {
+        $soal = $jawabanUser->soal;
         
-        $allMaterialKeywords = $this->extractMaterialKeywordsByCategory($allowedCategories);
+        // ✅ Ekstrak kata kunci SOAL INI SAJA
+        $soalKeywords = $this->extractSingleSoalKeywords($soal);
         
-        // STEP 3: Gabungkan dan hapus duplikat kata kunci
-        $uniqueKeywords = $this->combineAndRemoveDuplicateKeywords($soalKeywords, $allMaterialKeywords);
+        // ✅ Buat vektor untuk SOAL INI
+        $soalVector = $this->convertToBobtVector($soalKeywords, $allUniqueKeywords);
         
-        // STEP 4: Konversi kata kunci soal ke vektor biner
-        $soalVector = $this->convertToBobtVector($soalKeywords, $uniqueKeywords);
+        // ✅ Cari materi terbaik untuk SOAL INI
+        $bestMaterial = null;
+        $bestScore = -1;
         
-        // STEP 5 & 6: Loop setiap materi, hitung similarity, dan urutkan
-        $similarities = [];
-        
-        // Query materi dengan filter kategori yang sama
-        $materialsQuery = Material::where('status', 'Publish');
-        if ($allowedCategories && !empty($allowedCategories)) {
-            $materialsQuery->whereIn('kategori', $allowedCategories);
-        }
-        $materials = $materialsQuery->get();
-        
-        foreach ($materials as $material) {
-            // Ambil kata kunci materi
+        foreach ($allMaterials as $material) {
+            // Filter: hanya materi dengan kategori yang sama
+            if ($material->kategori !== $soal->kategori) {
+                continue;
+            }
+            
+            // Ekstrak kata kunci materi
             $materialKeywords = $material->kata_kunci 
                 ? json_decode($material->kata_kunci, true) 
                 : [];
             
-            // Konversi kata kunci materi ke vektor biner
-            $materialVector = $this->convertToBobtVector($materialKeywords, $uniqueKeywords);
+            // Buat vektor materi
+            $materialVector = $this->convertToBobtVector($materialKeywords, $allUniqueKeywords);
             
-            // Hitung cosine similarity
+            // Hitung similarity
             $similarity = $this->calculateCosineSimilarity($soalVector, $materialVector);
             
-            // Simpan hasil jika ada similarity
-            if ($similarity > 0) {
-                $similarities[] = [
-                    'material' => $material,
-                    'similarity' => $similarity,
-                    'keywords' => $materialKeywords,
-                    'vector' => $materialVector // Untuk debugging
-                ];
+            // Simpan jika ini similarity tertinggi
+            if ($similarity > $bestScore) {
+                $bestScore = $similarity;
+                $bestMaterial = $material;
             }
         }
         
-        // Urutkan berdasarkan similarity tertinggi
-        usort($similarities, function($a, $b) {
-            return $b['similarity'] <=> $a['similarity'];
-        });
-        
-        // Group berdasarkan kategori dan ambil top 5 per kategori
-        $recommendations = [];
-        
-        // Inisialisasi berdasarkan jenis tryout
-        if ($tryoutInfo['is_tryout_resmi']) {
-            // Tryout resmi: tampilkan semua kategori
-            $recommendations = [
-                'TWK' => [],
-                'TIU' => [],
-                'TKP' => []
+        // ✅ Simpan rekomendasi untuk SOAL INI
+        if ($bestMaterial && $bestScore > 0) {
+            $recommendationData = [
+                'soal' => $soal,
+                'soal_id' => $soal->id,
+                'soal_pertanyaan' => $soal->pertanyaan,
+                'soal_kategori' => $soal->kategori,
+                'material' => $bestMaterial,
+                'material_id' => $bestMaterial->id,
+                'material_title' => $bestMaterial->title,
+                'similarity' => $bestScore,
+                'keywords' => $soalKeywords
             ];
-        } else {
-            // Latihan: hanya kategori yang relevan
-            foreach ($tryoutInfo['kategori_focus'] as $kategori) {
-                $recommendations[$kategori] = [];
-            }
+            
+            $recommendationsPerSoal[] = $recommendationData;
+            $recommendationsByCategory[$soal->kategori][] = $recommendationData;
+            
+            // ✅ Simpan ke database
+            Recommendation::updateOrCreate(
+                [
+                    'user_id' => $userId,
+                    'set_soal_id' => $setSoalId,
+                    'soal_id' => $soal->id
+                ],
+                [
+                    'material_id' => $bestMaterial->id,
+                    'similarity_score' => $bestScore
+                ]
+            );
         }
-        
-        foreach ($similarities as $item) {
-            $kategori = $item['material']->kategori;
-            if (isset($recommendations[$kategori]) && count($recommendations[$kategori]) < 5) {
-                $recommendations[$kategori][] = $item;
-            }
-        }
-      
-
-      $this->logRecommendations($userId, $setSoalId, $recommendations);
-
-      return [
-            'recommendations' => $recommendations,
-            'tryout_info' => $tryoutInfo
-        ];
     }
+    
+    // Log untuk backward compatibility
+    $this->logRecommendations($userId, $setSoalId, $recommendationsByCategory);
+
+    return [
+        'recommendations' => $recommendationsByCategory,
+        'recommendations_per_soal' => $recommendationsPerSoal,
+        'tryout_info' => $tryoutInfo,
+        'total_recommendations' => count($recommendationsPerSoal),
+        'total_wrong_answers' => $wrongAnswers->count()
+    ];
+}
 
 private function logRecommendations($userId, $setSoalId, array $recommendations)
 {
