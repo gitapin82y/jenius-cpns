@@ -24,6 +24,8 @@
         <div class="topbar-divider d-none d-sm-block mx-0"></div>        
          <a href="{{ route('admin.cbf-evaluation.dashboard') }}" class="nav-item nav-link {{ Request::is('admin/cbf-evaluation') ? 'active' : '' }}">CBF Evaluation</a>
         <div class="topbar-divider d-none d-sm-block mx-0"></div>  
+           <a href="{{ route('admin.automatic-cbf-evaluation.dashboard') }}" class="nav-item nav-link {{ Request::is('admin/automatic-cbf-evaluation') ? 'active' : '' }}">CBF Evaluation</a>
+        <div class="topbar-divider d-none d-sm-block mx-0"></div>  
     </div>
 
 

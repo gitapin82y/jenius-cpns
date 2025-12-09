@@ -8,6 +8,7 @@ use App\Services\ContentBasedFilteringService;
 use App\Services\YouTubeService;
 use App\Services\CBFEvaluationService;
 use App\Services\PretestPosttestService;
+use App\Services\AutomaticCBFEvaluationService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,9 +22,13 @@ class AppServiceProvider extends ServiceProvider
             return new KeywordExtractionService();
         });
         
-           $this->app->singleton(PretestPosttestService::class, function ($app) {
-        return new PretestPosttestService();
-    });
+        $this->app->singleton(PretestPosttestService::class, function ($app) {
+            return new PretestPosttestService();
+        });
+
+        $this->app->singleton(AutomaticCBFEvaluationService::class, function ($app) {
+            return new AutomaticCBFEvaluationService();
+        });
 
           $this->app->singleton(CBFEvaluationService::class, function ($app) {
             return new CBFEvaluationService();

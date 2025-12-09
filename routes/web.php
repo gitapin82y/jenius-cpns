@@ -17,6 +17,8 @@ use App\Http\Controllers\KeywordUpdateController;
 use App\Http\Controllers\CBFEvaluationController;
 use App\Http\Controllers\UserCBFEvaluationController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\AutomaticCBFEvaluationController;
+
 
 Route::get('/', [UserController::class, 'public']);
 Route::get('/kontak', [UserController::class, 'kontak']);
@@ -159,4 +161,21 @@ Route::middleware(['auth','active'])->group(function () {
     
     Route::get('/pretest-posttest/history', [TryoutController::class, 'pretestPosttestHistory'])
         ->name('tryout.pretest-posttest-history');
+
+        // Tambahkan di dalam Route::middleware(['auth','active'])->group
+Route::get('/admin/export/automatic-cbf-evaluations', [ExportController::class, 'exportAutomaticCBFEvaluations'])
+    ->name('admin.export.automatic-cbf-evaluations');
+
+Route::get('/admin/export/automatic-precision-per-user', [ExportController::class, 'exportAutomaticPrecisionPerUser'])
+    ->name('admin.export.automatic-precision-per-user');
+
+    Route::get('/admin/automatic-cbf-evaluation', [AutomaticCBFEvaluationController::class, 'dashboard'])
+    ->name('admin.automatic-cbf-evaluation.dashboard');
+
+Route::get('/admin/automatic-cbf-evaluation/user-data', [AutomaticCBFEvaluationController::class, 'getUserPrecisionData'])
+    ->name('admin.automatic-cbf-evaluation.user-data');
+
+Route::get('/admin/automatic-cbf-evaluation/user/{userId}/detail', [AutomaticCBFEvaluationController::class, 'getUserDetail'])
+    ->name('admin.automatic-cbf-evaluation.user-detail');
+
 });

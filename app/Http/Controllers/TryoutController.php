@@ -15,21 +15,25 @@ use App\Services\ContentBasedFilteringService;
 use App\Services\YouTubeService;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Services\PretestPosttestService;
+use App\Services\AutomaticCBFEvaluationService;
 
 class TryoutController extends Controller
 {
     private $cbfService;
     private $youtubeService;
     private $pretestPosttestService;
+    private $automaticEvalService;
 
 public function __construct(
     ContentBasedFilteringService $cbfService,
     YouTubeService $youtubeService,
-    PretestPosttestService $pretestPosttestService
+    PretestPosttestService $pretestPosttestService,
+    AutomaticCBFEvaluationService $automaticEvalService
 ) {
     $this->cbfService = $cbfService;
     $this->youtubeService = $youtubeService;
     $this->pretestPosttestService = $pretestPosttestService;
+    $this->automaticEvalService = $automaticEvalService;
 }
 
     public function index($set_soal_id)
@@ -367,6 +371,19 @@ public function __construct(
         // Generate rekomendasi materi menggunakan Content Based Filtering
         $recommendations = $this->cbfService->generateMaterialRecommendations($userId, $set_soal);
         
+           if ($recommendations['total_recommendations'] > 0) {
+            $evalResult = $this->automaticEvalService->evaluateRecommendations($userId, $set_soal);
+            
+            // Log precision untuk debugging
+            \Log::info('Automatic CBF Evaluation', [
+                'user_id' => $userId,
+                'set_soal_id' => $set_soal,
+                'tp' => $evalResult['tp'],
+                'fp' => $evalResult['fp'],
+                'precision' => $evalResult['precision_pct'] . '%'
+            ]);
+        }
+
         // Generate video recommendations
         $videoRecommendations = $this->generateVideoRecommendations($recommendations['recommendations']);
             
@@ -461,42 +478,65 @@ public function checkHistory(Request $request)
     }
 }
 
-      public function pembahasan($set_soal)
-    {
-        try {
-            $userId = Auth::user()->id;
-            $hasilTryout = HasilTryout::where('user_id', $userId)->where('set_soal_id', $set_soal)->first();
-            
-            if(!$hasilTryout){
-                toast()->error('Anda belum mengerjakan tryout!');
-                return redirect()->back();
-            }
-            
-            $soals = Soal::where('set_soal_id', $set_soal)->get();
-            $skbSetSoal = SetSoal::findOrFail($set_soal);
-            $jawabanUsers = JawabanUser::where('user_id', $userId)->where('set_soal_id', $set_soal)->with('soal')->get();
-            
-            
-            return view('login.tryout.pembahasan', compact(
-                'soals', 
-                'skbSetSoal', 
-                'jawabanUsers',
-            ));
-            
-        } catch (\Exception $e) {
-            // Log error
-            SystemErrorController::logError(
-                Auth::id(), 
-                $e->getCode() ?: '500', 
-                'Server Error', 
-                $e->getMessage()
-            );
-            
-            // Notify user
-            toast()->error('Terjadi kesalahan saat menampilkan hasil.');
+public function pembahasan($set_soal)
+{
+    try {
+        $userId = Auth::user()->id;
+        $hasilTryout = HasilTryout::where('user_id', $userId)
+            ->where('set_soal_id', $set_soal)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        
+        if(!$hasilTryout){
+            toast()->error('Anda belum mengerjakan tryout!');
             return redirect()->back();
         }
+        
+        $skbSetSoal = SetSoal::findOrFail($set_soal);
+        $soals = $skbSetSoal->soal;
+        
+        // Ambil jawaban user
+        $jawabanUsers = JawabanUser::where('user_id', $userId)
+            ->where('set_soal_id', $set_soal)
+            ->with('soal')
+            ->get()
+            ->keyBy('soal_id'); // Index by soal_id untuk lookup cepat
+        
+        // ✅ BARU: Ambil rekomendasi dengan evaluasi otomatis per soal
+        $recommendations = \App\Models\Recommendation::where('user_id', $userId)
+            ->where('set_soal_id', $set_soal)
+            ->with(['material', 'soal'])
+            ->get()
+            ->keyBy('soal_id'); // Index by soal_id
+        
+        // ✅ BARU: Ambil evaluasi otomatis per soal
+        $evaluations = \App\Models\AutomaticCBFEvaluation::where('user_id', $userId)
+            ->where('set_soal_id', $set_soal)
+            ->with(['material', 'soal'])
+            ->get()
+            ->keyBy('soal_id'); // Index by soal_id
+        
+        return view('login.tryout.pembahasan', compact(
+            'soals', 
+            'skbSetSoal', 
+            'hasilTryout', 
+            'jawabanUsers',
+            'recommendations',  // ✅ BARU
+            'evaluations'       // ✅ BARU
+        ));
+        
+    } catch (\Exception $e) {
+        SystemErrorController::logError(
+            Auth::id(), 
+            $e->getCode() ?: '500', 
+            'Server Error', 
+            $e->getMessage()
+        );
+        
+        toast()->error('Terjadi kesalahan saat menampilkan pembahasan.');
+        return redirect()->back();
     }
+}
 
    private function generateVideoRecommendations(array $materialRecommendations): array
 {
