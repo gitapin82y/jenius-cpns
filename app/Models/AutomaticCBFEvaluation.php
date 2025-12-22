@@ -24,7 +24,10 @@ class AutomaticCBFEvaluation extends Model
 
         'is_relevant',
         'is_recommended',
-        'classification'
+        'classification',
+        'user_feedback',              // ✅ BARU
+        'user_evaluated_at',          // ✅ BARU
+        'final_classification'        // ✅ BARU
     ];
 
     protected $casts = [
@@ -34,6 +37,8 @@ class AutomaticCBFEvaluation extends Model
         'is_relevant' => 'boolean',
         'is_recommended' => 'boolean',
          'meets_threshold' => 'boolean', 
+           'user_feedback' => 'boolean',  // ✅ BARU
+        'user_evaluated_at' => 'datetime', // ✅ BARU
     ];
 
     // Relationships
@@ -56,4 +61,27 @@ class AutomaticCBFEvaluation extends Model
     {
         return $this->belongsTo(Material::class);
     }
+
+      /**
+     * ✅ Accessor: Get final classification (prioritas manual)
+     */
+    public function getFinalClassificationAttribute($value)
+    {
+        // Jika ada penilaian manual, pakai itu
+        if ($this->user_feedback !== null) {
+            return $this->user_feedback ? 'TP' : 'FP';
+        }
+        
+        // Jika belum dinilai manual, pakai otomatis
+        return $this->classification;
+    }
+
+        /**
+     * ✅ Accessor: Cek apakah sudah dinilai user
+     */
+    public function getHasUserFeedbackAttribute()
+    {
+        return $this->user_feedback !== null;
+    }
+    
 }

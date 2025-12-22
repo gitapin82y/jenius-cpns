@@ -103,7 +103,7 @@
 
     <div class="row g-3">
         <!-- Kiri - Grafik -->
-        <div class="col-lg-8 p-0">
+        <div class="col-lg-12 p-0">
            <!-- Header Score Section -->
 <div class="card mb-3 p-0" style="border: none">
     <div class="card-body row bg-score mx-0 text-white">
@@ -137,7 +137,7 @@
                 <span class="badge rounded-pill mt-2 py-2 px-4 bg-secondary">Kosong: {{ $hasilTryout->total_kosong }}</span>
             </div>
         </div>
-        <a href="{{ route('tryout.pembahasan', $skbSetSoal->id) }}" class="btn bg-white text-primary mt-2">Lihat Pembahasan {{ $tryoutInfo['is_tryout_resmi'] ? 'Tryout' : 'Latihan' }}</a>
+        <a href="{{ route('tryout.pembahasan', $skbSetSoal->id) }}" class="btn bg-white text-primary mt-2">Lihat Pembahasan {{ $tryoutInfo['is_tryout_resmi'] ? 'Tryout' : 'Latihan' }} dan Rekomendasi Materi</a>
     </div>
       <div class="pt-md-0 pt-4 col-12 col-md-6 text-md-end text-start d-none d-md-block">
         <img src="{{asset('assets/img/banner-logo.png')}}" alt="Score Image">
@@ -206,152 +206,8 @@
          
         </div>
 
-        <!-- Kanan - Rekomendasi -->
-        <div class="col-lg-4">
-            <!-- Rekomendasi Materi -->
-<div class="card mb-3">
-    <div class="card-header bg-light">
-        <strong>Rekomendasi Materi Belajar</strong>
-        <small class="text-muted d-block">
-            Berdasarkan Content Based Filtering - 
-            @if(!empty($recommendations['tryout_info']))
-                {{ $recommendations['tryout_info']['is_tryout_resmi'] ? 'Tryout Resmi (Semua Kategori)' : 'Latihan (' . implode(', ', $recommendations['tryout_info']['kategori_focus']) . ')' }}
-            @endif
-        </small>
-    </div>
-    <div class="card-body">
-        @php
-            $availableCategories = !empty($recommendations['recommendations']) ? array_keys($recommendations['recommendations']) : [];
-            $hasRecommendations = collect($recommendations['recommendations'] ?? [])->flatten(1)->isNotEmpty();
-        @endphp
-        
-        @if($hasRecommendations)
-            @if(count($availableCategories) > 1)
-                <!-- Tab Navigation untuk Multiple Categories -->
-                <ul class="nav nav-pills mb-2" id="pills-tab">
-                    <li class="nav-item">
-                        <a class="nav-link active" data-bs-toggle="pill" href="#semua-materi">Semua</a>
-                    </li>
-                    @foreach($availableCategories as $kategori)
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="pill" href="#{{ strtolower($kategori) }}-materi">{{ $kategori }}</a>
-                        </li>
-                    @endforeach
-                </ul>
-                
-                <div class="tab-content" id="pills-tabContent">
-                    <!-- Semua Rekomendasi -->
-                    <div class="tab-pane fade show active scrollable" id="semua-materi">
-                        @foreach($availableCategories as $kategori)
-                            @if(!empty($recommendations['recommendations'][$kategori]))
-                                <h6 class="fw-bold text-secondary mt-3">{{ $kategori }}</h6>
-                                @foreach($recommendations['recommendations'][$kategori] as $item)
-                                    <div class="recommendation-item">
-                                        <h6 class="mb-1">
-                                            <a href="{{ route('materi-belajar.show', $item['material']->id) }}" class="text-decoration-none">
-                                                {{ $item['material']->title }}
-                                            </a>
-                                        </h6>
-                                        <small class="text-muted">{{ $item['material']->tipe }}</small>
-                                        {{-- <div class="similarity-score">
-                                            Relevansi: {{ number_format($item['similarity'] * 100, 1) }}%
-                                        </div> --}}
-                                    </div>
-                                @endforeach
-                            @endif
-                        @endforeach
-                    </div>
 
-                    <!-- Individual Category Tabs -->
-                    @foreach($availableCategories as $kategori)
-                        <div class="tab-pane fade scrollable" id="{{ strtolower($kategori) }}-materi">
-                            @if(!empty($recommendations['recommendations'][$kategori]))
-                                @foreach($recommendations['recommendations'][$kategori] as $item)
-                                    <div class="recommendation-item">
-                                        <h6 class="mb-1">
-                                            <a href="{{ route('materi-belajar.show', $item['material']->id) }}" class="text-decoration-none">
-                                                {{ $item['material']->title }}
-                                            </a>
-                                        </h6>
-                                        <small class="text-muted">{{ $item['material']->tipe }}</small>
-                                        {{-- <div class="similarity-score">
-                                            Relevansi: {{ number_format($item['similarity'] * 100, 1) }}%
-                                        </div> --}}
-                                    </div>
-                                @endforeach
-                            @else
-                                <p class="text-muted">Tidak ada rekomendasi {{ $kategori }} atau semua jawaban {{ $kategori }} Anda sudah optimal!</p>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <!-- Single Category Display (untuk latihan yang fokus 1 kategori) -->
-                @foreach($availableCategories as $kategori)
-                    @if(!empty($recommendations['recommendations'][$kategori]))
-                        <h6 class="fw-bold text-{{ $kategori == 'TWK' ? 'primary' : ($kategori == 'TIU' ? 'success' : 'info') }} mb-3">
-                            Rekomendasi Materi {{ $kategori }}
-                        </h6>
-                        <div class="scrollable">
-                            @foreach($recommendations['recommendations'][$kategori] as $item)
-                                <div class="recommendation-item">
-                                    <h6 class="mb-1">
-                                        <a href="{{ route('materi-belajar.show', $item['material']->id) }}" class="text-decoration-none">
-                                            {{ $item['material']->title }}
-                                        </a>
-                                    </h6>
-                                    <small class="text-muted">{{ $item['material']->tipe }}</small>
-                                    {{-- <div class="similarity-score">
-                                        Relevansi: {{ number_format($item['similarity'] * 100, 1) }}%
-                                    </div> --}}
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                @endforeach
-            @endif
-        @else
-            <p class="text-muted">Tidak ada rekomendasi tersedia. Semua jawaban Anda benar!</p>
-        @endif
-    </div>
-</div>
-
-<!-- Video Pembelajaran (Update untuk dynamic categories) -->
-<div class="card mb-3">
-    <div class="card-header bg-light">
-        <strong>Belajar dengan Mendengarkan (Video)</strong>
-        <small class="text-muted d-block">Video pembelajaran terkait</small>
-    </div>
-    <div class="card-body scrollable">
-        @if(!empty($videoRecommendations))
-            @foreach($availableCategories as $kategori)
-                @if(!empty($videoRecommendations[$kategori]))
-                    <h6 class="fw-bold text-{{ $kategori == 'TWK' ? 'primary' : ($kategori == 'TIU' ? 'success' : 'info') }} mt-3">{{ $kategori }}</h6>
-                    @foreach(array_slice($videoRecommendations[$kategori], 0, 2) as $video)
-                        <div class="video-item">
-                            <div class="d-flex align-items-center">
-                                <img src="{{ $video['thumbnail'] }}" alt="Thumbnail" class="video-thumbnail me-3">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">
-                                        <a href="{{ $video['url'] }}" target="_blank" class="text-decoration-none">
-                                            {{ Str::limit($video['title'], 50) }}
-                                        </a>
-                                    </h6>
-                                    <small class="text-muted">{{ $video['channel'] }}</small>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                @endif
-            @endforeach
-        @else
-            <p class="text-muted">Video pembelajaran akan muncul berdasarkan rekomendasi materi.</p>
-        @endif
-    </div>
-</div>
-
-
-        </div>
+     
     </div>
 
     <div class="row">
@@ -492,130 +348,11 @@
     </div>
 @endif --}}
 
-@if(isset($recommendations['recommendations']) && !empty(array_filter($recommendations['recommendations'])))
-<div class="card mt-4 border-info">
-    <div class="card-body">
-        <h6 class="fw-bold text-info">
-            <i class="fas fa-robot"></i> Evaluasi Sistem Rekomendasi
-        </h6>
-        <div class="alert alert-info mb-0">
-            <p class="mb-0">
-                <i class="fas fa-check-circle"></i> 
-                Sistem telah secara otomatis mengevaluasi relevansi rekomendasi berdasarkan kesamaan kata kunci antara soal dan materi.
-            </p>
-            <small class="text-muted">
-                Hasil evaluasi digunakan untuk mengukur akurasi sistem rekomendasi dalam penelitian ini.
-            </small>
-        </div>
-    </div>
-</div>
-@endif
 
 
 
     </div>
 
-
-
-</div>
-@if(isset($gainData) && $gainData)
-<div class="card mt-4">
-    <div class="card-header bg-primary text-white">
-        <h5><i class="fas fa-chart-line"></i> Perbandingan Pretest vs Posttest</h5>
-    </div>
-    <div class="card-body">
-        <div class="row text-center mb-4">
-            <div class="col-md-4">
-                <div class="card border-primary">
-                    <div class="card-body">
-                        <h6 class="text-muted">Pretest</h6>
-                        <h2 class="text-primary">{{ $gainData['pretest_score'] }}</h2>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card border-success">
-                    <div class="card-body">
-                        <h6 class="text-muted">Posttest</h6>
-                        <h2 class="text-success">{{ $gainData['posttest_score'] }}</h2>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card {{ $gainData['is_improved'] ? 'border-success' : 'border-danger' }}">
-                    <div class="card-body">
-                        <h6 class="text-muted">Peningkatan</h6>
-                        <h2 class="{{ $gainData['is_improved'] ? 'text-success' : 'text-danger' }}">
-                            {{ $gainData['gain_score'] > 0 ? '+' : '' }}{{ $gainData['gain_score'] }}
-                        </h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card bg-light">
-            <div class="card-body">
-                <h6 class="mb-3"><strong>Normalized Gain (N-Gain)</strong></h6>
-                
-                <div class="progress mb-3" style="height: 30px;">
-                    <div class="progress-bar 
-                        @if($gainData['category'] === 'Tinggi') bg-success
-                        @elseif($gainData['category'] === 'Sedang') bg-warning
-                        @else bg-danger
-                        @endif"
-                        style="width: {{ $gainData['normalized_gain_pct'] }}%">
-                        <strong>{{ number_format($gainData['normalized_gain_pct'], 2) }}%</strong>
-                    </div>
-                </div>
-                
-                <p class="mb-2">
-                    <strong>Kategori:</strong> 
-                    <span class="badge 
-                        @if($gainData['category'] === 'Tinggi') badge-success
-                        @elseif($gainData['category'] === 'Sedang') badge-warning
-                        @else badge-danger
-                        @endif">
-                        {{ $gainData['category'] }}
-                    </span>
-                </p>
-                
-                <div class="alert 
-                    @if($gainData['category'] === 'Tinggi') alert-success
-                    @elseif($gainData['category'] === 'Sedang') alert-warning
-                    @else alert-info
-                    @endif mb-0">
-                    @if($gainData['category'] === 'Tinggi')
-                        🎉 <strong>Selamat!</strong> Peningkatan sangat signifikan!
-                    @elseif($gainData['category'] === 'Sedang')
-                        👍 <strong>Bagus!</strong> Ada peningkatan yang baik.
-                    @else
-                        📚 <strong>Tetap semangat!</strong> Pelajari materi lebih dalam.
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-
-@if(config('app.debug'))
-<div class="alert alert-info mt-3">
-    <h6><i class="fas fa-info-circle"></i> Debug Info</h6>
-    <ul class="mb-0">
-        <li>Soal yang dijawab salah: <strong>{{ $hasilTryout->total_salah }}</strong></li>
-        <li>Rekomendasi yang dihasilkan: <strong>{{ isset($recommendationsPerSoal) ? count($recommendationsPerSoal) : 0 }}</strong></li>
-        <li>Status: 
-            @if($hasilTryout->total_salah == count($recommendationsPerSoal ?? []))
-                <span class="badge bg-success">✓ One-to-One BENAR</span>
-            @else
-                <span class="badge bg-warning">⚠ Jumlah tidak sesuai</span>
-            @endif
-        </li>
-    </ul>
-</div>
-@endif
 
 {{-- SECTION: PRETEST-POSTTEST --}}
 @if($hasilTryout->test_type === 'regular' || $hasilTryout->test_type === 'pretest')
@@ -791,6 +528,10 @@
         </div>
     </div>
 @endif
+
+</div>
+
+
 @endsection
 
 @push('after-script')

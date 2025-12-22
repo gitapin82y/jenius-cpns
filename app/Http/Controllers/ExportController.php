@@ -263,7 +263,128 @@ public function exportAutomaticPrecisionPerUser()
         ->header('Pragma', 'no-cache')
         ->header('Expires', '0');
 }
+/**
+ * ✅ Export HANYA evaluasi manual (user feedback)
+ */
+public function exportUserManualEvaluations()
+{
+    if (!Auth::user()->is_admin) {
+        abort(403, 'Unauthorized');
+    }
 
+    // Ambil HANYA yang sudah dinilai user
+    $evaluations = \App\Models\AutomaticCBFEvaluation::with([
+        'user', 
+        'setSoal', 
+        'soal', 
+        'material'
+    ])
+    ->whereNotNull('user_feedback')  // ✅ Filter: hanya yang ada feedback
+    ->whereHas('user', function($query) {
+        $query->where('is_cpns', true);
+    })
+    ->orderBy('user_evaluated_at', 'asc')
+    ->get();
+
+    if ($evaluations->isEmpty()) {
+        return response()->json([
+            'error' => 'Belum ada data evaluasi manual dari user'
+        ], 404);
+    }
+
+    // Header CSV
+    $csv = "user_id,user_name,set_soal_id,set_soal_title,soal_id,soal_kategori,soal_tipe,material_id,material_title,material_kategori,similarity_score,threshold,automatic_classification,user_feedback,final_classification,evaluated_at\n";
+
+    foreach ($evaluations as $eval) {
+        $csv .= sprintf(
+            "%d,%s,%d,%s,%d,%s,%s,%d,%s,%s,%.4f,%.4f,%s,%s,%s,%s\n",
+            $eval->user_id,
+            $this->escapeCsv($eval->user->name ?? 'Unknown'),
+            $eval->set_soal_id,
+            $this->escapeCsv($eval->setSoal->title ?? 'Unknown'),
+            $eval->soal_id,
+            $eval->soal->kategori ?? 'Unknown',
+            $this->escapeCsv($eval->soal->tipe ?? 'Unknown'),
+            $eval->material_id,
+            $this->escapeCsv($eval->material->title ?? 'Unknown'),
+            $eval->material->kategori ?? 'Unknown',
+            $eval->similarity_score,
+            $eval->threshold ?? 0.6,
+            $eval->classification,
+            $eval->user_feedback ? 'RELEVAN' : 'TIDAK RELEVAN',
+            $eval->final_classification,
+            $eval->user_evaluated_at ? $eval->user_evaluated_at->format('Y-m-d H:i:s') : ''
+        );
+    }
+
+    $filename = 'user_manual_evaluations_' . date('Y-m-d_His') . '.csv';
+
+    return response($csv)
+        ->header('Content-Type', 'text/csv; charset=utf-8')
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+}
+
+public function exportUserManualPrecision()
+{
+    if (!Auth::user()->is_admin) {
+        abort(403, 'Unauthorized');
+    }
+
+    // Hitung precision HANYA dari yang dinilai manual
+    $userPrecisions = \DB::table('automatic_cbf_evaluations')
+        ->join('users', 'automatic_cbf_evaluations.user_id', '=', 'users.id')
+        ->join('set_soals', 'automatic_cbf_evaluations.set_soal_id', '=', 'set_soals.id')
+        ->select(
+            'automatic_cbf_evaluations.user_id',
+            'users.name as user_name',
+            'users.email as user_email',
+            'automatic_cbf_evaluations.set_soal_id',
+            'set_soals.title as set_soal_title',
+            \DB::raw('COUNT(*) as total_evaluated'),
+            \DB::raw('SUM(CASE WHEN user_feedback = 1 THEN 1 ELSE 0 END) as tp'),
+            \DB::raw('SUM(CASE WHEN user_feedback = 0 THEN 1 ELSE 0 END) as fp'),
+            \DB::raw('ROUND((SUM(CASE WHEN user_feedback = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as `user_precision`') // ✅ Tambah backticks
+        )
+        ->whereNotNull('automatic_cbf_evaluations.user_feedback')
+        ->where('users.is_cpns', 1) // ✅ Ganti true jadi 1
+        ->groupBy('automatic_cbf_evaluations.user_id', 'users.name', 'users.email', 'automatic_cbf_evaluations.set_soal_id', 'set_soals.title')
+        ->orderBy('users.name')
+        ->get();
+
+    if ($userPrecisions->isEmpty()) {
+        return response()->json([
+            'error' => 'Belum ada data precision manual'
+        ], 404);
+    }
+
+    // Header CSV
+    $csv = "user_id,user_name,user_email,set_soal_id,set_soal_title,total_evaluated,tp,fp,precision\n";
+
+    foreach ($userPrecisions as $row) {
+        $csv .= sprintf(
+            "%d,%s,%s,%d,%s,%d,%d,%d,%.2f\n",
+            $row->user_id,
+            $this->escapeCsv($row->user_name),
+            $this->escapeCsv($row->user_email),
+            $row->set_soal_id,
+            $this->escapeCsv($row->set_soal_title),
+            $row->total_evaluated,
+            $row->tp,
+            $row->fp,
+            $row->user_precision // ✅ Ganti dari precision jadi user_precision
+        );
+    }
+
+    $filename = 'user_manual_precision_' . date('Y-m-d_His') . '.csv';
+
+    return response($csv)
+        ->header('Content-Type', 'text/csv; charset=utf-8')
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+}
 /**
  * Helper untuk escape CSV
  */

@@ -11,34 +11,163 @@ use DataTables;
 
 class AutomaticCBFEvaluationController extends Controller
 {
-    /**
-     * Dashboard evaluasi otomatis
-     */
-    public function dashboard()
-    {
-        if (!Auth::user()->is_admin) {
-            return redirect('/');
-        }
-
-        try {
-            $stats = $this->calculateMetrics();
-            
-            return view('admin.automatic-cbf-evaluation.dashboard', compact('stats'));
-            
-        } catch (\Exception $e) {
-            $stats = [
-                'total_evaluations' => 0,
-                'total_users' => 0,
-                'total_tp' => 0,
-                'total_fp' => 0,
-                'average_precision' => 0,
-                'has_data' => false,
-                'error_message' => $e->getMessage()
-            ];
-            
-            return view('admin.automatic-cbf-evaluation.dashboard', compact('stats'));
-        }
+public function dashboard()
+{
+    if (!Auth::user()->is_admin) {
+        return redirect('/');
     }
+
+    try {
+        // ✅ Stats Otomatis (keseluruhan)
+        $autoStats = $this->calculateAutomaticMetrics();
+        
+        // ✅ Stats Manual (keseluruhan)
+        $manualStats = $this->calculateManualMetrics();
+        
+        // ✅ Stats per User (manual evaluation)
+        $userStats = $this->calculateUserManualStats();
+        
+        return view('admin.automatic-cbf-evaluation.dashboard', compact(
+            'autoStats',
+            'manualStats', 
+            'userStats'
+        ));
+        
+    } catch (\Exception $e) {
+        $stats = [
+            'has_data' => false,
+            'error_message' => $e->getMessage()
+        ];
+        
+        return view('admin.automatic-cbf-evaluation.dashboard', compact('stats'));
+    }
+}
+
+/**
+ * ✅ FIXED: Hitung metrics otomatis (keseluruhan)
+ */
+private function calculateAutomaticMetrics()
+{
+    $evaluations = AutomaticCBFEvaluation::whereHas('user', function($query) {
+        $query->where('is_cpns', 1); // ✅ Ganti true jadi 1
+    })->get();
+
+    if ($evaluations->isEmpty()) {
+        return (object) [
+            'total_evaluations' => 0,
+            'total_users' => 0,
+            'total_tp' => 0,
+            'total_fp' => 0,
+            'average_precision' => 0,
+            'has_data' => false
+        ];
+    }
+
+    $totalTP = $evaluations->where('classification', 'TP')->count();
+    $totalFP = $evaluations->where('classification', 'FP')->count();
+    
+    $userPrecisions = AutomaticCBFEvaluation::select(
+            'user_id',
+            DB::raw('SUM(CASE WHEN classification = "TP" THEN 1 ELSE 0 END) as tp'),
+            DB::raw('COUNT(*) as total')
+        )
+        ->whereHas('user', function($query) {
+            $query->where('is_cpns', 1); // ✅ Ganti true jadi 1
+        })
+        ->groupBy('user_id')
+        ->get();
+
+    $avgPrecision = $userPrecisions->map(function($row) {
+        return $row->total > 0 ? ($row->tp / $row->total) : 0;
+    })->avg();
+
+    $totalUsers = $userPrecisions->count();
+
+    return (object) [
+        'total_evaluations' => $evaluations->count(),
+        'total_users' => $totalUsers,
+        'total_tp' => $totalTP,
+        'total_fp' => $totalFP,
+        'average_precision' => round(($avgPrecision ?? 0) * 100, 2),
+        'has_data' => true
+    ];
+}
+/**
+ * ✅ FIXED: Hitung metrics manual (keseluruhan)
+ */
+private function calculateManualMetrics()
+{
+    $manualEvaluations = AutomaticCBFEvaluation::whereNotNull('user_feedback')
+        ->whereHas('user', function($query) {
+            $query->where('is_cpns', 1); // ✅ Ganti true jadi 1
+        })
+        ->get();
+
+    if ($manualEvaluations->isEmpty()) {
+        return (object) [
+            'total_manual' => 0,
+            'total_users' => 0,
+            'manual_tp' => 0,
+            'manual_fp' => 0,
+            'manual_precision' => 0,
+            'has_data' => false
+        ];
+    }
+
+    $manualTP = $manualEvaluations->where('user_feedback', 1)->count(); // ✅ Ganti true jadi 1
+    $manualFP = $manualEvaluations->where('user_feedback', 0)->count(); // ✅ Ganti false jadi 0
+    
+    // Precision per user (manual)
+    $userManualPrecisions = AutomaticCBFEvaluation::select(
+            'user_id',
+            DB::raw('SUM(CASE WHEN user_feedback = 1 THEN 1 ELSE 0 END) as tp'),
+            DB::raw('COUNT(*) as total')
+        )
+        ->whereNotNull('user_feedback')
+        ->whereHas('user', function($query) {
+            $query->where('is_cpns', 1); // ✅ Ganti true jadi 1
+        })
+        ->groupBy('user_id')
+        ->get();
+
+    $avgManualPrecision = $userManualPrecisions->map(function($row) {
+        return $row->total > 0 ? ($row->tp / $row->total) : 0;
+    })->avg();
+
+    return (object) [
+        'total_manual' => $manualEvaluations->count(),
+        'total_users' => $userManualPrecisions->count(),
+        'manual_tp' => $manualTP,
+        'manual_fp' => $manualFP,
+        'manual_precision' => round(($avgManualPrecision ?? 0) * 100, 2),
+        'has_data' => true
+    ];
+}
+
+/**
+ * ✅ FIXED: Hitung stats per user (manual evaluation)
+ */
+private function calculateUserManualStats()
+{
+    $userStats = DB::table('automatic_cbf_evaluations')
+        ->join('users', 'automatic_cbf_evaluations.user_id', '=', 'users.id')
+        ->select(
+            'automatic_cbf_evaluations.user_id',
+            'users.name as user_name',
+            'users.email as user_email',
+            DB::raw('COUNT(*) as total_evaluated'),
+            DB::raw('SUM(CASE WHEN user_feedback = 1 THEN 1 ELSE 0 END) as tp'),
+            DB::raw('SUM(CASE WHEN user_feedback = 0 THEN 1 ELSE 0 END) as fp'),
+            DB::raw('ROUND((SUM(CASE WHEN user_feedback = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as `user_precision`') // ✅ Tambah backticks dan ganti nama
+        )
+        ->whereNotNull('automatic_cbf_evaluations.user_feedback')
+        ->where('users.is_cpns', 1)
+        ->groupBy('automatic_cbf_evaluations.user_id', 'users.name', 'users.email')
+        ->orderBy('users.name')
+        ->get();
+
+    return $userStats;
+}
 
     /**
      * Hitung metrics untuk dashboard

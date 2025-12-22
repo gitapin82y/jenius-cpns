@@ -4,7 +4,33 @@
 
 @push('after-style')
  <style>
+/* User Evaluation Section */
+.user-evaluation-section {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
 
+.btn-evaluation {
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-evaluation:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.evaluation-status {
+    text-align: center;
+}
+
+.d-flex.gap-2 {
+    gap: 10px;
+}
 .badge-category {
     background-color: #0dcaf01d;
     color: #1eafcc;
@@ -32,6 +58,14 @@
     margin-top: 20px;
     color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+.recommendation-box span,.recommendation-box strong{
+   color: white;
+}
+
+.recommendation-box h2{
+    font-size: 20px;
+ color: white;
 }
 
 .recommendation-box h6 {
@@ -228,98 +262,184 @@
                 </div>
                 @endif
 
-                <!-- ✅ BARU: Rekomendasi Materi (Hanya untuk soal yang salah) -->
-                @if($isWrong && $recommendation && $evaluation)
-                    @php
-                        $material = $recommendation->material;
-                        $materialKeywords = $material->kata_kunci ? json_decode($material->kata_kunci, true) : [];
-                        $intersectionKeywords = $evaluation->intersection_keywords ?? [];
-                        $intersectionCount = $evaluation->intersection_count ?? 0;
-                        $similarityScore = $recommendation->similarity_score ?? 0;
-                        $isRelevant = $evaluation->is_relevant ?? false;
-                        $classification = $evaluation->classification ?? 'FP';
-                    @endphp
+             <!-- ✅ REKOMENDASI MATERI (Hanya untuk soal yang salah) -->
+@if($isWrong && $recommendation && $evaluation)
+    @php
+        $material = $recommendation->material;
+        $materialKeywords = $material->kata_kunci ? json_decode($material->kata_kunci, true) : [];
+        $intersectionKeywords = $evaluation->intersection_keywords ?? [];
+        $intersectionCount = $evaluation->intersection_count ?? 0;
+        $similarityScore = $recommendation->similarity_score ?? 0;
+        $isRelevant = $evaluation->is_relevant ?? false;
+        $classification = $evaluation->classification ?? 'FP';
+        
+        // ✅ BARU: User feedback
+        $hasUserFeedback = $evaluation->user_feedback !== null;
+        $userFeedback = $evaluation->user_feedback;
+        $finalClassification = $evaluation->final_classification ?? $classification;
+    @endphp
 
-                    <div class="recommendation-box">
-                        <h6>
-                            <i class="fas fa-book-reader"></i> 
-                            REKOMENDASI MATERI UNTUK SOAL INI
-                        </h6>
-                        
-                        <!-- Judul Materi -->
-                        <div class="material-title">
-                            <i class="fas fa-file-alt"></i> {{ $material->title }}
-                        </div>
-                        
-                        <!-- Cosine Similarity -->
-                        <div class="mb-3">
-                            <strong>Cosine Similarity:</strong>
-                            <span class="similarity-badge 
-                                {{ $similarityScore >= 0.7 ? 'bg-success' : ($similarityScore >= 0.5 ? 'bg-warning text-dark' : 'bg-danger') }}">
-                                {{ number_format($similarityScore, 4) }} ({{ number_format($similarityScore * 100, 2) }}%)
-                            </span>
-                        </div>
+    <div class="recommendation-box" id="recommendation-{{ $soal->id }}">
+        <h6>
+            <i class="fas fa-book-reader"></i> 
+            REKOMENDASI MATERI UNTUK SOAL INI
+        </h6>
 
-                        <!-- Kata Kunci Materi -->
-                        @if(!empty($materialKeywords))
-                        <div class="mb-3">
-                            <p class="fw-bold mb-2">
-                                <i class="fas fa-key"></i> Kata Kunci Materi:
-                            </p>
-                            <div>
-                                @foreach($materialKeywords as $keyword)
-                                    <span class="keyword-badge keyword-material">{{ $keyword }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                        @endif
+             <!-- Kata Kunci Materi -->
+        @if(!empty($materialKeywords))
+        <div class="mb-3">
+            <p class="fw-bold mb-2">
+                <i class="fas fa-key"></i> Kata Kunci Materi:
+            </p>
+            <div>
+                @foreach($materialKeywords as $keyword)
+                    <span class="keyword-badge keyword-material">{{ $keyword }}</span>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
-                        <!-- Kata Kunci yang Cocok -->
-                        <div class="mb-3">
-                            <p class="fw-bold mb-2">
-                                <i class="fas fa-check-double"></i> 
-                                Kata Kunci yang Cocok ({{ $intersectionCount }} kata):
-                            </p>
-                            <div>
-                                @if($intersectionCount > 0)
-                                    @foreach($intersectionKeywords as $keyword)
-                                        <span class="keyword-badge keyword-match">
-                                            <i class="fas fa-star"></i> {{ $keyword }}
-                                        </span>
-                                    @endforeach
-                                @else
-                                    <span class="fst-italic" style="opacity: 0.8;">
-                                        (Tidak ada kata kunci yang cocok)
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- Status Evaluasi -->
-                        <div class="mb-3">
-                            <strong>Status Evaluasi:</strong>
-                            @if($classification === 'TP')
-                                <span class="status-badge bg-success text-white">
-                                    <i class="fas fa-check-circle"></i> RELEVAN (True Positive)
-                                </span>
-                            @else
-                                <span class="status-badge bg-danger text-white">
-                                    <i class="fas fa-times-circle"></i> TIDAK RELEVAN (False Positive)
-                                </span>
-                            @endif
-                        </div>
-
-                        <!-- Button Baca Materi -->
-                        <div class="mt-4 text-center">
-                            <a href="{{ route('materi-belajar.show', $material->id) }}" 
-                               class="btn btn-read-material"
-                               target="_blank">
-                                <i class="fas fa-external-link-alt"></i> 
-                                Baca Materi Lengkap
-                            </a>
-                        </div>
-                    </div>
+               <!-- Kata Kunci yang Cocok -->
+        <div class="mb-3">
+            <p class="fw-bold mb-2">
+                <i class="fas fa-check-double"></i> 
+                Kata Kunci yang Cocok ({{ $intersectionCount }} kata):
+            </p>
+            <div>
+                @if($intersectionCount > 0)
+                    @foreach($intersectionKeywords as $keyword)
+                        <span class="keyword-badge keyword-match">
+                            <i class="fas fa-star"></i> {{ $keyword }}
+                        </span>
+                    @endforeach
+                @else
+                    <span class="fst-italic" style="opacity: 0.8;">
+                        (Tidak ada kata kunci yang cocok)
+                    </span>
                 @endif
+            </div>
+        </div>
+        
+        <!-- Judul Materi -->
+        <div class="material-title">
+            <i class="fas fa-file-alt"></i> {{ $material->title }}
+        </div>
+        <div class="my-4">
+            {!! $material->content !!}
+        </div>
+        <!-- Cosine Similarity -->
+        <div class="mb-3">
+            <strong>Cosine Similarity:</strong>
+            <span class="similarity-badge 
+                {{ $similarityScore >= 0.7 ? 'bg-success' : ($similarityScore >= 0.6 ? 'bg-warning text-dark' : 'bg-danger') }}">
+                {{ number_format($similarityScore, 4) }} ({{ number_format($similarityScore * 100, 2) }}%)
+            </span>
+            
+            <div class="mt-2">
+                <small class="text-white-50">
+                    <i class="fas fa-info-circle"></i> 
+                    Threshold minimum: 0.60 (60%)
+                    @if($similarityScore >= 0.6)
+                        <span class="badge badge-success badge-sm ml-1">
+                            <i class="fas fa-check"></i> Memenuhi Threshold
+                        </span>
+                    @else
+                        <span class="badge badge-danger badge-sm ml-1">
+                            <i class="fas fa-times"></i> Di Bawah Threshold
+                        </span>
+                    @endif
+                </small>
+            </div>
+        </div>
+
+
+ 
+
+        <!-- Status Evaluasi Otomatis -->
+        <div class="mb-3">
+            <strong>Status Evaluasi Otomatis:</strong>
+            @if($classification === 'TP')
+                <span class="status-badge bg-success text-white">
+                    <i class="fas fa-check-circle"></i> RELEVAN (TP)
+                </span>
+            @else
+                <span class="status-badge bg-danger text-white">
+                    <i class="fas fa-times-circle"></i> TIDAK RELEVAN (FP)
+                </span>
+            @endif
+            <div class="mt-1">
+                <small class="text-white-50">
+                    Berdasarkan threshold similarity >= 0.6
+                </small>
+            </div>
+        </div>
+
+        <!-- ✅ BARU: User Manual Evaluation -->
+        <div class="mb-3 user-evaluation-section">
+            <hr style="border-color: rgba(255,255,255,0.2);">
+            
+            @if(!$hasUserFeedback)
+                <!-- Belum dinilai: Tampilkan form -->
+                <div class="evaluation-form" id="eval-form-{{ $evaluation->id }}">
+                    <p class="fw-bold mb-2">
+                        <i class="fas fa-star"></i> Penilaian Anda:
+                    </p>
+                    <p class="text-white-50 small mb-3">
+                        Apakah materi ini membantu Anda memahami soal?
+                    </p>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" 
+                                class="btn btn-success btn-evaluation flex-fill"
+                                onclick="submitEvaluation({{ $evaluation->id }}, true)">
+                            <i class="fas fa-thumbs-up"></i> Relevan
+                        </button>
+                        <button type="button" 
+                                class="btn btn-danger btn-evaluation flex-fill"
+                                onclick="submitEvaluation({{ $evaluation->id }}, false)">
+                            <i class="fas fa-thumbs-down"></i> Tidak Relevan
+                        </button>
+                    </div>
+                </div>
+            @else
+                <!-- Sudah dinilai: Tampilkan status -->
+                <div class="evaluation-status">
+                    <p class="fw-bold mb-2">
+                        <i class="fas fa-check-circle"></i> Penilaian Anda:
+                    </p>
+                    
+                    @if($userFeedback)
+                        <span class="status-badge bg-success text-white">
+                            <i class="fas fa-thumbs-up"></i> RELEVAN
+                        </span>
+                        <p class="text-white-50 small mt-2 mb-0">
+                            <i class="fas fa-info-circle"></i> 
+                            Anda menilai materi ini relevan pada {{ $evaluation->user_evaluated_at->format('d M Y H:i') }}
+                        </p>
+                    @else
+                        <span class="status-badge bg-danger text-white">
+                            <i class="fas fa-thumbs-down"></i> TIDAK RELEVAN
+                        </span>
+                        <p class="text-white-50 small mt-2 mb-0">
+                            <i class="fas fa-info-circle"></i> 
+                            Anda menilai materi ini tidak relevan pada {{ $evaluation->user_evaluated_at->format('d M Y H:i') }}
+                        </p>
+                    @endif
+                </div>
+            @endif
+        </div>
+
+        <!-- Button Baca Materi -->
+        {{-- <div class="mt-4 text-center">
+            <a href="{{ route('materi-belajar.show', $material->id) }}" 
+               class="btn btn-read-material"
+               target="_blank">
+                <i class="fas fa-external-link-alt"></i> 
+                Baca Materi Lengkap
+            </a>
+        </div> --}}
+    </div>
+@endif
 
             </div>
             @endforeach
@@ -359,6 +479,77 @@
 @endsection
 
 @push('after-script')
+<script>
+// Submit user evaluation
+function submitEvaluation(evaluationId, isRelevant) {
+    // Disable buttons
+    const buttons = document.querySelectorAll(`#eval-form-${evaluationId} .btn-evaluation`);
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+    });
+
+    // AJAX request
+    fetch('{{ route("cbf-evaluation.submit-feedback") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            evaluation_id: evaluationId,
+            is_relevant: isRelevant
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Terima Kasih!',
+                text: data.message,
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+            // Reload halaman setelah 2 detik untuk update UI
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            // Show error
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: data.message
+            });
+
+            // Re-enable buttons
+            buttons.forEach(btn => {
+                btn.disabled = false;
+            });
+            buttons[0].innerHTML = '<i class="fas fa-thumbs-up"></i> Relevan';
+            buttons[1].innerHTML = '<i class="fas fa-thumbs-down"></i> Tidak Relevan';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan. Silakan coba lagi.'
+        });
+
+        // Re-enable buttons
+        buttons.forEach(btn => {
+            btn.disabled = false;
+        });
+        buttons[0].innerHTML = '<i class="fas fa-thumbs-up"></i> Relevan';
+        buttons[1].innerHTML = '<i class="fas fa-thumbs-down"></i> Tidak Relevan';
+    });
+}
+</script>
 <script>
     let currentSoal = 0;
     const totalSoals = {{ count($soals) }};

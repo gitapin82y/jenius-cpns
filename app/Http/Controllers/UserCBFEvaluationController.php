@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\CBFEvaluationService;
+use App\Models\AutomaticCBFEvaluation;
 
 class UserCBFEvaluationController extends Controller
 {
@@ -82,6 +83,78 @@ class UserCBFEvaluationController extends Controller
                 'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+     public function submitFeedback(Request $request)
+    {
+        $request->validate([
+            'evaluation_id' => 'required|exists:automatic_cbf_evaluations,id',
+            'is_relevant' => 'required|boolean'
+        ]);
+
+        try {
+            $evaluation = AutomaticCBFEvaluation::findOrFail($request->evaluation_id);
+
+            // Validasi: user hanya bisa nilai rekomendasi miliknya sendiri
+            if ($evaluation->user_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses untuk menilai rekomendasi ini.'
+                ], 403);
+            }
+
+            // Validasi: sudah dinilai sebelumnya (sekali nilai)
+            if ($evaluation->user_feedback !== null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah memberikan penilaian untuk rekomendasi ini.'
+                ], 400);
+            }
+
+            // Update dengan penilaian user
+            $evaluation->update([
+                'user_feedback' => $request->is_relevant,
+                'user_evaluated_at' => now(),
+                'final_classification' => $request->is_relevant ? 'TP' : 'FP'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Terima kasih atas penilaian Anda!',
+                'data' => [
+                    'user_feedback' => $evaluation->user_feedback,
+                    'final_classification' => $evaluation->final_classification,
+                    'evaluated_at' => $evaluation->user_evaluated_at->format('Y-m-d H:i:s')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+      /**
+     * Get statistik penilaian user
+     */
+    public function getUserStats($userId, $setSoalId)
+    {
+        $stats = AutomaticCBFEvaluation::where('user_id', $userId)
+            ->where('set_soal_id', $setSoalId)
+            ->selectRaw('
+                COUNT(*) as total_recommendations,
+                SUM(CASE WHEN user_feedback IS NOT NULL THEN 1 ELSE 0 END) as total_evaluated,
+                SUM(CASE WHEN user_feedback = 1 THEN 1 ELSE 0 END) as user_relevant,
+                SUM(CASE WHEN user_feedback = 0 THEN 1 ELSE 0 END) as user_not_relevant
+            ')
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'data' => $stats
+        ]);
     }
     
     public function getUserEvaluationStats()

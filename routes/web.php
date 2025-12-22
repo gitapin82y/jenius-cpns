@@ -178,4 +178,17 @@ Route::get('/admin/automatic-cbf-evaluation/user-data', [AutomaticCBFEvaluationC
 Route::get('/admin/automatic-cbf-evaluation/user/{userId}/detail', [AutomaticCBFEvaluationController::class, 'getUserDetail'])
     ->name('admin.automatic-cbf-evaluation.user-detail');
 
+        Route::post('/cbf-evaluation/submit-feedback', [UserCBFEvaluationController::class, 'submitFeedback'])
+        ->name('cbf-evaluation.submit-feedback');
+    
+    // Get user stats
+    Route::get('/cbf-evaluation/user-stats/{userId}/{setSoalId}', [UserCBFEvaluationController::class, 'getUserStats'])
+        ->name('cbf-evaluation.user-stats');
+
+        Route::get('/admin/export/user-manual-evaluations', [ExportController::class, 'exportUserManualEvaluations'])
+    ->name('admin.export.user-manual-evaluations');
+
+Route::get('/admin/export/user-manual-precision', [ExportController::class, 'exportUserManualPrecision'])
+    ->name('admin.export.user-manual-precision');
+
 });

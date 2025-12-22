@@ -163,8 +163,7 @@ private function collectAllUniqueKeywords(Collection $wrongAnswers, Collection $
                 // Generate kata kunci jika belum ada
                 $keywords = $this->keywordExtractionService->extractKeywords(
                     $material->title, 
-                    $material->tipe, 
-                     $soal->kategori 
+                    $material->tipe
                 );
                 
                 // Simpan ke database untuk cache

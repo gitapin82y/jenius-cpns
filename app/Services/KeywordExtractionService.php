@@ -113,7 +113,7 @@ class KeywordExtractionService
         $keywords = $this->cleanKeywords($keywords);
         
         // ✅ UPDATE: Limit maksimal 7-8 kata (naik dari 5-6)
-        return array_slice($keywords, 0, 8);
+        return array_slice($keywords, 0, 9);
     }
 
     /**
@@ -142,7 +142,7 @@ class KeywordExtractionService
         }
         
         $result = array_merge($prioritized, $normal);
-        return array_slice($result, 0, 3);
+        return array_slice($result, 0, 5);
     }
 
     /**
